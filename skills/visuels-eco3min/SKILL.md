@@ -335,6 +335,25 @@ assert '$' not in TEXTE.replace('\\$', ''), 'dollar non échappé : %r' % TEXTE
 Le même piège existe sur les libellés d'axe construits à la volée : un
 `'$%d bn' % v` isolé passe, deux `$` dans le même libellé basculent.
 
+### 5. Le pied de source ne mord pas le watermark (ajouté le 16/09/2026)
+
+La troisième assertion tolère 12 % de recouvrement de la plus petite boîte,
+et c'est le bon seuil pour deux lignes empilées. Mais sur une ligne de sources
+longue, une morsure de fin de ligne sur le watermark reste sous 12 % de la boîte
+du watermark et passe. Vu sur R6, chart ladder FR : « …rendement total du
+marché US)Eco3min Research ». Asserter l'ordre horizontal, pas seulement le
+recouvrement.
+
+```python
+foot = [t for t in fig.texts if t.get_text().startswith('Sources')]
+wm = [t for t in fig.texts if t.get_text().startswith('Eco3min Research')]
+if foot and wm:
+    assert foot[0].get_window_extent(renderer=r).x1 < wm[0].get_window_extent(renderer=r).x0 - 8,         'the source line runs into the watermark'
+```
+
+Même famille que le garde étendu aux graduations et libellés d'axe (R2, R4) :
+chaque niveau de texte oublié par le balayage se rejoue.
+
 ### Bonus, même famille : les glyphes hors ASCII
 
 IBM Plex Mono n'a **ni U+2009 ni U+202F**. Une espace fine insécable dans un
@@ -444,4 +463,5 @@ Avant chaque publication, poser ces questions :
 - **v1.1** (mai 2026) — alignement avec `brand-kit-eco3min v1.0`. La philosophie est révisée : le minimum commun (typo, palette, codes régime, accent) est désormais fourni par le brand kit ; ce skill garde son rôle de référence sur les règles de fond (AMF, sourcing, qualité, choix de chart). Aucune règle de fond modifiée.
 - **v1.2** (juillet 2026) — alignement avec `brand-kit-eco3min v1.1` (diversité chromatique contrôlée). Ajouts : famille de charts multi-entités (palette catégorielle §2.5) + pattern spaghetti focus au tableau de choix ; règle générale de direct labeling en bout de ligne, légende détachée bannie ≤6 séries ; checklist mise à jour (3 registres de fond, mode chromatique). Aucune règle AMF, sourcing ou qualité modifiée.
 - **v1.3** (septembre 2026) — ajout du §7 bis « Rendu PNG — recette Playwright » : séquence de chargement des polices, auto-ajustement de titre, SVG inline. Extrait du projet « repair image », où cette connaissance était piégée depuis la V3. Aucune règle AMF, sourcing ou qualité modifiée.
+- **v1.5** (16 septembre 2026, étude R6) — §7 ter, cinquième assertion : la ligne de sources se termine avant le watermark (test d'ordre horizontal, le seuil de 12 % laissant passer une morsure de fin de ligne). Aucune règle modifiée.
 - **v1.4** (septembre 2026, cycle 20 Chart of the Week) — ajout du §7 ter « Rendu matplotlib — quatre assertions avant `savefig` » : repli de police, débordement de canvas, chevauchement des textes d'en-tête, échappement des `$` (mathtext), plus le garde ASCII sur le cmap. Le §7 bis ne couvrait que le chemin Playwright ; les charts matplotlib ont leurs propres échecs silencieux, et les trois premières assertions ont chacune attrapé un défaut réel sur un script écrit par quelqu'un qui connaissait le piège. Le point U+202F d'IBM Plex Mono, jusqu'ici seulement en mémoire de projet, trouve ici son foyer. Aucune règle AMF, sourcing ou qualité modifiée.

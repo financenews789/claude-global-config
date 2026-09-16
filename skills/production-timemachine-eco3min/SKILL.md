@@ -64,6 +64,8 @@ Appliquer le gate viral du skill killer-hn. La plupart des Time Machines sont be
 
 ## §1 — La donnée (discipline)
 
+Les événements datés qui jalonnent la frise sortent de `~/eco3min/eco3min-knowledge/``chronologie/events.csv` (grep sur la zone et la période) ; un événement cité mais absent y est ajouté avec `knowledge.add_event` avant la livraison, source primaire à l'appui.
+
 1. **Source primaire réelle uniquement** (FRED, ECB SDMX, BIS, World Bank, BLS, NY Fed, IMF…).
    Réf `sourcing-donnees-eco3min`. Le footer = source RÉELLE des chiffres, jamais relabellisée.
 2. **Le CSV est la source de vérité ET il est autoportant** : colonnes brutes + colonnes dérivées

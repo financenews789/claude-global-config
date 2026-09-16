@@ -7,8 +7,9 @@ description: Application du kit visuel Eco3min (blocs CSS-only .eco3-* injectes 
 
 Kit de blocs visuels **CSS-only** (classes `.eco3-*`) qui donne aux pages piliers/sous-piliers
 d'eco3min.fr une allure FT/Bloomberg sobre tout en les rendant scannables. Le CSS est injecté par
-**un seul snippet PHP** (Code Snippets) ; les blocs sont des `<!-- wp:html -->` collés dans le
-contenu Gutenberg. État courant : **snippet v1.3** (7 composants).
+**un seul snippet PHP** (Code Snippets) ; les blocs sont du HTML nu (`div.eco3-*`) collé dans un
+bloc HTML personnalisé, **sans délimiteurs `<!-- wp:html -->` ni aucun autre commentaire HTML**
+(décision du 16/09/2026, cf. RAPPEL BLOQUANT en fin de fichier). État courant : **snippet v1.3** (7 composants).
 
 ## Contraintes dures (modèle de sécurité — non négociable)
 1. **Jamais** supprimer un `href` existant ; **ajouter** est autorisé. Contrôle = *sous-ensemble* (tous les liens d'origine ⊆ sortie ; nouveaux liens OK). Vérifié programmatiquement.
@@ -21,11 +22,11 @@ contenu Gutenberg. État courant : **snippet v1.3** (7 composants).
 ## Déploiement
 - **Snippet** : Code Snippets → PHP → « Run everywhere », collé **sans** `<?php`. Activé une fois,
   réutilisé partout. Nouveau composant → on **étend** le snippet (additif), re-collage unique, puis il refige.
-- **Pages** : page entière retournée en **markup de blocs Gutenberg**, FR + EN, collée dans l'Éditeur de code.
+- **Pages** : page entière retournée en **HTML nu, sans délimiteurs de blocs `<!-- wp:… -->`**, FR + EN, collée dans un bloc HTML personnalisé.
 
 ## DOCTRINE — diagnostic avant application (cœur du skill)
 Ne jamais plaquer le kit. Par page :
-1. Exiger le markup Gutenberg **FR + EN** ; ne jamais inventer slug / hero / lien / ancre.
+1. Exiger le HTML **FR + EN** (nu, sans commentaires) ; ne jamais inventer slug / hero / lien / ancre.
 2. Choisir les blocs qui ont un **ancrage réel** dans CE contenu (varie par page) :
    - `chapter` seulement si vraie structure régimes/chronologie — sinon **refuser** (placage).
    - `dichotomy` si opposition conceptuelle récurrente (nominal/réel, physique/financier, ancien/nouveau régime).

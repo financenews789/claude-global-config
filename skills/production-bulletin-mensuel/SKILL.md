@@ -59,6 +59,8 @@ Le bloc baromètre résume **ce que le mois a changé**, pas ce qu'est un barom�
 
 ## Le cadre régime — et son piège
 
+Le mois se relit d'abord dans `~/eco3min/eco3min-knowledge/``chronologie/events.csv` (zone, période) : ce qui y est daté et qualifié en régime est ce que le bulletin peut nommer sans rediscuter le classifier.
+
 Deux ou trois lignes en tête. Jamais un pavé : le libellé du régime daté du
 1er du mois, ses descripteurs, et le lien vers le classificateur live.
 

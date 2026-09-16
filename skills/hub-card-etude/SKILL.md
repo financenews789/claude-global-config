@@ -204,6 +204,7 @@ visuellement** la première carte rendue. Ne pas livrer sans le recomptage asser
 - [ ] Featured image : `en/{slug}` (EN) · `{slug}` (FR)
 - [ ] Badge au bon format et à la **date de publication** (mardi)
 - [ ] **Compteur = vrai nombre de cartes**, aux **2 emplacements**, dans les **2 hubs** (recompté, pas +1)
+- [ ] Chaque chiffre de la carte est identique à sa ligne dans `~/eco3min/eco3min-knowledge/``faits/claims.jsonl` pour ce `page_id` (grep) — la carte ne porte jamais un chiffre absent du registre
 - [ ] Carte EN **avec** lang-note 🇫🇷 (→ slug FR, ou `/observatoire-macro/` si FR pas prête)
 - [ ] Carte FR **sans** lang-note
 - [ ] `.eco3-card__media` sur **une seule ligne**

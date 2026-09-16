@@ -256,3 +256,7 @@ la règle §3 : renvoi `/regime-aujourdhui/` (pas de méta cyclique net).
 | 2022 juin | Inflationary Pressure (G= I+) | **Neutral** | CFNAI-MA3 −0,22 : jamais G−. NFCI jamais Restrictive |
 | 2023-2024 | Inflationary Pressure (G= I+) décroissante | Neutral | PCE reste >2,75% jusqu'à mi-2025 |
 | Mai 2026 | Transition (G= I=) | Accommodating | PCE 2,36% → I_neutral. Divergence true |
+
+## 14. Chronologie partagée
+
+Les événements qui font basculer un régime (ou qui servent de repère au backtest §13) sont datés dans `~/eco3min/eco3min-knowledge/``chronologie/events.csv`, avec `regime_macro` au format `Libellé (G± I±)` et `regime_monetaire` ∈ Neutral · Accommodating · Restrictive · Acute stress — exactement le vocabulaire de ce skill. Toute évolution des libellés ici se répercute dans la base (append d'une décision dans `decisions/`), jamais l'inverse.

@@ -355,6 +355,8 @@ on consolide **vers elle**, jamais l'inverse. Vérifier les backlinks externes e
 les liens internes croisés avant tout 301. Ne pas agréger FR et EN : deux
 marchés, deux SERP, deux verdicts.
 
+Toute reco de production issue de la worklist et **non retenue** est tracée dans `~/eco3min/eco3min-knowledge/``sujets/backlog.csv` (`knowledge.add_topic(origine='gsc', statut='rejete', raison_rejet=…)`) ; celles retenues y entrent en `idee`. Sans cette trace, la même requête revient à chaque audit.
+
 ## 7. Ce que cet audit n'est pas
 
 - **Pas un outil de CTR.** Le CTR ne se lit ni sur fenêtre courte ni sur faible
