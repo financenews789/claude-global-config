@@ -67,7 +67,8 @@ Mesure de succès : upvotes massifs + conversion + débat lancé en commentaires
 Risque AMF / politique : faible si les 5 RÈGLES DE NON-PRISE DE PARTI sont respectées (cf. ÉTAPE 5-BIS).
 
 Règle de rotation entre zones
-Si trois cycles consécutifs ont tous été zone 3 → forcer une rotation vers zone 1 ou 2 le cycle suivant pour ne pas créer un profil partisan cumulatif sur le compte Reddit. Tracer dans le tracker (Google Sheet « ECO3MIN — CYCLES TRACKER », cf. INSTRUCTIONS — section TRACKING) la zone de chaque cycle, le format de chart utilisé, et (pour zone 3) le sens du claim politique.
+Si trois cycles consécutifs ont tous été zone 3 → forcer une rotation vers zone 1 ou 2 le cycle suivant pour ne pas créer un profil partisan cumulatif sur le compte Reddit. Tracer dans le tracker (`eco3min-knowledge/distribution/cotw_cycles.csv`, alerte « zone 3 trois fois de suite » de `dashboard.py cotw`) la zone de chaque cycle, le format de chart utilisé, et (pour zone 3) le sens du claim politique.
+Calibrage zone 3 à surveiller (cycle 20) : sur ce compte, la zone 3 a donné 2 300 / 10 / 270 / 144 upvotes ; le seul succès portait un ancrage personnel (emplois santé). La macro fiscale descriptive (budget, Trésor, révisions BLS) se comporte comme la zone 1 (200-2 000). Hypothèse à tester, cible du référentiel inchangée tant qu'elle n'est pas tranchée ; un zone 3 sans ancrage personnel se propose avec la cible zone 1 annoncée.
 
 DIMENSION D'ANCRAGE COGNITIF (TRANSVERSE AUX ZONES)
 
@@ -89,6 +90,8 @@ Topics à FAIBLE ancrage (viables mais à ne pas surreprésenter) :
 - Breakeven inflation, swap spreads, term premium
 - Multiples de valorisation corporate
 - Cycles M2, monetary aggregates
+
+« Dans l'actu » n'est PAS un ancrage (cycle 20, règle du 17/09/2026). L'ancrage fort est l'intuition personnelle du viewer (il a un loyer, un salaire, un plein d'essence, un burger en tête), pas la saillance médiatique du sujet. Le remboursement de droits de douane sur les livres du Trésor était en une des journaux et l'intuition de personne : classé « fort » à la sélection, reclassé « faible » à la livraison, ratio partages/upvotes 25,7 % au profil « faible » (~27 %) et non « fort » (~163 %). Test : « le viewer médian a-t-il un chiffre personnel de cette grandeur en tête ? » Si non, l'ancrage est faible, quelle que soit l'actualité.
 
 Observation empirique (cycles Capex avril 2026 et Gold mai 2026) : à zone politique égale et qualité de chart égale, les topics à fort ancrage out-performent les topics à faible ancrage sur deux dimensions : (a) upvotes (+50-80% typique), (b) ratio shares/upvotes (×3-5 typique). L'effet vient de la portée hors-DIB du sujet — les viewers partagent ce qui résonne avec leur expérience personnelle, pas ce qui les éduque sectoriellement.
 

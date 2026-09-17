@@ -4,9 +4,9 @@ Extrait VERBATIM de SKILL.md (découpage du 15/09/2026), à une mention près (l
 
 ---
 
-## 6. Format strict des patches Maillage Cluster v1.0.2+
+## 6. Format strict des patches v1.0.2+ (onglet 🔗 Maillage du mega)
 
-Le plugin Maillage Cluster (et l'onglet 4 du mega) rejette tout patch qui ne respecte pas exactement ce format :
+L'onglet 🔗 Maillage du mega (`class-eco3min-mega-tab-4-maillage.php`, héritier du plugin Maillage Cluster désactivé le 15/09/2026 — il n'y a plus qu'un seul applicateur de patches) rejette tout patch qui ne respecte pas exactement ce format :
 
 ```json
 {

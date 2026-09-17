@@ -51,33 +51,36 @@ Aucun au 15/09/2026 : Maillage Cluster, Maillage Audit et Classify Backfill ont 
 - **Onglet Maillage, section Snapshot (1.0.14)** : deux exports CSV en plus du snapshot JSON — `eco3min-snapshot-{date}.csv` (même périmètre et même requête que le JSON) et `eco3min-maillage-{date}.csv` (1 ligne par lien interne résolu, lu depuis `e3m_links` par pages de 5000 ; reflète le **dernier scan**, dont la date est écrite en 1re ligne en commentaire `#`). Ce sont les fichiers `context/snapshot.csv` et `context/maillage.csv` d'`eco3min-projets`.
 - **Route de download** : `eco3min_mega_download_export` (.json) et `eco3min_mega_download_export_csv` (.csv) contournent le `.htaccess` OVH qui bloque le téléchargement direct des `.json`.
 
-#### Eco3min Cleanup (1.1.0 dans le dépôt, 1.0.1 en live tant que non déployé — même code depuis juillet 2026)
+#### Eco3min Cleanup (1.2.0 — lot du 17/09/2026, en ligne le soir même)
+- **1.2.0** : section 2 gagne un bouton **Prévisualiser** (route jumelle `e3mc_preview_attach`, aucune écriture), un résultat **ligne par ligne** avec la raison de chaque skip (post non publié, cluster/sous-pilier/level inconnu, `parent_major` non `major_article`, déjà rempli), le backup `_e3mc_bak_pm` de `parent_major` et un bouton **« Restaurer les rattachements importés »** (marqueur `_e3mc_bak_attach` = champs écrits par l'import ; les backups des sections 1 et 3 ne sont pas touchés). L'action `e3mc_import_attach` garde `written` / `skipped` et ajoute `rows[]`.
 - **Rôle** : remise en ordre AVANT le conseil. Section 1 bruit → `level=exclu` (patterns de slug : mentions légales, contact, sitemap, newsletter, méthodologie…), restauration en un clic (`_e3mc_bak_level`). Section 2 export des articles maillables sans cluster/sous-pilier avec suggestion calculée depuis leurs liens dominants (levels « maillables » : `satellite, major_article, foundation_article, deep_study, case_study, dataset, tool, faq, beginner`), puis import. Section 3 hubs à 1 segment d'URL avec enfants → `pillar`.
 - **Contrat d'import (section 2)**, piloté par post_id, post `publish` obligatoire :
   ```json
   {"attachments":[{"post_id":123,"level":"major_article","cluster":"<slug PILIER>","sub_pilier":"<slug PAGE sous-pilier>","parent_major":27555}]}
   ```
-  `level` : **overwrite autorisé**, backup `_e3mc_bak_level` (12 valeurs : `satellite, major_article, sub_pillar, pillar, deep_study, case_study, foundation_article, dataset, tool, faq, beginner, exclu`). `cluster` / `sub_pilier` : **fill-only** (jamais d'écrasement), backups `_e3mc_bak_cluster` / `_e3mc_bak_sub`, valeurs contrôlées contre les piliers et sous-piliers connus. `parent_major` : fill-only, **sans backup**. Une entrée sans aucun des trois champs, ou avec une valeur inconnue, est `skipped`.
-- **Pas de prévisualisation** sur l'import : le bouton « Importer & ecrire les metas » écrit directement.
+  `level` : **overwrite autorisé**, backup `_e3mc_bak_level` (12 valeurs : `satellite, major_article, sub_pillar, pillar, deep_study, case_study, foundation_article, dataset, tool, faq, beginner, exclu`). `cluster` / `sub_pilier` : **fill-only** (jamais d'écrasement), backups `_e3mc_bak_cluster` / `_e3mc_bak_sub`, valeurs contrôlées contre les piliers et sous-piliers connus. `parent_major` : fill-only, backup `_e3mc_bak_pm` depuis 1.2.0 (**aucun** en 1.1.0), cible obligatoirement publiée et `major_article` depuis 1.2.0. Une entrée sans aucun des champs, ou avec une valeur inconnue, est `skipped` avec sa raison.
+- Prévisualisation : **oui depuis 1.2.0** (bouton « Previsualiser »). En 1.1.0 (live) le bouton « Importer & ecrire les metas » écrit directement et le résultat n'affiche que deux compteurs.
 - Séparé du mega (menu Outils) volontairement : outil one-shot de remise en ordre, exécuté avant le conseil.
 
-#### Subpillar Aligner (1.2.0)
+#### Subpillar Aligner (1.3.0 — lot du 17/09/2026, en ligne)
 - **Rôle** : consolider les deux clés sous-pilier. Slug `_eco3min_sub_pilier` = source de vérité, jamais supprimé ni écrasé ; ID `_eco3min_subpillar` = fil d'Ariane + admin, rempli/corrigé depuis le slug. Étape 1 FR, étape 2 miroir EN via Polylang, étape 3 verrou avant de déployer le breadcrumb ID-only (snippet `snippet/breadcrumb-subpillar-id-only.php` livré avec le plugin). Backup + rollback par session (table `eco3min_spa_backup`).
+- **1.3.0** : périmètre `post + page` pour les trois étapes (posts seuls jusqu'en 1.2.0, d'où un verrou aveugle aux 584 pages du 15/09/2026) ; état `self_reference` pour un contenu portant son propre slug (jamais écrit, à purger via Fix onglet 4).
 - Doctrine et séquence complète → `metas-eco3min` §2.
 
-#### Level Setter (1.0.0)
-- Pose `_eco3min_level` sur une liste de post_id (un par ligne ou virgules) + select parmi 12 levels — **`satellite` absent du select**. Preview, backup à la première écriture (`_e3m_lvlset_bak`), Restaurer. Ne touche ni cluster ni sous-pilier.
+#### Level Setter (1.1.0 — lot du 17/09/2026, en ligne)
+- Pose `_eco3min_level` sur une liste de post_id (un par ligne ou virgules) + select parmi 13 levels — **`satellite` ajouté en 1.1.0** (absent en 1.0.0). Preview, backup à la première écriture (`_e3m_lvlset_bak`), Restaurer. Ne touche ni cluster ni sous-pilier.
 
 #### Fix (snippet Code Snippets 153 « Promouvoir en major_article (réversible) »)
-- Menu « Eco3min Fix » : onglet 1 « Promote majeur » (`admin.php?page=e3m-fix`) : post_id ou URL, un par ligne, prévisualisation `<level actuel> → major_article`, backup `_e3m_lvl_bak`, bouton Restaurer. Onglet 2 « Import parent_major » (`admin.php?page=e3m-import-pm`) : pour les satellites, valide cible = `major_article` + même langue.
+- Menu « Eco3min Fix » : onglet 1 « Promote majeur » (`admin.php?page=e3m-fix`) : post_id ou URL, un par ligne, prévisualisation `<level actuel> → major_article`, backup `_e3m_lvl_bak`, bouton Restaurer. Onglet 2 « Import parent_major » (`admin.php?page=e3m-import-pm`) : pour les satellites, valide cible = `major_article` + même langue. Onglets ajoutés le 15/09/2026 : 3 « Sync sous-pilier » (`e3m-sync-sp`, verrou posts + pages, applique `eco3min_sp_reconcile()` du snippet 180, annulation par option `e3m_syncsp_last`) et 4 « Purger des metas » (`e3m-purge-meta`, seul outil qui efface, backup `_e3m_purge_bak`) — contrats dans `metas-eco3min` §2.4 et §3.5.
 
-#### Eco3min MCP (1.1.0)
-- Expose 14 abilities `eco3min/*` à l'adaptateur MCP : `find` (recherche par slug/titre/langue/level/cluster/sous-pilier, `missing[]` pour les non classés), `get-content` (1 à 20 contenus : contenu, metas `_eco3min_*`, RankMath `rank_math_*`, traductions, compteurs de liens), `taxonomy` (arborescence live), `links` (inbound/outbound/orphans/cross_lang depuis `e3m_links`, date du scan renvoyée), `health` (diagnostic), `set-metas` (dry-run par défaut, mode fill/overwrite, dérive l'ID depuis le slug), `set-seo`, `update-content` (patch byte-exact avec `expect_count`), `create-pair` (paire FR/EN câblée Polylang, draft), `rollback`, `mailpoet-list/get/duplicate/update` (jamais d'envoi).
+#### Eco3min MCP (1.2.3 — lot du 17/09/2026, en ligne)
+- Expose 19 abilities `eco3min/*` à l'adaptateur MCP : `find` (recherche par slug/titre/langue/level/cluster/sous-pilier, `missing[]` pour les non classés), `get-content` (1 à 20 contenus : contenu, metas `_eco3min_*`, RankMath `rank_math_*`, traductions, compteurs de liens), `taxonomy` (arborescence live), `links` (inbound/outbound/orphans/cross_lang depuis `e3m_links`, date du scan renvoyée), `health` (diagnostic : `unclassified`, `invalid_levels`, `pillar_without_cluster`, `subpillar_desync`, `dangling_refs`…), `set-metas` (dry-run par défaut, mode fill/overwrite, dérive l'ID depuis le slug, 13 levels admis : `exclu` ajouté en 1.2.3 — en 1.2.2 `health` comptait les 66 `exclu` comme invalides et `set-metas` le refusait), `set-seo`, `update-content` (patch byte-exact avec `expect_count`), `create-pair` (paire FR/EN câblée Polylang, draft), `rollback` (table `eco3min_mcp_backups`), `mailpoet-list/get/duplicate/update` (jamais d'envoi), et depuis 1.2.1 (16/09/2026) `snippet-find/get/update/create/toggle` (module `class-eco3min-mcp-snippets.php`, détail en référence 07).
 
 ### 3.2 Import de contenu
 
-#### Eco3min Import (2.2.1)
+#### Eco3min Import (2.3.0 — lot du 17/09/2026, en ligne)
 - Menu « Eco3min Import », 4 sous-pages : **Chart of the Week** (snippet + 2 pages EN/FR + metas + JSON-LD + featured image + cartes de hub), **Page bilingue** (idem sans les hubs, `post_type` page), **Import dataset** (N pages EN seules, Polylang EN sans miroir FR, publication directe), **MAJ metas** (sur pages existantes résolues par slug, sans toucher slug/titre/contenu : metas `_eco3min_*` — level, cluster, sous-pilier slug + ID dérivé, parent_major — et/ou re-push RankMath ; overwrite réversible `_e3i_bak_eco3min_*`, dry run).
+- **2.3.0** : les trois modes de création acceptent un bloc `eco3min` `{level, cluster, sub_pilier, parent_major, overwrite?}` par page (`pages.en.eco3min` / `pages.fr.eco3min` / `pages[i].eco3min`) ou au niveau du bundle (`eco3min.en` / `eco3min.fr` ; `defaults.eco3min` pour les datasets), écrit à la création via `e3i_write_eco3min_block()` (le cœur partagé avec « MAJ metas »), fill-only par défaut, mêmes backups, ID sous-pilier dérivé ; **Import dataset pose `level=dataset` d'office**. Jusqu'en 2.2.1 aucune page importée ne portait de level (332 `unclassified` le 17/09/2026). `E3I_LEVELS` compte 13 valeurs (`exclu` ajouté).
 - v2.2.1 : clés RankMath `rank_math_*` sans underscore initial, `_rank_math_*` purgés — c'était la cause des SEO « non settées ».
 - Un bundle JSON par contenu, idempotent, Preview / Apply. Format des bundles → `eco3min-import-contenu-bilingue`, `production-chart-of-the-week`.
 
@@ -95,7 +98,7 @@ Aucun au 15/09/2026 : Maillage Cluster, Maillage Audit et Classify Backfill ont 
 - Reclasse les articles EN (`post`) en miroir de la classification de leur FR (catégorie WP + metas `_eco3min_*`), traduction Polylang typée par champ, récap couleur avant application, écriture idempotente, backup + rollback, chunks anti-coupure.
 
 #### Polylang Repair (1.0.3), Polylang JSON Exporter (1.0)
-- Repair : audit des 80 pages Q&A des batches 7 / 08 / 32 / 33 (présence, statut, doublons) puis réparation du mapping Polylang **uniquement là où il est absent**. Exporter : titres + slugs des pages et articles en JSON FR / EN séparés.
+- Repair : audit des 80 pages Q&A des batches 7 / 08 / 32 / 33 (présence, statut, doublons) puis réparation du mapping Polylang **uniquement là où il est absent** ; enregistré deux fois (menu principal `eco3min-polylang-repair` et Outils `eco3min-polylang-repair-tools`, même écran). Exporter : titres + slugs des pages et articles en JSON FR / EN séparés.
 
 ### 3.3 Qualité des liens (après patches)
 

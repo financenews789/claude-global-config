@@ -2,7 +2,7 @@
 
 Extrait VERBATIM de SKILL.md (découpage du 15/09/2026). Fait foi avec SKILL.md ; SKILL.md porte la version condensée et le moment où lire ce fichier.
 
-## 18. Le système de verrous A→G
+## 18. Le système de verrous A→H
 
 Les §7 et §12 à §14 posent les règles d'écriture et l'audit extractif. Cette
 section les **nomme** et ajoute les contrôles mécaniques qui manquaient. Chaque
@@ -57,7 +57,7 @@ canonique en tête.
 
 **Une section absente de stdout → le Step 6 ÉCHOUE.**
 
-### 18.3 Les sept verrous
+### 18.3 Les huit verrous
 
 | Verrou | Ce qu'il bloque | Où il s'exécute |
 |---|---|---|
@@ -126,6 +126,72 @@ Mesuré sur l'étude R1 (08/09/2026) : **43 cadratins dans le corps et 18 dans l
 package social**, alors que l'audit extractif passait à 100 % sur 163 claims et
 que les trois autres scans étaient propres. Un audit numérique ne voit pas une
 règle de doctrine.
+
+**Verrou H — anti-répétition de série (Step 6.5h, ajouté le 17/09/2026).** Les
+verrous A→G regardent une étude seule. Sur une série (GENERIQUE R1→R22), le même
+modèle sur le même squelette converge vers les mêmes phrases, et c'est cela, pas
+le squelette, qui se lit comme un gabarit. Mesuré sur R3→R9 (17/09/2026), avec
+des audits à zéro échec partout :
+
+- la **phrase-pivot** bâtie en antithèse sur chaque étude : « a shared trend,
+  not a shared week » (R6), « the front end absorbs the shock; the long end
+  records the anchor » (R8), « bought no margin; since 2020, it is the margin »
+  (R9) ;
+- le **titre du Beat 1** sur le gabarit « What the [X] story says » deux
+  études de suite (R8 inversion, R9 tight-market), « Where the reading … » sur
+  R2 et R3, « What this does not settle » sur R12, R4 et R6, « Pick any … » sur
+  R6 et R8 ;
+- le **label de robustesse** « Robustness, disclosed: » verbatim dans la TL;DR
+  de R3 à R9, « Robustesse, divulguée : » côté FR.
+
+Le squelette des 28 blocs ne bouge pas : c'est le contrat d'audit (parité,
+verrous, claims) et le canal machine (Latest observation, Levels to watch, FAQ).
+Le verrou porte sur la phrase. Il lit les études déjà livrées dans `out/`
+(`series_corpus`), les ordonne par la date « Produit le » du README, et bloque :
+
+- **h2_dup** : un H2 de Beat identique, à la casse près, à un H2 de n'importe
+  quelle étude livrée. Les H2 des blocs fixes (`FIXED_H2`, `FIXED_H2_PATTERNS`)
+  sont exemptés : ils sont fixes par construction.
+- **h2_template** : un H2 de Beat construit sur un gabarit (`H2_TEMPLATES`) que
+  l'étude immédiatement précédente utilisait aussi.
+- **label** : le même label de robustesse que l'étude précédente, même langue.
+- **pivot_figure** : la même figure de phrase-pivot que l'étude précédente.
+
+La figure de la phrase-pivot se **déclare** dans `README_DELIVERABLE.md`, sur la
+ligne « **Phrase-pivot**, native par langue, figure : antithèse », suivie des
+deux citations. Sans déclaration le verrou classe la phrase par heuristique
+(`classify_pivot`) ; la déclaration gagne. Figures reconnues :
+
+| Figure | Ce que c'est | Exemple de forme |
+|---|---|---|
+| `antithèse` | opposition en miroir, deux membres | « X measures A, not B » ; « A absorbs; B records » |
+| `temporel` | renversement daté, avant / depuis | « Before 2020 …; since 2020 … » |
+| `chiffre` | le nombre porte la phrase, sans opposition | « Two barrels of gasoline bought 84 cents of margin » |
+| `question` | la thèse posée en question à laquelle la page répond | « Does a full refinery earn more? » |
+| `définition` | redéfinition de l'objet | « A breakeven is a price for a hedge » |
+| `autre` | tout ce qui précède ne s'applique pas | |
+
+Menu des **labels de robustesse** (TL;DR), à faire tourner ; le verrou reconnaît
+ceux-ci, ajouter une entrée dans `ROBUSTNESS_LABELS` avant d'en inventer un :
+
+- EN : « Robustness, disclosed: » · « Checked the other way: » · « Same result if … : » ·
+  « Same sign if … : » · « Alternative measure: » · « The sample without … : » ·
+  « With a later start: » · « On the other convention: »
+- FR : « Robustesse, divulguée : » · « Vérifié dans l'autre sens : » · « Même résultat si … : » ·
+  « Même signe si … : » · « Mesure alternative : » · « L'échantillon sans … : » ·
+  « Avec un départ plus tardif : » · « Sur l'autre convention : »
+
+Titres de Beat : pas de menu, c'est l'angle qui les écrit. La seule règle est
+négative, pas deux fois le même gabarit de suite, et le verrou dit lequel.
+
+Appel depuis `audit_extract.py`, après 6.5g :
+
+    from study_locks import assert_series_locks
+    assert_series_locks(os.path.dirname(os.path.abspath(__file__)))   # out/R13 → corpus = out/*
+
+Première étude d'une série : corpus vide, PASS par construction. Les études
+livrées avant le 17/09/2026 restent en l'état : le verrou n'est pas rétroactif,
+comme la règle bilingue du projet GENERIQUE.
 
 ### 18.4 Step 6.5a — audit post-production
 

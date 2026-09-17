@@ -1,6 +1,6 @@
 ---
 name: production-hero-article-eco3min
-description: Production du héro V3 d'un ARTICLE Eco3min (satellite ou article courant), bilingue FR/EN, 1200×630 sur fond crème — troisième registre de la famille héro, à côté de production-hero-pilier (territoire, 1536×864, dense) et production-hero-majeur (thèse, fond blanc, aéré). Activer pour toute conception ou réparation de héro d'article, notamment le pipeline V3 Worklist du mega-plugin. Porte la hiérarchie des idées visuelles (dessiner l'objet même de l'article en vraie donnée > comparaison chiffrée vérifiée > conceptuel sur-mesure > archétype générique interdit), le test d'échec « V2 déguisée », la densité, la cohérence de paire FR/EN (un concept rendu deux fois, seuls titre et langue des labels changent), le socle 1200×630 (cadre #DED7C7, kicker pilier sans numéro, pied Eco3min — Research), le gate 2.0 données/AMF. Charte → brand-kit-eco3min ; AMF et qualité → visuels-eco3min ; piliers → archi-eco3min ; sources → sourcing-donnees-eco3min.
+description: "Production du héro V3 d'un ARTICLE Eco3min (satellite ou article courant), bilingue FR/EN, 1200×630 sur fond crème avec cadre #DED7C7 — troisième registre de la famille héro, à côté de production-hero-pilier (territoire, 1536×864, dense) et production-hero-majeur (thèse, fond blanc, aéré). Activer pour toute conception ou réparation de héro d'article : « héro de l'article », « hero V3 », « repair image », « V3 Worklist », « regénère l'image de l'article », « eco3min-v3-{post_id}.png », « kicker », « le visuel est une V2 déguisée », « paire FR/EN du héro », « cadre crème », « 1200×630 ». Skill courte, non découpée : tout sert à chaque invocation. Pas de scripts/ propres (gardes : brand-kit-eco3min/scripts/brand_tokens.py et visuels-eco3min/scripts/mpl_guards.py ; recette Playwright dans visuels-eco3min references/03). Doctrines : rendu en code (HTML/SVG → PNG), jamais une illustration raster ni une photo ; hiérarchie stricte des idées visuelles — l'objet même de l'article dessiné en vraie donnée > comparaison chiffrée vérifiée > diagramme conceptuel sur-mesure > archétype générique interdit ; test d'échec « V2 déguisée » : si le visuel pourrait illustrer trois autres articles du domaine, recommencer ; « pas de chiffre de timing » n'est pas « pas de donnée » ; le minimalisme se gagne par une forme forte, pas par absence d'idée ; cohérence de paire figée : un concept, mêmes données, même composition, rendu une fois par langue, avec l'exception des paires juridictionnelles où les chiffres sont exacts par juridiction ; socle 1200×630, crème, filet #DED7C7 inset ~26 px, terracotta unique, kicker = nom du pilier déduit via archi-eco3min sans numérotation, titre = h1 verbatim ; chrome canonique brand-kit v2.0 §0 (sources bas-gauche, signature Eco3min Research + eco3min.fr bas-droite, zéro cadratin) ; gate 2.0 : aucun chiffre non vérifié, source légalement publiable, pas de points décoratifs, AMF ; quand la source contredit l'article, le visuel suit la source et l'article est signalé ; méthode en 7 étapes avec annonce en une ligne avant de rendre et QA (accent unique, collisions, débordement, accents sur capitales, palette). Hors périmètre : plomberie du pipeline V3 (JSON d'export/import, boucle Worklist / Apply → Eco3min repair image/CLAUDE.md) ; tokens (brand-kit-eco3min) ; AMF visuelle et rendu (visuels-eco3min) ; piliers (archi-eco3min) ; sources (sourcing-donnees-eco3min). Combiner avec brand-kit-eco3min, visuels-eco3min, archi-eco3min, sourcing-donnees-eco3min, editeur-eco3min."
 ---
 
 # Production — Héro V3 d'un article Eco3min
@@ -108,7 +108,7 @@ pas listé ici suit le brand kit sans exception.
   `production-hero-majeur`. Les tables de piliers recopiées dans les projets ont
   divergé de `archi-eco3min` et produit des numéros faux ; le dénominateur est
   supprimé pour fermer définitivement la faille.
-- **Pied** : `Eco3min — Research` à gauche, `eco3min.fr` à droite, IBM Plex Mono.
+- **Pied** (chrome canonique `brand-kit-eco3min` v2.0 §0) : sources bas-gauche en IBM Plex Mono quand le héro porte une donnée ; signature bas-droite `Eco3min Research` ligne 1, `eco3min.fr` ligne 2, IBM Plex Mono. Zéro cadratin dans les textes courants du visuel.
 - Titre = le `h1` de l'article, **verbatim**. Langue du kicker et des labels =
   le champ `lang`.
 
@@ -142,8 +142,8 @@ correction. Jamais l'inverse.
 4. **Annoncer en une ligne avant de rendre** : thèse + visuel choisi + source de
    donnée (ou « conceptuel, sans donnée » et pourquoi).
 5. Composer le visuel une fois, le rendre une fois par article. Recette de rendu
-   Playwright et séquence de chargement des polices : `visuels-eco3min` §7 bis.
-6. QA : accent terracotta unique, collisions de labels, débordement du cadre,
+   Playwright et séquence de chargement des polices : `visuels-eco3min` §7 bis (`references/03-rendu-playwright.md`) ; en matplotlib, `mpl_guards.run_guards` avant `savefig` (§7 ter).
+6. QA : accent terracotta unique, collisions de labels, débordement du cadre, palette (`brand_tokens.check_source` sur le script ou le SVG, aucun hex hors charte),
    accents sur capitales.
 7. Remonter jusqu'à trois signalements éditoriaux hiérarchisés.
 
@@ -171,3 +171,8 @@ correction. Jamais l'inverse.
 
 La plomberie du pipeline V3 — schéma du JSON d'export, JSON d'import, boucle
 V3 Worklist / Apply — vit dans `Eco3min repair image/CLAUDE.md`, pas ici.
+
+## Versions
+
+- **V3** (septembre 2026) — extraction du projet « repair image ».
+- **V3.1** (17/09/2026) — description réécrite ; pied aligné sur le chrome canonique `brand-kit-eco3min` v2.0 §0 (sources bas-gauche, signature `Eco3min Research` + `eco3min.fr` bas-droite, zéro cadratin) ; contrôle de palette ajouté à la QA ; pointeurs vers les références de `visuels-eco3min`. Aucune règle de fond modifiée. Skill volontairement non découpée (173 lignes, tout sert à chaque invocation).

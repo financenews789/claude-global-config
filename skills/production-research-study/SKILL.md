@@ -1,6 +1,6 @@
 ---
 name: production-research-study
-description: "Doctrine éditoriale et pipeline complet de production d'une étude de recherche Eco3min (research study, étude approfondie, killer study, série GENERIQUE R1…R12, codes C1…C6, études #20 #22), de l'angle au jeu de 14-18 livrables prêts pour WordPress. Déclencheurs : « produce study X », « produis l'étude », « nouvelle étude », « lance R13 », « backlink hook », « pre-review adverse », « verrous », « audit extractif », « compute_stats », « fact_check_audit », « provenance.md », « chart interactif », « package social », « snippet autonome », « structure 28 blocs », « registre des erreurs ». Structure : SKILL.md = colonne vertébrale (workflow Step 0→10 verbatim, règles bloquantes par step, checklists §16 et §21 verbatim, rappel zéro commentaire HTML) ; références dans references/ (01 hook et pre-review, 02 Beats et anti-editorializing, 03 exactitude des données, 04 charts statique et interactif, 05 audit extractif et patterns à haut risque, 06 livrables et CSV, 07 verrous A→G, 08 structure de page, 09 déploiement WordPress, 10 social et pre-flight r/economics, 11 acquisition des données, 12 registre des motifs d'erreur), à lire quand le step le dit ; gardes réutilisables dans scripts/study_locks.py (Verrou D hedges, Verrou E comptages, Verrou G cadratins, tics IA et verbes prescriptifs, zéro commentaire HTML, tolérances §12.5, collecteur de claims et rapport §12.6). Doctrines qui définissent la skill : le Backlink Hook ≤25 mots s'écrit avant tout le reste et sans hook validé la production ne commence pas ; quatre reviewers hostiles avant de fetch la donnée, Thesis Pivot quand la donnée contredit le brief ; Beat 1 loyal, Beat 2 chiffré, Beat 3 obligatoire au plus deux sections après ; le CSV est la source unique de vérité, calculer avant d'écrire, jamais de mémoire ; l'audit est extractif et CSV-led (le CSV énumère les claims, pas Claude) et recalcule depuis le CSV brut uniquement (Verrou A, étude #20 : une erreur, quatorze copies) ; zéro fail toléré, tout échec en Step 6 ou 6.5a-g = HALT ; approximately/roughly interdits sans hedge_justifications.json ; contrôle de licence FRED (trois statuts) au Step 0, pas au Step 10 (R5 tuée au Step 0, 10/09/2026) ; zéro cadratin, zéro tic IA, zéro verbe prescriptif dans tout livrable (Verrou G, R1 08/09/2026 : 43 cadratins malgré 163 claims à 100 %) ; chart interactif SVG JS natif sans bibliothèque, repli picture testé réseau coupé ; le corps HTML n'a ni style ni script ni commentaire HTML (incident 27/08/2026, 8 pages désindexées) ; le nom de base d'un asset n'est jamais le slug de la page ; une règle de doctrine non chargée n'existe pas : charger les skills compagnes avant le Step 1. Hors périmètre : identité éditoriale et six règles AMF (editeur-eco3min), data viz et assertions matplotlib (visuels-eco3min), légalité et endpoints des sources (sourcing-donnees-eco3min, autorité unique annexe B), pages dataset brutes (production-dataset), Q&A (production-q-and-a), bilinguisation et import du bundle (eco3min-import-contenu-bilingue), chart Reddit DIB autonome (production-chart-of-the-week), cartes hub (hub-card-etude). Combiner avec editeur-eco3min, visuels-eco3min, brand-kit-eco3min, sourcing-donnees-eco3min, eco3min-import-contenu-bilingue, hub-card-etude, formats-eco3min, archi-eco3min."
+description: "Doctrine éditoriale et pipeline complet de production d'une étude de recherche Eco3min (research study, étude approfondie, killer study, série GENERIQUE R1…R12, codes C1…C6, études #20 #22), de l'angle au jeu de 14-18 livrables prêts pour WordPress. Déclencheurs : « produce study X », « produis l'étude », « nouvelle étude », « lance R13 », « backlink hook », « pre-review adverse », « verrous », « audit extractif », « compute_stats », « fact_check_audit », « provenance.md », « chart interactif », « package social », « snippet autonome », « structure 28 blocs », « registre des erreurs ». Structure : SKILL.md = colonne vertébrale (workflow Step 0→10 verbatim, règles bloquantes par step, checklists §16 et §21 verbatim, rappel zéro commentaire HTML) ; références dans references/ (01 hook et pre-review, 02 Beats et anti-editorializing, 03 exactitude des données, 04 charts statique et interactif, 05 audit extractif et patterns à haut risque, 06 livrables et CSV, 07 verrous A→G, 08 structure de page, 09 déploiement WordPress, 10 social et pre-flight r/economics, 11 acquisition des données, 12 registre des motifs d'erreur), à lire quand le step le dit ; gardes réutilisables dans scripts/study_locks.py (Verrou D hedges, Verrou E comptages, Verrou G cadratins, tics IA et verbes prescriptifs, Verrou H anti-répétition de série, zéro commentaire HTML, tolérances §12.5, collecteur de claims et rapport §12.6). Doctrines qui définissent la skill : le Backlink Hook ≤25 mots s'écrit avant tout le reste et sans hook validé la production ne commence pas ; quatre reviewers hostiles avant de fetch la donnée, Thesis Pivot quand la donnée contredit le brief ; Beat 1 loyal, Beat 2 chiffré, Beat 3 obligatoire au plus deux sections après ; le CSV est la source unique de vérité, calculer avant d'écrire, jamais de mémoire ; l'audit est extractif et CSV-led (le CSV énumère les claims, pas Claude) et recalcule depuis le CSV brut uniquement (Verrou A, étude #20 : une erreur, quatorze copies) ; zéro fail toléré, tout échec en Step 6 ou 6.5a-g = HALT ; approximately/roughly interdits sans hedge_justifications.json ; contrôle de licence FRED (trois statuts) au Step 0, pas au Step 10 (R5 tuée au Step 0, 10/09/2026) ; zéro cadratin, zéro tic IA, zéro verbe prescriptif dans tout livrable (Verrou G, R1 08/09/2026 : 43 cadratins malgré 163 claims à 100 %) ; le squelette des 28 blocs est fixe mais la phrase tourne d'une étude à l'autre (Verrou H, 17/09/2026 : phrase-pivot en antithèse et « Robustness, disclosed » verbatim sur R3→R9, gabarit de Beat 1 deux fois de suite) ; chart interactif SVG JS natif sans bibliothèque, repli picture testé réseau coupé ; le corps HTML n'a ni style ni script ni commentaire HTML (incident 27/08/2026, 8 pages désindexées) ; le nom de base d'un asset n'est jamais le slug de la page ; une règle de doctrine non chargée n'existe pas : charger les skills compagnes avant le Step 1. Hors périmètre : identité éditoriale et six règles AMF (editeur-eco3min), data viz et assertions matplotlib (visuels-eco3min), légalité et endpoints des sources (sourcing-donnees-eco3min, autorité unique annexe B), pages dataset brutes (production-dataset), Q&A (production-q-and-a), bilinguisation et import du bundle (eco3min-import-contenu-bilingue), chart Reddit DIB autonome (production-chart-of-the-week), cartes hub (hub-card-etude). Combiner avec editeur-eco3min, visuels-eco3min, brand-kit-eco3min, sourcing-donnees-eco3min, eco3min-import-contenu-bilingue, hub-card-etude, formats-eco3min, archi-eco3min."
 ---
 
 # Principes éditoriaux — Eco3min Research Studies
@@ -36,13 +36,13 @@ Ce fichier est la colonne vertébrale : le workflow Step 0 → Step 10 verbatim,
 | `references/04-charts-statique-interactif.md` | §10 choix du type, justification d'échelle, chart DIB, discipline de génération, chart interactif (contrats technique, audit, AMF, dégradation) | avant les charts (Step 8) et le module interactif (Step 8b) |
 | `references/05-audit-extractif-coherence-patterns.md` | §12 audit extractif CSV-led (énumération, format d'assertion, tolérances, reporting), §13 cohérence multi-livrables, §14 cinq patterns à haut risque | avant d'écrire le verifier (Step 6) |
 | `references/06-livrables-csv-workflow.md` | §17.1 tableau des 18 livrables, §17.2 le CSV pierre angulaire, §17.4 mode opératoire | au Step 0.5 (inventaire) et avant de construire le CSV (Step 3) |
-| `references/07-verrous-a-g.md` | §18 dix règles d'écriture, périmètre imprimé de compute_stats.py, les sept verrous, Steps 6.5a et 6.5b, sections oubliées, limites | avant compute_stats.py (Step 4), avant d'écrire (Step 5), puis au Step 6.5a-g |
+| `references/07-verrous-a-g.md` | §18 dix règles d'écriture, périmètre imprimé de compute_stats.py, les huit verrous dont H (anti-répétition de série, figures de phrase-pivot, menu des labels de robustesse), Steps 6.5a et 6.5b, sections oubliées, limites | avant compute_stats.py (Step 4), avant d'écrire (Step 5), puis au Step 6.5a-h |
 | `references/08-structure-page-28-blocs.md` | §19 les 28 blocs dans l'ordre + exigences à l'échelle de la page | avant d'écrire le HTML (Step 5) |
 | `references/09-deploiement-wordpress.md` | §20 namespace CSS, snippet autonome, règles WordPress dures, discipline de slug et origine du `-2`, FAQ, chemins | au Step 0.5 (slug) et au Step 10 (assemblage) |
 | `references/10-social-preflight-upload.md` | §15 pre-flight r/economics, §22 package social et guide d'upload des images | avant le package social (Step 7) et le guide d'upload (Step 9) |
 | `references/11-acquisition-donnees.md` | §23 playbook par source, gate de licence FRED à trois statuts, règle d'arrêt | au Step 0 (licence) et avant de récupérer la donnée (Step 2) |
 | `references/12-registre-erreurs.md` | §24 post-mortems #22, #20, #6, R1 et leçon transversale | dès qu'une erreur est découverte après livraison, et avant d'alléger un verrou |
-| `scripts/study_locks.py` | Verrou D (hedges), Verrou E (comptages), Verrou G (cadratins, tics IA, prescriptif, action), zéro commentaire HTML, tolérances §12.5, collecteur de claims + rapport §12.6 | importé par `audit_extract.py` de chaque étude (Steps 6 et 6.5d-g) |
+| `scripts/study_locks.py` | Verrou D (hedges), Verrou E (comptages), Verrou G (cadratins, tics IA, prescriptif, action), Verrou H (anti-répétition de série : H2 de Beat, gabarits, label de robustesse, figure de la phrase-pivot, contre les études livrées dans `out/`), zéro commentaire HTML, tolérances §12.5, collecteur de claims + rapport §12.6 | importé par `audit_extract.py` de chaque étude (Steps 6 et 6.5d-h) |
 | `scripts/css_specificity.py` | Spécificité du CSS scopé : `p_classes()`, `boost_paragraph_rules()`, `lint_paragraph_rules()` — tout sélecteur à sujet `<p>` atteint (0,2,0), sinon `.entry-content p` du Customizer gagne | importé par `build_snippet.py` (Step 10), après le re-namespace |
 
 Utilisation du script depuis un dossier d'étude :
@@ -86,6 +86,8 @@ Step 6.5c  → Audit d'appariement concept-nombre (Verrou B)
 Step 6.5d  → Scan automatique des hedges + hedge_justifications.json (Verrou D)
 Step 6.5e  → Contrôle d'assertion des claims de comptage (Verrou E)
 Step 6.5f  → Contrôle de formalité des filtres (Verrou F)
+Step 6.5h  → Anti-répétition de série (Verrou H) : H2 de Beat, gabarit,
+             label de robustesse et figure de phrase-pivot contre out/*
 Step 6.5g  → Verrous éditoriaux (Verrou G) : zéro cadratin, zéro tic IA,
              zéro verbe prescriptif, zéro langage d'action ou de timing
 Step 7     → Snippets sociaux (§15 pre-flight r/economics)
@@ -97,7 +99,7 @@ Step 9     → Guide d'upload des images
 Step 10    → Assembler et livrer le jeu complet, résumé d'audit inclus
 ```
 
-**Tout échec en 6 ou 6.5a-g → HALT. Pas de livraison.**
+**Tout échec en 6 ou 6.5a-h → HALT. Pas de livraison.**
 
 
 RÈGLES BLOQUANTES PAR STEP
@@ -156,6 +158,7 @@ Bloquant :
 - Beat 1 énoncé fairly, Beat 2 = contradiction empirique chiffrée, Beat 3 OBLIGATOIRE et dans les 2 sections suivant Beat 2, avec au moins un élément de §4.2. Encart de contexte obligatoire dans la première séquence analytique (ce que le dataset ne mesure pas, contre-fait concret).
 - Termes proscrits (§5.1) : destruction, tax (inflation), manipulation, failed, should / must, will, obviously / clearly, undeniably / proves that. H1 sans jugement normatif ; 3 premiers paragraphes 100 % factuels. Critique par accumulation de faits, pas par adjectifs.
 - Robustesse comme blindage (§5.5) : quand un résultat dépend d'un choix méthodologique, divulguer l'alternative, y compris quand le signe s'inverse, en trois endroits : une phrase dans la TL;DR, le développement dans le Beat 3, le détail dans la méthodologie.
+- Anti-répétition de série (Verrou H, `references/07-verrous-a-g.md` §18.3) : avant d'écrire les titres de Beat, la phrase-pivot et le label de robustesse, lire ceux de l'étude livrée juste avant (`out/*/README_DELIVERABLE.md`, H2 de `page_body.html`). Pas le même gabarit de titre de Beat deux études de suite (« What the [X] story says », « Where the reading … », « What this does not settle », « Pick any … »), pas la même figure de phrase-pivot (antithèse, temporel, chiffre, question, définition), pas le même label de robustesse ; la figure se déclare dans le README (« **Phrase-pivot**, native par langue, figure : antithèse »). Le squelette des 28 blocs, lui, ne varie pas : c'est la phrase qui tourne, pas la structure. Constaté sur R3→R9 (17/09/2026) : antithèse sur chaque pivot, « Robustness, disclosed: » verbatim sept fois.
 - Chiffres hors CSV marqués `<!-- SOURCE: [référence] -->` ou `<!-- VERIFY: [description] -->` pendant l'assemblage ; ces repères sont retirés avant livraison (cf. RAPPEL BLOQUANT).
 - Forward distribution : tableau régime, n, médiane 6m, médiane 12m, IQR (P25–P75), % positifs 12m, MDD médian ; note fenêtres glissantes ; caveat si n < 15 ; disclaimer « Past distributions are not predictive of future outcomes. Regime-conditional statistics describe historical patterns, not expected returns. »
 - Key Levels to Watch : trois éléments exactement (invalidation threshold, confirmation signal, calendar catalyst), motif « Si [condition observable], alors [le régime change vers Z], ce qui historiquement a été associé avec [résultat factuel] », JAMAIS buy / sell / should, marqueur `<!-- UPDATEABLE -->`.
@@ -175,7 +178,7 @@ Bloquant :
 - Cohérence multi-livrables (§13) : table maître unique en début de session ; après production, grep de chaque claim répété dans TOUS les fichiers (HTML, PHP, MD, verifiers) ; après toute correction, grep IMMÉDIAT de la nouvelle ET de l'ancienne valeur dans tous les fichiers, puis re-run du verifier.
 
 
-Steps 6.5a-g — VERROUS (lire `references/07-verrous-a-g.md` §18.3-18.5 et `references/02-beats-anti-editorializing-scan.md` §11 ; `scripts/study_locks.py` porte D, E, G et le contrôle des commentaires HTML)
+Steps 6.5a-h — VERROUS (lire `references/07-verrous-a-g.md` §18.3-18.5 et `references/02-beats-anti-editorializing-scan.md` §11 ; `scripts/study_locks.py` porte D, E, G, H et le contrôle des commentaires HTML)
 
 Bloquant :
 - 6.5a : chaque défense du Step 1.5 présente ; scan des termes chargés ; hook above the fold, premier bullet de l'Executive Summary et dans la TL;DR ; sortie défenses N/N · termes trouvés/corrigés · hook visible OUI/NON · PASS/FAIL.
@@ -185,7 +188,8 @@ Bloquant :
 - 6.5e Verrou E : grep de `N events / occurrences / observations / onsets / episodes / recessions / false positives / triggers / crossings / cases / instances / times / weeks / months / years`, `N/M`, `N of M` ; chaque occurrence exige une assertion dans compute_stats.py qui produit exactement ce N.
 - 6.5f Verrou F : chaque expression de filtre temporel existe dans le dict `FILTERS` et dans le bloc « Filter Definitions » du HTML.
 - 6.5g Verrou G : zéro cadratin ( — ) dans tout livrable destiné au site (corps HTML, package social, metas, alt, title ; les plages gardent le demi-cadratin `1959–2007`, les négatifs le signe moins `−0,013`) ; zéro tic IA (`worth noting`, `delve`, `dive into`, `ever-evolving`, `paradigm shift`, `as we navigate`, `in conclusion,`, `truly`, `literally`, `undeniably`, `fundamentally`) ; zéro verbe prescriptif appliqué à un profil (`should`, `must`, `need to`, `ought to`, `we recommend`) ; zéro langage d'action ou de timing (`buy`, `sell`, `entry point`, `price target`, `now is the time`, `overweight`, `underweight`). Règles AMF 2, 3 et 6.
-- « Tout échec en 6 ou 6.5a-g → HALT. Pas de livraison. »
+- 6.5h Verrou H : `assert_series_locks(study_dir)` lit les études livrées dans `out/` et échoue sur un H2 de Beat déjà utilisé dans la série, un gabarit de titre repris de l'étude précédente, le même label de robustesse ou la même figure de phrase-pivot que l'étude précédente. Première étude d'une série : PASS par construction. Non rétroactif : R1→R9 restent en l'état.
+- « Tout échec en 6 ou 6.5a-h → HALT. Pas de livraison. »
 
 
 Step 7 — PACKAGE SOCIAL (lire `references/10-social-preflight-upload.md` avant d'écrire le package)
@@ -238,6 +242,7 @@ Bloquant :
 - [ ] Beat 2 = contradiction empirique chiffrée
 - [ ] Beat 3 présent et substantiel (pas une phrase token)
 - [ ] Beat 3 dans les 2 sections suivant Beat 2
+- [ ] Verrou H PASS : titres de Beat, figure de phrase-pivot et label de robustesse ne répètent pas l'étude précédente, figure déclarée dans le README
 
 **Anti-editorializing**
 - [ ] Loaded-terms scan effectué et fixé
@@ -328,8 +333,9 @@ par la donnée.
 concession) · « le système a fonctionné » reconnu là où c'est vrai · robustesse
 divulguée, pas cachée · ≥8 liens internes vérifiés contre le snapshot · zéro
 conseil, zéro certitude · **zéro cadratin dans tout livrable destiné au site,
-zéro tic IA, zéro verbe prescriptif, zéro langage d'action (Verrou G)** · les
-deux pre-flights et tous les audits en PASS.
+zéro tic IA, zéro verbe prescriptif, zéro langage d'action (Verrou G)** · pas
+le gabarit de titre, la figure de pivot ni le label de robustesse de l'étude
+précédente (Verrou H) · les deux pre-flights et tous les audits en PASS.
 
 **Sourcing** : chaque série FRED destinée à une colonne publiée vérifiée sans le
 marqueur « Copyrighted: Citation Required » · aucun niveau brut d'une série

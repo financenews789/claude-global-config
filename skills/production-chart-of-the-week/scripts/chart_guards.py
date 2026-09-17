@@ -123,3 +123,65 @@ def run_guards(fig, ax, cmap, killer_text=None, banner=None, mark=None,
             assert share < max_overlap, 'header texts overlap (%.0f%%): %r / %r' % (share * 100, na, nb)
 
     return renderer
+
+
+# ---------------------------------------------------------------------------
+# Feed-size preview (added 17/09/2026).
+#
+# The r/dataisbeautiful feed shows the 1920x1080 PNG at roughly 375 CSS px
+# wide on a phone (about 2x that on desktop). At that size the title and the
+# shape of the data survive; labels, the price column, the killer phrase and
+# the sources do not. Q2 (scroll-stop) and Q3 (insight without legend) are
+# therefore judged on this preview, never on the full-size PNG. Cycle 21: the
+# "second encoding" that passed Q1 was a column of dollar prices, invisible at
+# feed size; 522k views converted to 1,100 upvotes (0.21 %), the profile of a
+# ranked bar chart, not of the decoupling the chart was meant to show.
+#
+#     out = os.path.join(HERE, 'cycle22_chart_desktop_16x9.png')
+#     fig.savefig(out, facecolor=BG, dpi=150)
+#     feed_preview(out)          # writes *_feed375.png and *_feed375_x3.png
+#
+# Then Read the *_feed375_x3.png (nearest-neighbour upscale of the real feed
+# pixels, so the image reader sees exactly what a phone shows) and answer the
+# three feed questions of the skill (ETAPE 3, TEST FEED).
+# ---------------------------------------------------------------------------
+
+FEED_WIDTH = 375
+
+
+def feed_preview(png_path, width=FEED_WIDTH, scale_up=3):
+    """Downscale the delivered PNG to the feed width with a proper resampling
+    filter, then write a nearest-neighbour upscale of that small image so the
+    real feed pixels can be inspected. Returns (feed_path, inspect_path)."""
+    from PIL import Image  # Pillow is in the cycle venv
+    im = Image.open(png_path)
+    W, H = im.size
+    assert W > width, 'feed_preview expects the full-size PNG, got %dx%d' % (W, H)
+    h = round(H * width / W)
+    small = im.resize((width, h), Image.LANCZOS)
+    stem, _ = os.path.splitext(png_path)
+    feed_path = '%s_feed%d.png' % (stem, width)
+    inspect_path = '%s_feed%d_x%d.png' % (stem, width, scale_up)
+    small.save(feed_path)
+    small.resize((width * scale_up, h * scale_up), Image.NEAREST).save(inspect_path)
+    return feed_path, inspect_path
+
+
+def feed_metrics(fig, ax, title_artist, renderer, width=FEED_WIDTH):
+    """Numbers to quote in the checklist: cap height of the title once the PNG
+    is shown at feed width (in CSS px), and the share of the canvas covered by
+    the plot area. Indicative thresholds live in the skill (title >= 8 px,
+    plot share >= 0.35); they are not asserted here because a cycle may have a
+    written reason to deviate, but the numbers must be looked at."""
+    W, H = fig.get_size_inches() * fig.dpi
+    tb = title_artist.get_window_extent(renderer=renderer)
+    scale = width / W
+    # The bbox of a text artist spans ascender to descender; cap height is
+    # roughly 70 % of the font size in the brand serif.
+    title_cap_px = title_artist.get_fontsize() * fig.dpi / 72 * 0.70 * scale
+    pb = ax.get_position()
+    return {
+        'title_cap_px_at_feed': round(title_cap_px, 1),
+        'title_width_share': round(tb.width / W, 2),
+        'plot_share': round(pb.width * pb.height, 2),
+    }

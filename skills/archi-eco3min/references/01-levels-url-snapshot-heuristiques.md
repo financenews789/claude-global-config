@@ -44,8 +44,10 @@ Les deux ont mesuré la reconstruction, pas le site.
 #### La règle
 
 - **Le champ `slug` du snapshot est fiable.** Il vient de la base.
-- **Le champ `url` ne l'est pas.** Il est reconstruit à plat et se trompe sur
+- **Le champ `url` ne l'est pas sous mega ≤ 1.0.15.** Il est reconstruit à plat et se trompe sur
   tout ce qui est parenté hiérarchiquement — sous-piliers, Q&A, hubs.
+  Corrigé dans le mega 1.0.16 (17/09/2026, `get_permalink`) : fiable seulement
+  pour un export produit par un mega ≥ 1.0.16 (version citée en ligne 1 du CSV).
 - Pour une URL réelle : `eco3min/find` ou `eco3min/get-content` renvoient la
   **permalink** calculée par WordPress. C'est la seule source.
 - **Ne jamais inférer une structure de permalien**, ni depuis le snapshot, ni

@@ -1,29 +1,31 @@
 ---
 name: production-every-x-record
-description: "Pages \"Every X since Y\" d'Eco3min : compilations de reference d'un indicateur ultra-cite (Sahm Rule, yield curve, Fed cycles, real rates...) pour les backlinks de qualite (FT, Ritholtz, abnormalreturns) et la viralite r/economics. Couche d'assemblage qui oriente production-research-study, production-killer-hn et visuels-eco3min, et ajoute le propre au format record : (1) design DECOUPLE du brand kit Eco3min, (2) selection + data-check avant production, (3) honnetete-comme-blindage, (4) template bloc HTML + snippet PHP autoportant, (5) bannissement du COSPLAY d'autorite (\"Cite this\", DOI, \"Abstract\", badges \"public dataset\", boutons \"share research\", bloc auteur-affiliation) : l'autorite se gagne par le contenu, pas par des widgets. Activer pour creer, reviser ou deboguer une page \"Every X\" / record historique destinee au backlink. Pas pour les datasets bruts (production-dataset) ni les charts DIB autonomes (production-chart-of-the-week)."
----
-
----
-name: production-every-x-record
-description: >
-  Pages "Every X since Y" d'Eco3min : compilations de reference d'un indicateur
-  ultra-cite (Sahm Rule, yield curve, Fed cycles, real rates...) pour les
-  backlinks de qualite (FT, Ritholtz, abnormalreturns) et la viralite
-  r/economics. Couche d'assemblage qui oriente production-research-study,
-  production-killer-hn et visuels-eco3min, et ajoute le propre au format record :
-  (1) design DECOUPLE du brand kit Eco3min, (2) selection + data-check avant
-  production, (3) honnetete-comme-blindage, (4) template bloc HTML (CSS 100%
-  scope sous un wrapper, zero selecteur global) + snippet PHP autoportant
-  (JSON-LD base64 par slug + chart interactif canvas au wp_footer),
-  (5) bannissement du COSPLAY d'autorite ("Cite this", DOI,
-  "Abstract", badges "public dataset", boutons "share research", click-to-copy,
-  bloc auteur-affiliation) : l'autorite se gagne par le contenu, pas par des
-  widgets. Activer pour creer, reviser ou deboguer une page "Every X" / record
-  historique destinee au backlink. Pas pour les datasets bruts
-  (production-dataset) ni les charts DIB autonomes (production-chart-of-the-week).
+description: "Production et révision des pages « Every X since Y » d'Eco3min (eco3min.fr) : le registre de référence d'un indicateur ultra-cité (Sahm Rule, yield curve, cycles Fed, taux réels, faillites bancaires FDIC, vagues d'inflation) avec son anomalie live, son tableau du record, son hero PNG autoportant, son chart interactif et son CSV, conçu pour les backlinks de qualité (FT, Ritholtz, Abnormal Returns) et la viralité r/economics. Activer pour « page Every X », « registre », « record historique », « every … since », « toutes les … depuis », « page backlink », « les 4 piliers », « data-check », « hook citable », « phrase citable », « cosplay », « CSS scopé », « snippet guardé par slug », « JSON-LD base64 », « chart canvas », « bande de chiffres-clés », « axe plafonné », « labels off-scale », « Research Summary », et pour R7 / R11 de la série GENERIQUE. Structure : SKILL.md = colonne vertébrale (règle cardinale verbatim, règles bloquantes §0 à §6 sous leurs numéros d'origine, anti-patterns, méthode anti-erreur, checklist et rappel zéro commentaire HTML verbatim) ; références dans references/ (à lire quand la section le dit) : 01 gate, formule de sélection, angle killer et honnêteté-blindage avec les cas Sahm et yield curve, 02 design découplé du brand kit, palette hex, axe Y, typographie, interdits de cosplay et règle de tri, 03 hero PNG autoportant et architecture de page (bloc HTML, snippet PHP, tableau du record, chart interactif, CSV, maillage) ; gardes dans scripts/record_checks.py (CSS 100 % scopé, bloc HTML sans script ni commentaire, zéro cosplay, round-trip base64, FAQ JSON-LD = FAQ visible, garde-fou par slug simulé en PHP avec stubs WP, node --check, chiffres-clés par livrable ; testées sur le registre des faillites bancaires du 01/09/2026). Doctrines : le backlink vient du contenu citable et de la distribution, jamais du design ; le claim killer est une hypothèse jusqu'à preuve sur le CSV (le hook un-inversion → récession est mort sur FRED, « never wrong » sur Sahm était faux) ; l'honnêteté étroite bat le superlatif cherry-pické et le dek ne contredit jamais la table du record ; design DÉCOUPLÉ du brand kit (fond blanc, gris contexte, un seul accent vermillon réservé à l'anomalie, crème et terracotta interdits ici) ; autorité EARNED jamais ASSERTED (« Cite this », DOI, « Abstract », share, click-to-copy, badges, affiliation, capture email bannis, v2 juillet 2026) ; CSS 100 % scopé sous un wrapper unique (bug réel body/* sur Blocksy) ; JSON-LD en base64 par slug au wp_head et chart canvas au wp_footer, jamais de shortcode ; trous de source affichés, jamais interpolés ; slug d'étude ≠ slug dataset, equity backlink jamais orpheline (update-in-place ou 301) ; r/economics flair Research Summary, titre factuel sans adjectif, un seul canal. Hors périmètre : la page dataset brute (production-dataset), le chart DIB autonome (production-chart-of-the-week), la couche éditoriale complète (production-research-study), le détail de la distribution HN (production-killer-hn). Combiner avec production-research-study, production-killer-hn, visuels-eco3min, eco3min-import-contenu-bilingue, production-dataset, pipeline-eco3min, editeur-eco3min, brand-kit-eco3min (référence de ce dont on s'écarte)."
 ---
 
 # Every X — pages record historique pour backlink
+
+## COMMENT LIRE CE SKILL (découpage du 17/09/2026)
+
+Ce fichier est la colonne vertébrale : les deux règles cardinales, chaque règle BLOQUANTE de §0 à §6 sous ses numéros d'origine, les anti-patterns, la méthode anti-erreur, la checklist et le rappel zéro commentaire HTML. Le texte complet de §0 à §4 (rationale, cas réels Sahm / yield curve / inflation waves, palette hex, spécifications du chart interactif) a été déplacé VERBATIM dans `references/` et fait foi au même titre que ce fichier. Chaque section ci-dessous nomme le fichier à lire ; le lire est obligatoire au moment indiqué, pas facultatif. `scripts/record_checks.py` porte les gardes que chaque production recopiait dans son `validate.py` : on les importe, on ne les recopie plus.
+
+| Fichier | Contenu | À lire |
+|---|---|---|
+| `references/01-gate-angle-honnetete.md` | §0 GATE (formule des 4 piliers, data-check, surface virale) et §1 angle killer (hook ≤ 25 mots, honnêteté-blindage avec les cas Sahm et « come back bigger », cadrage technique, phrase de désamorçage) | avant de proposer un sujet, puis avant d'écrire le hook |
+| `references/02-design-decouple-cosplay.md` | §2 design découplé du brand kit : palette hex par défaut, figure/fond et dispositif de l'aha, piège de l'axe Y, typographie, interdits de cosplay, autorisés, règle de tri | avant de dessiner le hero ou le chart, puis avant la relecture de la page |
+| `references/03-hero-png-architecture-page.md` | §3 hero PNG autoportant (bande de chiffres, anti-doublon, rendu inspecté) et §4 architecture de page (bloc HTML, CSS scopé, snippet PHP, tableau du record, chart interactif, CSV, maillage, URLs d'assets) | avant de rendre le hero, puis avant d'assembler le bloc HTML et le snippet |
+| `scripts/record_checks.py` | gardes bloquantes : bloc HTML propre, CSS 100 % scopé, zéro cosplay, round-trip base64, FAQ JSON-LD = FAQ visible, garde-fou par slug (statique + simulation PHP avec stubs WP), node --check, chiffres-clés par livrable | importé par le `validate.py` de la production, avant livraison |
+
+Utilisation depuis un dossier de production :
+
+    sys.path.insert(0, os.path.expanduser('~/.claude/skills/production-every-x-record/scripts'))
+    from record_checks import run_all
+    fails = run_all(html={'en': html_en, 'fr': html_fr}, php=snippet_php, wrapper='.e3m-xxx',
+                    slugs={'en': slug_en, 'fr': slug_fr}, js_path='src/chart.js',
+                    figures={'en': ['4,117'], 'fr': ['4\u202f117']})
+    assert not fails, fails
+
+Le dossier `out/r1-bank-failures/` du projet « B. PLUS page bilingue » (registre des faillites bancaires, 01/09/2026) est l'implémentation de référence : `src/build_pages.py`, `src/build_snippet.py`, `src/hero.py`, `src/validate.py`. Le dupliquer, pas le réécrire ; son `validate.py` recopie les gardes que `record_checks.py` fournit désormais.
 
 ## RÈGLE CARDINALE (les deux non-négociables)
 
@@ -33,122 +35,59 @@ description: >
 
 ---
 
-## 0. GATE — avant toute production
+## 0. GATE — avant toute production (lire `references/01-gate-angle-honnetete.md`)
 
-### 0.1 La formule de sélection (ce qui mérite une page "Every X")
-Le seul carton backlink confirmé (yield curve → FT + Ritholtz) réunissait les quatre :
-- **indicateur ULTRA-CITÉ** (le lecteur le connaît déjà : courbe, Sahm, Fed, CAPE…) ;
-- **track record quasi-parfait** sur longue période (le "X-for-X" ou "depuis 19XX") ;
-- **une ANOMALIE LIVE** au moment de publier (l'exception en cours, le truc qui vient de casser) ;
-- **un dataset unique téléchargeable** (CSV + JSON-LD Dataset).
-Manque un pilier → la pièce sera plus faible. Pas d'anomalie live → c'est de l'evergreen SEO, pas un carton backlink ; route différente.
-
-### 0.2 Le data-check bloquant (RÈGLE CARDINALE #2)
-Avant d'écrire le hook ou de promettre quoi que ce soit : tirer la série (FRED/source primaire), **calculer le finding sur la vraie donnée**, et confirmer qu'il tient. Si le superlatif ("jamais", "chaque", "le seul") ne survit pas exactement → reformuler vers la version étroite qui tient (voir §1.2). Ne jamais publier un superlatif que le CSV ne soutient pas.
-
-### 0.3 Le GATE surface virale (→ `production-killer-hn`)
-Tester la surface virale du sujet AVANT de choisir le canal. Le format "Every X" est **r/economics-natif** (finding débattable, payoff sans expertise lourde) et **DIB-natif** si chart-centré. Il n'est PAS HN-natif si le sujet est macro-spécialisé sans hook universel (cf. échec term premium). Ne pas forcer HN.
+Bloquant :
+- §0.1 Les quatre piliers du seul carton backlink confirmé (yield curve → FT + Ritholtz) : indicateur ULTRA-CITÉ (le lecteur le connaît déjà) ; track record quasi-parfait sur longue période ; une ANOMALIE LIVE au moment de publier ; un dataset unique téléchargeable (CSV + JSON-LD Dataset). Manque un pilier → la pièce sera plus faible. Pas d'anomalie live → c'est de l'evergreen SEO, pas un carton backlink ; route différente.
+- §0.2 Data-check bloquant (RÈGLE CARDINALE #2) : tirer la série (FRED/source primaire), **calculer le finding sur la vraie donnée**, confirmer qu'il tient. Un superlatif (« jamais », « chaque », « le seul ») qui ne survit pas exactement → reformuler vers la version étroite qui tient (§1.2). Ne jamais publier un superlatif que le CSV ne soutient pas.
+- §0.3 GATE surface virale (→ `production-killer-hn`) AVANT de choisir le canal : le format « Every X » est r/economics-natif (finding débattable, payoff sans expertise lourde) et DIB-natif si chart-centré ; il n'est PAS HN-natif si le sujet est macro-spécialisé sans hook universel (échec term premium). Ne pas forcer HN.
 
 ---
 
-## 1. L'angle killer
+## 1. L'angle killer (lire `references/01-gate-angle-honnetete.md`)
 
-### 1.1 Le hook = la phrase citable (≤ 25 mots)
-La phrase qu'un journaliste FT reprend telle quelle. Factuelle, datée, contre-intuitive. Ex : *"Since 1970 the real-time Sahm Rule never gave a false recession signal — until 2024, when it triggered, peaked, and reversed with no recession."* C'est le hook, pas un titre marketing. Le punch va dans le hook + le PNG + le 1er commentaire — **jamais dans le titre Reddit** (cf. §6).
-
-### 1.2 L'honnêteté est le BLINDAGE (la leçon centrale)
-La version honnête et étroite bat toujours le superlatif cherry-pické :
-- "jamais trompé" était faux (Sahm compte 1959 + 1969 ; un touch à 0,50 en 1976). La version corrigée — *"premier faux signal depuis 1970 ; deux exceptions antérieures, chacune suivie d'une récession"* — est blindée contre le commentaire-tueur. Plus solide ET toujours explosive.
-- **Disclose toi-même les cas gênants** (les re-triggers intra-épisode, les touches d'un mois, les bornes ambiguës). Pré-empter le reviewer hostile dans le corps + le 1er commentaire.
-- **Le dek/hook ne doit JAMAIS contredire la table du record** (piège réel : dek "almost never come back bigger" alors que la table affichait 7/12 "higher" — commentaire-tueur servi sur un plateau ; corrigé en "almost never KEPT coming back bigger"). Relire le dek APRÈS la table, ligne par ligne : chaque superlatif du dek doit survivre à chaque ligne de la table.
-- **Si le créateur/une autorité a commenté l'indicateur, le sourcer** (Sahm sur sa propre règle). Massif en crédibilité — et VÉRIFIER que ton décompte ne CONTREDIT pas le sien (Sahm ne compte pas 1976 ; si la page l'affichait comme "fausse alerte" à côté de sa citation, elle se contredisait).
-- **Citation = source exacte obligatoire** (permalink + date + support). Jamais de citation de mémoire ; marquer `<!-- VERIFY -->` tant que non sourcée.
-
-### 1.3 Cadrage technique non négociable
-Décrire l'indicateur pour ce qu'il EST (coïncident vs prédicteur, real-time vs revised…). Mal cadrer = un quant te corrige en commentaire #2. Le cadrage juste rend souvent l'anomalie PLUS frappante.
-
-### 1.4 La phrase de désamorçage sémantique
-Pour tout finding reposant sur une classification ("faux signal", "récession", "épisode"), désamorcer le débat en assumant le choix de définition + la falsifiabilité : *"Whether X should be called a definitive Y is a classification choice. My criterion is explicit: […]. If [new data] later shows otherwise, I'll revise."* Coupe 50 commentaires de débat sémantique.
+Bloquant :
+- §1.1 Le hook = la phrase citable, ≤ 25 mots, factuelle, datée, contre-intuitive : celle qu'un journaliste FT reprend telle quelle. Le punch va dans le hook + le PNG + le 1er commentaire — **jamais dans le titre Reddit** (§6).
+- §1.2 L'honnêteté est le BLINDAGE : la version honnête et étroite bat toujours le superlatif cherry-pické (« jamais trompé » était faux ; *« premier faux signal depuis 1970 ; deux exceptions antérieures, chacune suivie d'une récession »* est blindé ET toujours explosif). Disclose toi-même les cas gênants. **Le dek/hook ne doit JAMAIS contredire la table du record** : relire le dek APRÈS la table, ligne par ligne, chaque superlatif doit survivre à chaque ligne. Si le créateur/une autorité a commenté l'indicateur, le sourcer ET vérifier que ton décompte ne contredit pas le sien. Citation = source exacte obligatoire (permalink + date + support) ; jamais de mémoire ; `<!-- VERIFY -->` tant que non sourcée.
+- §1.3 Cadrage technique non négociable : décrire l'indicateur pour ce qu'il EST (coïncident vs prédicteur, real-time vs revised). Mal cadrer = un quant te corrige en commentaire #2 ; le cadrage juste rend souvent l'anomalie PLUS frappante.
+- §1.4 Phrase de désamorçage sémantique pour tout finding reposant sur une classification (« faux signal », « récession », « épisode ») : assumer le choix de définition + la falsifiabilité (*« My criterion is explicit: […]. If [new data] later shows otherwise, I'll revise. »*).
 
 ---
 
-## 2. Design graphique — DÉCOUPLÉ DU BRAND KIT ECO3MIN
+## 2. Design graphique — DÉCOUPLÉ DU BRAND KIT ECO3MIN (lire `references/02-design-decouple-cosplay.md`)
 
-**Principe figé : une page backlink n'optimise PAS la cohérence avec le site. Elle optimise les CODES VISUELS DU GENRE (autorité FT / Fed / Bloomberg) + la lisibilité en vignette + la survie en dark-mode.** Le brand kit Eco3min (fond crème #F8F5EE, terracotta #B85C3C) est fait pour le site, pas pour ces pages. La palette se choisit par objectif, page par page.
-
-> "Optimal pour la viralité" est un faux levier partiel : aucune couleur ne *fait* le partage. Ce qui scrolle-stoppe = **contraste fort + lisibilité une fois rétréci à ~400px + tenue en dark-mode + une seule couleur qui pointe l'anomalie**. La sobriété EST l'optimisation. Plus de couleurs = moins de partage.
-
-### 2.1 Palette optimale par défaut (record / anomalie)
-- **Fond : blanc pur `#FFFFFF`** (ou `#FCFCFC`). Code FT/Fed, contraste max, tient en dark-mode (le feed pose un cadre clair). **Jamais de crème** ici (vire au beige sale en vignette / dark-mode).
-- **Texte : encre quasi-noire `#14141A`.**
-- **Séries/contexte (l'histoire, le récit) : gris neutre `#9CA3AF`.** C'est le FOND.
-- **Bandes de contexte (récessions, zones) : gris froid `#D9DCE1`.**
-- **Grille : gris très clair `#E3E5E9`.**
-- **UN SEUL accent saturé, RÉSERVÉ à l'élément focal/l'anomalie : rouge vermillon `#E03127`** (registre "alerte / exception / le chiffre qui compte" — le défaut FT pour la donnée saillante). La ligne de seuil/référence critique peut prendre l'accent (pointillé) car sémantiquement liée à l'anomalie.
-
-### 2.2 Figure / fond (le dispositif qui fait l'aha)
-- **Contexte en gris muet, anomalie en accent saturé.** L'œil doit voir "X chose en rouge = l'exception" en 3 secondes.
-- **L'accent est RÉSERVÉ.** Ne JAMAIS colorier les éléments de contexte dans l'accent. (Anti-pattern réel : colorier les pics de récession en rouge "pour les rendre visibles" → détruit le figure/fond, on ne voit plus l'anomalie. Les rendre visibles autrement — voir §2.3.)
-- **Dispositif géométrique de l'aha (autorisé, léger)** : un tracé auxiliaire discret qui MATÉRIALISE le finding peut porter l'accent s'il lui est sémantiquement lié — même statut que la ligne de seuil de §2.1 (cas réel : escalier pointillé rouge reliant les trois pics croissants 1970→1974→1980 ; alpha ~0,5, trait fin, il souligne sans concurrencer la série). Un seul dispositif par visuel ; s'il faut l'expliquer par une légende dédiée, il est trop malin.
-
-### 2.3 Le piège de l'axe Y (récurrent) + labels off-scale
-Si la donnée a des outliers énormes qui écrasent le seuil/l'anomalie dans les 10 % bas du graphe (ex. Sahm COVID = 9,5 ; 1975 = 3,8 vs seuil 0,50 et anomalie 0,57) → **plafonner l'axe** à une valeur qui rend le seuil + l'anomalie lisibles, et **laisser les gros pics sortir par le haut** (clip).
-- **Labeller chaque pic hors-échelle avec sa valeur** (ex. "9.5", "3.9") en **gris foncé `#54545f`** (PAS en accent). Répond à "pourquoi l'axe est coupé ?" et prouve "ces pics montent jusqu'à 9.5, hors échelle". C'est la bonne façon de rendre le dépassement visible sans casser le rouge.
-
-### 2.4 Typographie (seul héritage toléré, car il sert l'autorité)
-Le trio peut rester : **serif éditorial pour le titre** (Source Serif 4 — un serif de qualité signale "éditorial sérieux", code FT), **sans pour les labels/UI** (Inter), **mono pour les chiffres** (IBM Plex Mono). Ce n'est PAS une obligation de brand — c'est que ces fonts servent l'objectif autorité. Ce qui rompt avec le brand = le FOND et la COULEUR d'accent, pas forcément la typo.
-- Piège technique mono : IBM Plex Mono n'a pas l'espace fine (U+2009) → utiliser l'insécable U+00A0 pour les nombres FR ("4,2 %"), sinon glyphe manquant au rendu.
-
-### 2.5 Autorité EARNED, jamais ASSERTED — interdits de cosplay (FIGÉ)
-**L'autorité se gagne par le CONTENU (rigueur, dataset ouvert, finding honnête, méthodologie transparente, source primaire). Elle ne s'AFFICHE jamais par des widgets.** Une page solo qui colle les insignes d'une revue académique ou d'un institut signale l'inverse de ce qu'elle vise : un curateur FT/Ritholtz sent le toc immédiatement (ça BAISSE la crédibilité), et r/economics lit ça comme de l'auto-promo (risque Rule IV). Une page de référence FT/Fed est SOBRE et CONFIANTE — pas une landing de content-marketing, pas un cosplay de papier. C'est le pendant visuel de l'honnêteté-comme-blindage (§1.2) : on ne décore pas, on prouve.
-
-**INTERDITS explicites — ne JAMAIS mettre sur la page :**
-- Bloc **"Cite this" / "How to cite"**, citation format type BibTeX/APA, **DOI** ou identifiant fabriqué → cosplay de revue.
-- Rangée de boutons **"Share" / "Share this research"** (X, LinkedIn, Reddit…) → auto-promo, try-hard, signal Rule IV.
-- **Click-to-copy** (bouton/affordance "copier la phrase", "copy stat", copy-icon sur le hook) → même famille que les share-buttons : ça RÉCLAME la citation au lieu de la mériter. Un journaliste sélectionne et copie tout seul. (Correction v2 : une version antérieure de ce skill le prescrivait dans le snippet — c'était en contradiction directe avec cette section ; il est désormais banni.)
-- **Badges / pills** "Public dataset", "Open research", "Peer-reviewed", "Verified", trust-seals, compteurs de vues/citations → autorité assertée.
-- **Badge / logo de licence décoratif** (le logo CC en gros) → la licence est une LIGNE de meta discrète, pas un insigne.
-- Bloc **auteur / affiliation / ORCID** façon académique, "About the researcher" → tu es un éditeur, pas un labo ; le prétendre se retourne.
-- Cadre labellisé **"Abstract"**, "Working paper", "Download the paper / PDF version" → c'est une PAGE, pas un papier.
-- Capture **email / newsletter** (déjà banni §4) → clarté de mission.
-
-**AUTORISÉ (c'est du contenu / de la transparence, pas du cosplay) :**
-- Bouton **CSV** simple (donnée ouverte utile) · **ligne de meta** discrète "License: CC BY 4.0" (rend la donnée réutilisable, sans insigne) · **source** FRED · NBER · section **Méthodologie** (substance : comment le chiffre est calculé) · **TL;DR** en langage simple (PAS "Abstract") · petit **kicker** de section éditorial (≠ CTA de prestige).
-
-**Règle de tri :** est-ce du **CONTENU** (ça informe / prouve / explique) ou de la **DÉCORATION** (ça réclame qu'on te traite comme prestigieux / qu'on partage) ? Le contenu reste, la décoration dégage.
+Bloquant :
+- Principe figé : une page backlink n'optimise PAS la cohérence avec le site mais les CODES VISUELS DU GENRE (autorité FT / Fed / Bloomberg) + la lisibilité en vignette + la survie en dark-mode. Le brand kit (fond crème #F8F5EE, terracotta #B85C3C) est fait pour le site, pas pour ces pages. La sobriété EST l'optimisation ; plus de couleurs = moins de partage.
+- §2.1 Palette par défaut : fond blanc pur `#FFFFFF` (ou `#FCFCFC`), **jamais de crème** ici ; texte `#14141A` ; séries/contexte gris `#9CA3AF` ; bandes de contexte `#D9DCE1` ; grille `#E3E5E9` ; **UN SEUL accent saturé, rouge vermillon `#E03127`, RÉSERVÉ à l'élément focal/l'anomalie** (la ligne de seuil critique peut le prendre, en pointillé).
+- §2.2 Figure/fond : contexte en gris muet, anomalie en accent, lisible en 3 secondes. Ne JAMAIS colorier les éléments de contexte dans l'accent. Un seul dispositif géométrique de l'aha par visuel, léger (alpha ~0,5, trait fin), sémantiquement lié au finding ; s'il faut l'expliquer par une légende dédiée, il est trop malin.
+- §2.3 Axe Y : si des outliers écrasent le seuil et l'anomalie dans les 10 % bas du graphe, **plafonner l'axe** et laisser les gros pics sortir par le haut (clip) ; **labeller chaque pic hors-échelle avec sa valeur** en gris foncé `#54545f`, PAS en accent.
+- §2.4 Typo : serif éditorial pour le titre (Source Serif 4), sans pour les labels/UI (Inter), mono pour les chiffres (IBM Plex Mono), parce qu'elles servent l'autorité, pas par obligation de brand. Piège : IBM Plex Mono n'a pas l'espace fine (U+2009) → insécable U+00A0 pour les nombres FR.
+- §2.5 Autorité EARNED, jamais ASSERTED (FIGÉ). **INTERDITS sur la page** : bloc « Cite this » / « How to cite », BibTeX/APA, DOI ou identifiant fabriqué ; rangée de boutons « Share » / « Share this research » ; click-to-copy (banni depuis la v2 : une version antérieure le prescrivait, en contradiction avec cette section) ; badges / pills « Public dataset », « Open research », « Peer-reviewed », « Verified », trust-seals, compteurs de vues/citations ; badge / logo de licence décoratif ; bloc auteur / affiliation / ORCID ; cadre « Abstract », « Working paper », « Download the paper / PDF version » ; capture email / newsletter (§4). **AUTORISÉ** : bouton CSV simple, ligne de meta discrète « License: CC BY 4.0 », source FRED · NBER, section Méthodologie, TL;DR en langage simple (PAS « Abstract »), petit kicker de section. Règle de tri : CONTENU (informe / prouve / explique) reste, DÉCORATION (réclame le prestige ou le partage) dégage. `cosplay_scan` de `scripts/record_checks.py` le vérifie avant livraison.
 
 ---
 
-## 3. Le hero PNG autoportant
+## 3. Le hero PNG autoportant (lire `references/03-hero-png-architecture-page.md`)
 
-- **PNG self-contained** : titre + sous-titre + **bande de 3-4 chiffres-clés** + sourcing 2 lignes mono + watermark, tout BAKÉ dans l'image. Objectif : l'image se suffit en partage hors-site (Reddit/X embed, FT). Format 1536×864 (livrer en ≥2x : 3072×1728).
-- **Bande de chiffres-clés** en tête (ex. `9/9 · 0 · 0.57 · 0.13`) : crédibilise + rend l'image autoportante. **Zéro stat redondante dans la bande** : deux chiffres qui disent la même chose gaspillent un slot (cas réel : "1 escalating sequence" + "0 escalations since 1980" = la même information deux fois ; remplacer le doublon par une ancre distincte, ex. la valeur record "14.6% — unmatched since 1980").
-- **PAS de tableau dans l'image si la donnée est mono-métrique** (Sahm = 1 métrique → courbe, pas tableau). Un tableau-dans-l'image n'a de sens que si la donnée est génuinement tabulaire (yield curve = 6 colonnes start/end/durée/trough/lag/récession). **Matcher le visuel à la nature de la donnée.**
-- **Anti-doublon** : si le PNG est autoportant, le HTML autour est MINIMAL (dek éditorial + meta). Pas de `<figcaption>` qui répète le titre/source du PNG. Pas de titre HTML qui répète celui du PNG — **une seule couche dit le titre** (le PNG le garde, le H1 SEO est fourni par Blocksy).
-- **Rendu : l'outil est libre (matplotlib, HTML→Playwright/Chromium, autre), le critère ne l'est pas** — tout élément chiffré tracé depuis le vrai CSV chargé dans la session ; layout vérifié (footer dans le cadre, rien de tronqué ni de chevauché) ; **screenshot rendu et INSPECTÉ avant livraison** ; l'aha doit se lire en vignette ~400px. La variante linguistique (hero FR) est rendue et inspectée séparément — les titres FR sont plus longs, prévoir taille/wording dédiés plutôt qu'une traduction qui tronque.
+Bloquant :
+- PNG self-contained : titre + sous-titre + **bande de 3-4 chiffres-clés** + sourcing 2 lignes mono + watermark, tout BAKÉ dans l'image. Format 1536×864, livré en ≥2x (3072×1728). **Zéro stat redondante dans la bande** (remplacer le doublon par une ancre distincte).
+- PAS de tableau dans l'image si la donnée est mono-métrique (courbe) ; tableau seulement si la donnée est génuinement tabulaire. Matcher le visuel à la nature de la donnée.
+- Anti-doublon : HTML minimal autour du PNG (dek éditorial + meta) ; pas de `<figcaption>` ni de titre HTML qui répète le PNG — **une seule couche dit le titre** (le H1 SEO est fourni par Blocksy).
+- Rendu : l'outil est libre, le critère ne l'est pas — tout élément chiffré tracé depuis le vrai CSV chargé dans la session ; layout vérifié (footer dans le cadre, rien de tronqué ni chevauché) ; **screenshot rendu et INSPECTÉ avant livraison** ; l'aha se lit en vignette ~400px ; hero FR rendu et inspecté séparément, taille/wording dédiés plutôt qu'une traduction qui tronque.
 
 ---
 
-## 4. Architecture de page
+## 4. Architecture de page (lire `references/03-hero-png-architecture-page.md`)
 
-- **Bloc HTML (markup + CSS uniquement, AUCUN `<script>`, AUCUN H1)** dans un bloc Custom HTML (pas l'éditeur classique → wpautop). Blocksy fournit le titre/H1.
-- **CSS 100 % SCOPÉ (BLOQUANT)** : tout le markup vit dans UN wrapper à classe unique (ex. `.e3m-wave`) et **chaque sélecteur du `<style>` commence par ce wrapper**. **INTERDITS : `body{…}`, `*{…}`, `html{…}`, tout sélecteur d'élément nu (`p{}`, `a{}`, `table{}`)** — bug réel : un bloc qui stylait `body` et `*` fuyait sur le header/footer Blocksy de toute la page. Le reset box-sizing se fait en `.wrapper *{box-sizing:border-box}`. Vérification programmatique : extraire les sélecteurs du style et asserter qu'ils commencent tous par le wrapper (ou `@media`/`@import`).
-- **Snippet PHP séparé** (Code Snippets, type PHP, "Run everywhere", **sans balise `<?php` de tête**), **guardé par slug** selon le motif canonique de `eco3min-import-contenu-bilingue` (`is_singular('page')` + `get_queried_object() instanceof WP_Post` + map par `post_name`, nom de snippet UNIQUE). Il porte :
-  - **au `wp_head`** : le JSON-LD `@graph` (Article + Dataset + FAQPage) des DEUX langues, **encodé en base64 par slug** (jamais en clair/heredoc : l'échappement casse silencieusement à l'embarquement dans le bundle JSON — format aligné sur le skill import) ;
-  - **au `wp_footer`**, guardé sur les MÊMES slugs : le **chart interactif dessiné main (canvas, AUCUNE lib)** — il injecte `window.<data>` + le JS et se monte sur un `<div id="…">` placeholder posé dans le bloc HTML. **Pas de shortcode nécessaire** : le bloc HTML reste sans script, et si le JS échoue le div vide est invisible (dégradation propre, le hero PNG couvre).
-  - Rien d'autre. **Pas de click-to-copy** (banni §2.5).
-- **Hook + TABLEAU du record above-the-fold, en HTML** (indexable — JAMAIS le record uniquement dans une image ; le HTML est ce que Google/les LLM citent).
-  - **Pattern autorisé : barres de magnitude CSS pures dans le tableau** (span à largeur % inline, valeur/max ; lignes de l'anomalie en accent, contexte en gris, ligne "live" atténuée) — rend le finding visible dans le HTML indexable lui-même, sans script. Masquer la colonne sous ~480px si elle serre.
-- **Chart interactif** : résout l'axe Y (readout au survol = valeur exacte même hors-échelle), ajoute le signal "high-effort OC" que Reddit récompense. **Les boutons jump remplacent un 2e chart comparatif** (cliquer "2008", "COVID" vs l'anomalie = comparaison dans le même chart). Plafonner à ~2 visuels (hero + interactif) ; au-delà = bascule "outil", perte du signal référence. Spécifications éprouvées :
-  - readout mono au survol ET au touch (mobile) ; crosshair ; boutons de fenêtres (Full + 4-5 fenêtres calées sur les épisodes du registre) ;
-  - labels des pics affichés au zoom **avec halo blanc** (`strokeText` épais sous le `fillText`) — bug réel attrapé au test mobile : label du point live croisant la courbe ;
-  - **honnêteté des trous** : un mois manquant dans la source = `null` affiché "no data (…)" dans le readout, JAMAIS interpolé ni ponté ;
-  - DPR-aware, responsive, i18n par slug (formats FR : virgule décimale + insécable) ;
-  - **tester le WIDGET rendu dans un harnais navigateur (Playwright/Chromium), desktop + mobile + une vue zoomée, et INSPECTER les captures** avant livraison — même exigence que le hero.
-- **Structure éditoriale** : Beat finding-first / mécanisme / steelman / "what it doesn't prove" (→ `production-research-study`).
-- **CSV téléchargeable** = la conversion qui SERT le backlink (donnée libre = donnée citée). **Pas de capture email** sur une page backlink (clarté de mission ; la capture vit sur la page dataset). Bouton CSV SEUL dans la zone download (pas de bouton concurrent qui détourne) ; deux CSV liés au même dataset (série + registre) = OK, c'est toujours "CSV seul".
-- **Maillage interne** vers le cluster : dans le corps + le bloc Related, PAS un bouton concurrent dans la zone download.
-- **URLs des assets** (hero, CSV) : format `uploads/AAAA/MM/` avec année/mois EN COURS, base identique partout — règle et détail dans `eco3min-import-contenu-bilingue` (BLOQUANT là-bas, s'applique ici aussi).
+Bloquant :
+- Bloc HTML = markup + CSS uniquement, **AUCUN `<script>`, AUCUN H1**, dans un bloc Custom HTML (pas l'éditeur classique → wpautop). Blocksy fournit le titre/H1.
+- **CSS 100 % SCOPÉ (BLOQUANT)** : tout le markup sous UN wrapper à classe unique (ex. `.e3m-wave`), chaque sélecteur du `<style>` commence par ce wrapper. INTERDITS : `body{…}`, `*{…}`, `html{…}`, tout sélecteur d'élément nu (bug réel : fuite sur le header/footer Blocksy de toute la page). Reset en `.wrapper *{box-sizing:border-box}`. Vérification programmatique obligatoire : `css_scoped` de `scripts/record_checks.py`.
+- **Snippet PHP séparé** (Code Snippets, PHP, « Run everywhere », **sans `<?php` de tête**), **guardé par slug** selon le motif canonique de `eco3min-import-contenu-bilingue` (`is_singular('page')` + `get_queried_object() instanceof WP_Post` + map par `post_name`, nom UNIQUE). Au `wp_head` : JSON-LD `@graph` (Article + Dataset + FAQPage) des DEUX langues, **encodé en base64 par slug** (jamais en clair/heredoc : l'échappement casse silencieusement dans le bundle). Au `wp_footer`, mêmes slugs : le **chart interactif canvas, AUCUNE lib**, qui injecte `window.<data>` + le JS et se monte sur un `<div id="…">` placeholder du bloc HTML ; pas de shortcode ; si le JS échoue le div vide est invisible. Rien d'autre, pas de click-to-copy. `snippet_static` + `php_simulate` de `scripts/record_checks.py` vérifient le motif et l'émission slug par slug.
+- **Hook + TABLEAU du record above-the-fold, en HTML** indexable (JAMAIS le record uniquement dans une image). Barres de magnitude CSS pures autorisées dans le tableau (anomalie en accent, contexte en gris) ; masquer la colonne sous ~480px si elle serre.
+- Chart interactif : readout mono au survol ET au touch ; crosshair ; boutons de fenêtres (Full + 4-5 épisodes du registre) qui **remplacent un 2e chart comparatif** ; labels des pics avec halo blanc (`strokeText` sous le `fillText`) ; **trous de source = `null` affiché « no data », JAMAIS interpolé ni ponté** ; DPR-aware, responsive, i18n par slug (FR : virgule + insécable) ; **testé en harnais Playwright/Chromium desktop + mobile + zoom, captures INSPECTÉES**. Plafond ~2 visuels (hero + interactif), au-delà = bascule « outil ».
+- Structure éditoriale : finding-first / mécanisme / steelman / « what it doesn't prove » (→ `production-research-study`).
+- **CSV téléchargeable** = la conversion qui SERT le backlink. **Pas de capture email** sur une page backlink (elle vit sur la page dataset). Bouton CSV SEUL dans la zone download ; deux CSV du même dataset = toujours « CSV seul ».
+- **Maillage interne** vers le cluster dans le corps + le bloc Related, PAS un bouton concurrent dans la zone download.
+- **URLs des assets** (hero, CSV) en `uploads/AAAA/MM/` du mois EN COURS, base identique partout (BLOQUANT dans `eco3min-import-contenu-bilingue`, s'applique ici aussi).
 
 ---
 
@@ -207,6 +146,8 @@ Le trio peut rester : **serif éditorial pour le titre** (Source Serif 4 — un 
 - **Cohérence des chiffres** entre hero PNG, tableau HTML, chart interactif, JSON-LD, 1er commentaire, social — tous sur le même CSV. Automatiser ce qui s'automatise (mêmes valeurs clés grep-ées dans chaque livrable).
 - **`<!-- VERIFY -->`** sur tout fait hors-CSV non encore sourcé (citations, permalinks) ; ne pas publier tant qu'ils restent.
 
+Les contrôles mécaniques de cette section (CSS scopé, node --check, round-trip base64 du JSON-LD, FAQ JSON-LD = FAQ visible, `php -l` + stubs WP sur chaque slug et silence sur un slug tiers, chiffres-clés grep-és par livrable) sont implémentés dans `scripts/record_checks.py` (`run_all`) : l'importer dans le `validate.py` de la production, ne pas les réécrire.
+
 ---
 
 ## Checklist pré-publication
@@ -247,6 +188,7 @@ Le trio peut rester : **serif éditorial pour le titre** (Source Serif 4 — un 
 ## Versioning
 - **v1** — création (Sahm, yield curve).
 - **v2 (juil. 2026, page inflation waves)** — click-to-copy retiré du snippet et BANNI (contradiction avec §2.5) ; rendu hero rendu outil-agnostique (le critère = CSV réel + screenshot inspecté) ; format snippet aligné sur le skill import (JSON-LD base64 par slug, motif de garde canonique, montage du chart au wp_footer sur placeholder — pas de shortcode) ; ajout scoping CSS BLOQUANT (bug réel body/*) ; cohérence dek↔table ; specs chart interactif (halo, trous honnêtes, test harnais mobile) ; bande de stats sans doublon ; dispositif géométrique de l'aha encadré ; piège U+2009 Plex Mono.
+- **v3 (17/09/2026)** — découpage : SKILL.md = colonne vertébrale, §0 à §4 déplacés VERBATIM dans `references/01`→`03`, gardes extraites dans `scripts/record_checks.py` (testées à l'identique sur le registre des faillites bancaires du 01/09/2026 + tests négatifs) ; second frontmatter (corps mort) supprimé ; description réécrite ; aucune règle modifiée.
 ---
 
 ## RAPPEL BLOQUANT — Zéro commentaire HTML dans le contenu publié

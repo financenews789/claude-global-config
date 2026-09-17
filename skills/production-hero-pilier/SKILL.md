@@ -1,6 +1,6 @@
 ---
 name: production-hero-pilier
-description: Production des heros de pages piliers eco3min.fr (~10 piliers, série template-driven). Activer pour toute création ou itération d'un hero de pilier, FR ou EN. Couvre : règle UNE idée visuelle dominante (4 formats : série anchor, comparaison, diagramme conceptuel, small multiples 2x2 — jamais empilés), process 4 étapes, audit data bloquant (couverture période, symétrie N catégories), rigueur métrique (proxy = standard académique du concept), patterns Option SM (labels uppercase, dual-anchor, pillar tag), ROTATION SÉRIE BLOQUANTE v1.2 (jamais 2 piliers consécutifs sur le même format ; max 2 heros consécutifs en mode sobre, alterner avec le mode catégoriel du brand kit ; input = format + mode des 2 derniers heros), AMF, sourcing par codes de série, terracotta (unicité en mode sobre), 3 tests (comptage non-initié, mobile 380px, lecture 5 s). Format 1536x864. Combiner avec brand-kit-eco3min, visuels-eco3min, formats-eco3min, editeur-eco3min, archi-eco3min.
+description: "Production des heros de pages PILIERS d'eco3min.fr (série template-driven d'environ 10 piliers, 1536×864, fond crème), FR et EN — le visuel qui montre le territoire d'un silo en 5 secondes. Activer pour toute création ou itération d'un hero de pilier : « hero du pilier », « hero pilier X », « refais le hero de politique-monetaire-taux », « prochain pilier », « option A ou SM ? », « rotation série », « quel format pour ce pilier », « small multiples 2×2 », « dual-anchor », « tag pilier », « layout 6 zones », « hero-A-1990-2026.png ». Structure : SKILL.md = colonne vertébrale (mission, règle UNE idée visuelle dominante et les 4 formats A / B / C / SM, rotation série bloquante v1.2, process condensé, contraintes éditoriales verbatim, charte, layout 6 zones, anti-patterns et 3 tests verbatim, livraison, input) ; références dans references/ (à lire quand l'étape le dit) : 01 process en 4 étapes avec l'audit de faisabilité data, la table des proxies académiques et les cartes d'options, 02 layout canonique avec la variante barre régimes, la variante Option SM (labels catégoriels uppercase, annotations dual-anchor) et la hiérarchie des 5 signaux, 03 note d'usage, arbitrages de mai 2026, workflow et piliers candidats ; pas de scripts/ propres (gardes : brand-kit-eco3min/scripts/brand_tokens.py et visuels-eco3min/scripts/mpl_guards.py). Doctrines : UN format par hero, jamais empilés ; rotation série bloquante (jamais 2 piliers consécutifs sur le même format, max 2 heros consécutifs en mode sobre, input = format + mode des 2 derniers heros, dérogation signalée jamais tranchée en silence) ; audit de faisabilité data avant de coder (couverture de période, symétrie des N catégories) ; rigueur métrique : le proxy est LE standard académique du concept sur toute la période (HY OAS contredisait la thèse sur marches-financiers, mai 2026, l'ACM term premium était le bon) ; proxy ou transition de série signalé DANS le chart et en footer, jamais en footer seul ; symétrie de traitement des N catégories ; terracotta unique en mode sobre, verticale répétée acceptée en Option SM ; dual-anchor moyenne-par-régime obligatoire en SM ; timestamp en ligne 2 du sourcing seulement ; chrome canonique v2.0 : sources bas-gauche, signature Eco3min Research + URL bas-droite, tag pilier sans numérotation ; production en code depuis le CSV réel, Claude Design pour explorer les options. Hors périmètre : heros de majeur (production-hero-majeur, thèse sur fond blanc) et d'article (production-hero-article-eco3min, 1200×630) ; tokens (brand-kit-eco3min) ; AMF visuelle, choix de chart et rendu (visuels-eco3min) ; corps de la page (formats-eco3min, pilier-kit). Combiner avec brand-kit-eco3min, visuels-eco3min, sourcing-donnees-eco3min, editeur-eco3min, archi-eco3min."
 ---
 
 # Production — Hero visuel pour page pilier Eco3min
@@ -15,6 +15,18 @@ Générer le visuel hero placé en tête d'une page pilier de eco3min.fr (site b
 - Établir la crédibilité data-driven dès le premier regard.
 - Rester lisible si partagé seul sur X / LinkedIn / Reddit.
 - NE PAS dupliquer le contenu texte de la page — l'**amplifier visuellement**.
+
+---
+
+## COMMENT LIRE CE SKILL (découpage du 17/09/2026)
+
+Ce fichier est la colonne vertébrale : les deux règles bloquantes (UNE idée, rotation série), le process condensé, les contraintes éditoriales, le layout, les anti-patterns, les tests et le format de livraison. Le détail (audit data et table des proxies, cartes d'options, layout 6 zones et variantes, arbitrages de mai 2026) a été déplacé VERBATIM dans `references/` et fait foi au même titre que ce fichier. Chaque étape ci-dessous nomme le fichier à lire ; le lire est obligatoire au moment indiqué. Les tokens et le chrome sont dans `brand-kit-eco3min` (v2.0 §0), les gardes de rendu dans `visuels-eco3min` §7 bis / §7 ter.
+
+| Fichier | Contenu | À lire |
+|---|---|---|
+| `references/01-process-these-data-options.md` | Étapes 1 à 4 : thèse, audit de faisabilité data, rigueur métrique et table des proxies, cartes d'options, SVG modulaire, variante linguistique | avant l'Étape 1 (audit data), puis avant de présenter les options |
+| `references/02-layout-canonique-variantes.md` | architecture 6 zones, variante barre régimes, variante Option SM (labels catégoriels, dual-anchor, titre et sous-titre SM), format sourcing footer, hiérarchie des 5 signaux | avant de coder le layout, obligatoire si Option SM ou barre régimes |
+| `references/03-note-usage-arbitrages-workflow.md` | genèse du skill, confirmé canonique, arbitrages tranchés, workflow code vs Claude Design, à actualiser, piliers candidats | avant de proposer un pilier suivant, et quand un arbitrage passé est remis en cause |
 
 ---
 
@@ -50,75 +62,14 @@ Les heros piliers forment une **série** — c'est comme série qu'ils sont per�
 
 ---
 
-## Process en 4 étapes
+## Process en 4 étapes (lire `references/01-process-these-data-options.md` avant l'Étape 1)
 
-### Étape 1 — Thèse + AUDIT DE FAISABILITÉ DATA
-
-**1.1 — Thèse en une phrase.** Identifier en UNE phrase la thèse structurante de la page. Si la page n'a pas de thèse claire et univoque, signaler le problème éditorial AVANT toute production visuelle.
-
-**1.2 — Audit de faisabilité data (étape critique, ne pas sauter).**
-
-- Pour chaque série mobilisable, vérifier qu'elle couvre la période visée par la thèse. Exemple : thèse sur 3 régimes 1990-2026 mais TIPS commencent en 2003 → flaguer.
-
-- Si une série principale ne couvre pas la période complète, proposer une stratégie de résolution AVANT de coder :
-  - Proxy pre-période (ex: nominal − core CPI YoY) avec disclosure
-  - Recadrage de la thèse pour matcher la période disponible
-  - Chart court + annotation textuelle pour la période non-couverte
-
-  Ne pas trancher silencieusement — demander à Paul.
-
-- Si la thèse mentionne N catégories (régimes, scénarios, secteurs), vérifier que chacune sera visuellement représentable de façon symétrique. Si non, flaguer comme choix éditorial à confirmer.
-
-**1.3 — Rigueur métrique (étape critique, après l'audit faisabilité).**
-
-Pour chaque cellule/courbe du hero, la métrique choisie doit être **LE proxy académique standard** du concept énoncé dans le titre/sous-titre — pas un proxy adjacent qui « marche aussi ».
-
-Mappings rigoureux de référence :
-
-| Concept énoncé | Proxy standard | Code/source |
-|---|---|---|
-| Cost of capital / Taux réels | TIPS 10Y yield | FRED `DFII10` |
-| Stock-bond correlation | Rolling 24m correlation S&P 500 / 10Y Treasury monthly returns | calcul Eco3min sur S&P + FRED `DGS10` |
-| Duration risk premium / Prime de duration | ACM 10Y term premium | NY Fed (modèle Adrian-Crump-Moench) |
-| Credit risk premium / Prime crédit | HY OAS | ICE BofA `BAMLH0A0HYM2` |
-| Volatility / Volatilité | VIX niveau brut OU 12m MA selon focus | CBOE `VIXCLS` |
-| Real activity / Activité réelle | Industrial production, employment, ou GDP growth | FRED (selon angle) |
-
-**Test de validation : la métrique choisie doit faire ce qu'elle prétend faire SUR LA PÉRIODE COMPLÈTE de la thèse.** Contre-exemple à éviter (observé sur pilier `marches-financiers`, test mai 2026) : choisir HY OAS pour illustrer « primes de risque dans le nouveau régime », alors que les HY spreads se sont re-comprimés à leur plancher historique (~300 bps) en 2024-2026. La métrique contredit alors la thèse. Le proxy rigoureux était l'ACM term premium qui montre, lui, une réelle reconstitution.
-
-Si plusieurs proxies sont défendables :
-1. Choisir celui cité explicitement dans la page (priorité absolue)
-2. Sinon : celui le plus immédiatement reconnu par un lecteur expert (Bloomberg-ready)
-3. Sinon : celui sourçable via FRED ou source institutionnelle gratuite (pour reproductibilité)
-
-En cas de doute, demander à Paul AVANT de coder.
-
-### Étape 2 — Options (2 ou 3)
-
-Présenter 2-3 options visuelles distinctes (A/B/C). Pour chacune, livrer une **carte structurée** :
-
-- **Titre court** de l'option (ex: « Série temporelle anchor »)
-- **Mockup SVG basse fidélité** OU description structurée
-- **Ce que l'œil capte en 3 secondes** (1 phrase)
-- **Données mobilisées** (sources + séries spécifiques avec codes)
-- **Compromis** (1 phrase honnête sur ce que cette option sacrifie)
-
-Présenter en canvas Figma-style si l'environnement le permet (sinon en texte structuré). Paul arbitre après lecture comparative.
-
-### Étape 3 — Production SVG finale
-
-Sur l'option retenue, produire le SVG complet, autonome, prêt à export PNG/WEBP en **1536×864**. Code propre et commenté pour itération.
-
-**Structurer le code SVG en blocs modulaires par locale et par option** :
-- Zones 1/2/3 (tag pilier / titre / sous-titre) — texte FR/EN paramétrable
-- Zone 4 (chart-block) — invariant entre FR et EN, swappable entre options A/B/C
-- Zones 5/6 (watermark / sourcing) — texte FR/EN paramétrable
-
-Permet : (a) pivot rapide vers une option alternative sans tout refaire, (b) production de la variante linguistique en swappant uniquement le texte des zones 1/2/3/5/6.
-
-### Étape 4 — Variante linguistique
-
-Produire **systématiquement** la variante EN (ou FR si la base est EN). Strictement même structure visuelle, mêmes données — seul le texte change. Le titre traduit doit conserver le rythme et la précision du titre source, **pas une traduction littérale qui sonne plat**.
+Bloquant :
+- **Étape 1 — Thèse + audit de faisabilité data.** Thèse en UNE phrase ; page sans thèse univoque → signaler le problème éditorial AVANT toute production. Pour chaque série mobilisable, couverture de la période visée vérifiée (TIPS commencent en 2003 pour une thèse 1990-2026 → flaguer) ; série incomplète → proxy pré-période avec disclosure, recadrage de la thèse ou chart court + annotation, **proposé à Paul, jamais tranché en silence**. N catégories nommées → chacune représentable de façon symétrique, sinon flaguer.
+- **Étape 1.3 — Rigueur métrique.** La métrique est **LE proxy académique standard** du concept énoncé (table dans la référence 01 : coût du capital → TIPS `DFII10`, prime de duration → ACM term premium, prime crédit → HY OAS `BAMLH0A0HYM2`, vol → `VIXCLS`…). **Test bloquant : la métrique fait ce qu'elle prétend SUR LA PÉRIODE COMPLÈTE de la thèse.** Plusieurs proxies défendables : celui cité dans la page, sinon le plus Bloomberg-ready, sinon le plus reproductible (FRED). Doute → demander à Paul AVANT de coder.
+- **Étape 2 — 2 ou 3 options** de formats différents, chacune en carte structurée (titre, mockup ou description, ce que l'œil capte en 3 s, données avec codes, compromis). Paul arbitre.
+- **Étape 3 — Production finale** en 1536×864 depuis le CSV réel, code modulaire par zone (1/2/3/5/6 texte paramétrable FR/EN, zone 4 chart-block invariant). Rendu en code : HTML/SVG → Playwright (`visuels-eco3min` §7 bis) ou matplotlib + `mpl_guards` (§7 ter) ; `brand_tokens.check_source` sur le script avant livraison.
+- **Étape 4 — Variante linguistique systématique** : même structure, mêmes données, seul le texte change ; titre traduit qui garde le rythme, pas une traduction littérale plate.
 
 ---
 
@@ -126,11 +77,11 @@ Produire **systématiquement** la variante EN (ou FR si la base est EN). Stricte
 
 ### Sourcing intégré au visuel
 
-- Sources institutionnelles citées en **bas-droite** (Fed, BCE, BIS, FMI…)
+- Sources institutionnelles citées en **bas-gauche** (Fed, BCE, BIS, FMI…) — chrome canonique `brand-kit-eco3min` v2.0 §0
 - **Codes de série explicites** (DFII10, DGS10, etc.) — pas seulement « Federal Reserve » générique
 - Méthodologie résumée en une ligne, ex : « TIPS 10Y from 2003 · pre-2003 proxy = DGS10 − sticky core CPI YoY · Values rounded for readability »
 - « Updated [mois année] »
-- Watermark « Eco3min — Research » + URL pilier en **bas-gauche**
+- Signature `Eco3min Research` ligne 1 + URL pilier ligne 2 en **bas-droite** (IBM Plex Mono, zéro cadratin)
 
 ### AMF compliance (visuel)
 
@@ -174,91 +125,25 @@ Produire **systématiquement** la variante EN (ou FR si la base est EN). Stricte
 
 **Cas Option SM** : la verticale terracotta se répète sur les 4 cellules à la même date — redondance contrôlée acceptée parce qu'elle sert la thèse « N propriétés convergent », pas un cluster.
 
+Chrome canonique v2.0 (`brand-kit-eco3min` §0) : titre Source Serif 4 charcoal, sous-titre Inter gris medium, sources bas-gauche 2 lignes mono, signature `Eco3min Research` + URL pilier bas-droite, zéro cadratin, tag pilier sans numérotation.
+
 ---
 
-## Layout canonique
+## Layout canonique (lire `references/02-layout-canonique-variantes.md` avant de coder le layout)
 
-Structure confirmée par les piliers `politique-monetaire-taux` et `macroeconomie-geopolitique` (mai 2026). À reproduire comme défaut sur les piliers suivants, sauf raison éditoriale spécifique signalée à Paul.
+Architecture 6 zones, confirmée sur `politique-monetaire-taux` et `macroeconomie-geopolitique` (mai 2026), défaut sur les piliers suivants sauf raison éditoriale signalée à Paul :
 
-### Architecture 6 zones
-
-1. **Tag pilier** (haut-gauche) — uppercase petit en mono, ex : `POLITIQUE MONÉTAIRE & TAUX — PILIER` / `MONETARY POLICY & RATES — PILLAR`
-2. **Titre** (serif large, ≤8 mots) — porte la thèse de façon dense, rythme conservé en traduction
-3. **Sous-titre** (sans-serif, 2 phrases max) — phrase 1 décrit ce que montre le chart, phrase 2 porte la thèse
+1. **Tag pilier** (haut-gauche) — uppercase mono, ex. `POLITIQUE MONÉTAIRE & TAUX — PILIER`, sans numéro
+2. **Titre** (serif large, ≤8 mots) — porte la thèse, rythme conservé en traduction
+3. **Sous-titre** (Inter, 2 phrases max) — phrase 1 décrit ce que montre le chart, phrase 2 porte la thèse
 4. **Chart pleine largeur** — le visuel dominant, contient toute la donnée
-5. **Watermark** (bas-gauche) — `Eco3min — Research` ligne 1 + URL pilier ligne 2 (FR ou EN selon variante)
-6. **Sourcing** (bas-droite) — bloc 2 lignes (format ci-dessous)
+5. **Signature** (bas-droite) — `Eco3min Research` ligne 1 + URL pilier ligne 2
+6. **Sourcing** (bas-gauche) — 2 lignes : `Sources: [Institution] ([codes]); …` / `Updated [mois année] · [méthodo 1 ligne] · Values rounded for readability` ; le timestamp n'apparaît QUE là
 
-### Variante : signalétique régimes en barre inférieure
-
-Quand la **géométrie naturelle de la courbe** raconte déjà les phases (climb → plateau → cassure, ou équivalent), la signalétique des régimes peut être déportée en **barre annotative sous le chart** plutôt qu'imposée par 3 zones ombrées superposées.
-
-**Pattern observé sur `macroeconomie-geopolitique`** :
-- Chart : une seule courbe, une seule zone ombrée terracotta pour le régime accent
-- Barre inférieure : 3 cellules horizontales avec libellés `RÉGIME 1 · 1990-2008 · Coûts décroissants` / `RÉGIME 2 · 2010-2019 · Soutien monétaire` / `RÉGIME 3 · 2020-? · Résilience coûteuse`
-- Avantage : chart aéré, la géométrie reste lisible, le test de comptage passe via la barre textuelle
-- Condition d'usage : la courbe DOIT raconter visuellement les phases (sinon la barre devient un cosmétique déconnecté)
-
-À utiliser quand le chart est "geom-led" (la forme parle). À éviter quand la donnée est plate ou erratique et que les régimes n'apparaîtraient qu'en zones ombrées.
-
-### Variante Layout — Option SM (small multiples 2×2)
-
-Layout enrichi spécifique au format SM. **Ne se substitue pas** à l'architecture 6 zones de référence — il l'étend avec une **structure interne par cellule** et 2 conventions d'annotation propres.
-
-**Structure dans chaque cellule (4 niveaux, du haut vers le bas)** :
-
-1. **Label catégoriel uppercase terracotta** (mono, ~11px, letterspacing 2.5) — reframe la métrique par son rôle macro. **PAS** le nom descriptif de la métrique seul.
-   Ex FR : `PROPRIÉTÉ 01 · COÛT DU CAPITAL` · `PROPRIÉTÉ 02 · CORRÉLATION` · `PROPRIÉTÉ 03 · PRIMES DE RISQUE` · `PROPRIÉTÉ 04 · VOLATILITÉ`
-   Ex EN : `PROPERTY 01 · COST OF CAPITAL` · `PROPERTY 02 · CORRELATION` · `PROPERTY 03 · RISK PREMIA` · `PROPERTY 04 · VOLATILITY`
-
-2. **Titre descriptif de la métrique** (serif léger ou sans-serif medium, ~15px, charcoal)
-   Ex : `Taux réels — Treasury TIPS 10 ans (%)` / `Real rates — 10Y Treasury TIPS yield (%)`
-
-3. **Chart area** avec verticale terracotta unique à la même date sur les 4 cellules (cohérence cross-cells = signal homogène, redondance contrôlée).
-
-4. **Bottom annotations dual-anchor avant/après** — pattern obligatoire en Option SM. Split gauche/droite sous le chart :
-   - **Gauche** (gris medium, casse normale) : `[période pré-rupture] ≈ [valeur moyenne]`
-   - **Droite** (terracotta uppercase pour la valeur post-rupture) : `[période post-rupture] ≈ [valeur moyenne]`
-
-   Exemples bruts :
-   - `2009 - 2021 ≈ −0,3 %` / `2022 - 2026 ≈ +2,0 %`
-
-   Variante éditoriale avec label de régime nommé (recommandée quand le régime a une identité économique claire) :
-   - `RÉGIME DÉSINFLATIONNISTE ≈ −0,40` / `RÉGIME INFLATIONNISTE ≈ +0,45`
-   - `2013 - 2019 SUPPRIMÉE moy. ≈ 14` / `2022 - 2026 STRUCTURELLE moy. ≈ 20`
-
-   **Pourquoi dual-anchor obligatoire** : le test 5 secondes échoue avec des annotations point-précises (« −1,19 % août 2021 → +2,40 % oct. 2023 »), qui demandent au lecteur de reconstruire la temporalité. La moyenne par régime se capte instantanément sans connaître les milestones. Pattern observé décisif sur `marches-financiers` (mai 2026).
-
-**Pillar number tag** (recommandé, haut-droite du visuel) : `PILIER 03 / 10` / `PILLAR 03 / 10` en mono uppercase, gris medium. Inscrit l'image dans une série et facilite la mémorisation.
-
-**Titre adapté à Option SM** : porter dans le titre LES DEUX axes structurants (nombre de régimes + nombre de propriétés/dimensions). Ex : `Two regimes, four properties reversed in 2022` / `Deux régimes, quatre propriétés inversées en 2022`. Pattern `N éléments, M propriétés, rupture en YYYY` plus dense que `N éléments, un basculement structurel`.
-
-**Sous-titre adapté à Option SM** : phrase 1 liste les N propriétés + verbe de mouvement simultané ; phrase 2 porte la thèse compressée. Ex : « As real rates turn positive, stock-bond correlation, duration risk premia and volatility flip in sync — the 2009-2021 decade was a regime anomaly, not a baseline. »
-
-**À utiliser quand** la thèse mentionne explicitement N propriétés/dimensions distinctes ET aucune métrique unique ne peut capturer le basculement.
-
-### Format sourcing footer canonique
-
-- **Ligne 1** — `Sources: [Institution] ([codes de série]); [Institution] ([série]); …`
-- **Ligne 2** — `Updated [mois année] · [méthodologie résumée en 1 ligne] · Values rounded for readability`
-
-Exemple (politique-monetaire-taux) :
-- `Sources: Federal Reserve (FRED, DFII10, DGS10); Atlanta Fed (sticky core CPI); BLS`
-- `Updated May 2026 · TIPS 10Y from 2003 · pre-2003 proxy = DGS10 − sticky core CPI YoY · Values rounded for readability`
-
-**Le timestamp `Updated [mois année]` apparaît UNIQUEMENT dans la ligne 2 du sourcing footer.** Ne pas le dupliquer en haut-droite du visuel ni ailleurs.
-
-### Hiérarchie des signaux intra-chart
-
-Ordre **décroissant** de poids visuel à respecter strictement :
-
-1. **Accent terracotta** (1 marqueur principal — voir règle Palette dans `brand-kit-eco3min`) — le moment-clé / la rupture
-2. **Zone ombrée medium grey** — la durée d'une catégorie centrale
-3. **Pointillé vertical fin** — transition méthodologique OU frontière de catégorie secondaire
-4. **Zone ombrée light beige** (ou équivalent très clair) — catégorie périphérique
-5. **Annotations textuelles courtes** — bord supérieur, ≤4 par chart
-
-**Redondance contrôlée acceptable** : 2 signaux pour la même information (ex: light shading + pointillé pour une même frontière de catégorie) si la redondance sert la robustesse de lecture. **Interdite** si elle relève du remplissage ou de la symétrie cosmétique.
+Bloquant :
+- **Hiérarchie des 5 signaux intra-chart**, ordre décroissant strict : accent terracotta (1 marqueur) → zone ombrée medium grey → pointillé vertical fin → zone ombrée light beige → annotations courtes (≤4, bord supérieur). Redondance contrôlée acceptable (2 signaux pour une même frontière) si elle sert la robustesse de lecture, interdite si remplissage.
+- **Variante barre régimes en pied** seulement quand la géométrie de la courbe raconte déjà les phases (chart « geom-led »).
+- **Option SM** : structure interne par cellule en 4 niveaux (label catégoriel uppercase terracotta `PROPRIÉTÉ 01 · CONCEPT`, titre de métrique, chart avec verticale terracotta à la même date sur les 4 cellules, **annotations dual-anchor moyenne-par-régime avant/après obligatoires**, jamais point-précises) ; titre qui porte les deux axes (N régimes, M propriétés, rupture en YYYY).
 
 ---
 
@@ -318,49 +203,4 @@ Ordre **décroissant** de poids visuel à respecter strictement :
 - **`archi-eco3min`** — structure des piliers et URLs (pour les slugs FR/EN et le watermark URL).
 - **`production-chart-of-the-week`** — différent objectif (chart viral DIB) mais palette et typo cohérentes via le brand kit. Ne pas confondre les deux missions.
 
----
-
-## Note d'usage
-
-Skill créé après itération complète sur les piliers `politique-monetaire-taux` et `macroeconomie-geopolitique` (mai 2026, FR + EN livrés pour chacun), enrichi après le test direct sur `marches-financiers` (mai 2026, comparaison workflow direct vs Claude Design + skill). Patché en v1.1 (mai 2026) pour intégrer `brand-kit-eco3min` comme source de vérité de la charte visuelle. Patché en v1.2 (juillet 2026, audit anti-monotonie) : le risque de monotonie flagué en v1.1 (« déjà observé sur les 2 premiers ») devient la **règle bloquante de rotation série** (format + mode chromatique), adossée à la palette catégorielle du brand kit v1.1 §2.5.
-
-### Confirmé canonique après ces trois premiers piliers
-
-- **Layout 6 zones** (tag / titre / sous-titre / chart / watermark / sourcing) — voir section Layout canonique
-- **Format sourcing footer 2 lignes** avec codes de série explicites
-- **Hiérarchie de 5 signaux intra-chart** (accent terracotta principal → medium grey → pointillé → light beige → annotations)
-- **Redondance contrôlée acceptable** quand 2 signaux convergent sur la même frontière (shading + pointillé) pour servir la robustesse de lecture
-- **Bilingue strict** : EN produit en parallèle, slug `/en/` côté URL, structure visuelle 100% identique
-- **Variante « barre régimes en pied »** acceptable quand la géométrie de la courbe raconte naturellement les phases (voir Layout canonique > Variante)
-- **Variante « small multiples 2×2 »** acceptable quand la thèse mentionne N propriétés/dimensions distinctes (voir Layout canonique > Variante SM)
-- **Code SVG modulaire par locale** (zones 1/2/3/5/6 paramétrables / zone 4 chart-block invariant) — permet pivot rapide entre options et entre langues
-
-### Arbitrages tranchés (mai 2026)
-
-- **Règle accent terracotta** : durcie après le pilier macro-géopo qui empilait 5 occurrences cluster. La règle actuelle (1 marqueur principal + son label) est la version stricte, alignée sur le pilier monétaire (1 seule ligne terracotta). En Option SM, l'accent se répète sur les 4 cellules à la même date — redondance contrôlée acceptée, pas un cluster. Règle désormais centralisée dans `brand-kit-eco3min` section 2.3.
-- **Emplacement timestamp** : ligne 2 du sourcing footer uniquement. Pas de duplication en haut-droite.
-- **Rigueur métrique** : règle ajoutée après le test `marches-financiers`. Le proxy doit être LE standard académique du concept énoncé, pas un proxy adjacent qui « marche aussi ». Le test « la métrique fait-elle ce qu'elle prétend faire SUR LA PÉRIODE COMPLÈTE » est bloquant.
-- **Bottom-annotation Option SM** : pattern dual-anchor moyenne-par-régime imposé (split gauche/droite, terracotta uppercase pour la valeur post-rupture). Les annotations point-précises sont inférieures pour le test 5 secondes.
-- **Labels catégoriels uppercase** : pattern `PROPRIÉTÉ NN · CONCEPT MACRO` au-dessus du nom de métrique dans chaque cellule SM. Reframe la métrique par son rôle, élève le visuel d'un dashboard à une thèse argumentée.
-
-### Workflow : Claude Design + skill vs production directe
-
-Le test mai 2026 sur `marches-financiers` a comparé les deux workflows. Verdict empirique :
-
-- **Claude Design + prompts dérivés du skill** = supérieur pour le rendu typographique (Source Serif 4 chargée native), pour les patterns éditoriaux émergents (dual-anchor, labels catégoriels) que le skill ne pré-imposait pas, et pour la rigueur métrique apparemment renforcée par le canvas visuel.
-- **Production directe (SVG via outils Claude)** = utile pour itération immédiate sans copier-coller, pour cohérence inter-piliers automatique (skill chargé en mémoire conversationnelle), pour produire des fichiers SVG bruts éditables. Limite : rendu typo dépend des fallbacks navigateur, polylines qualitatives sauf à fetcher les CSV FRED.
-
-**Recommandation par défaut** : Claude Design + prompts dérivés de ce skill. Production directe réservée aux cas d'itération rapide ou de data-fetch explicite avec polylines reconstruites depuis CSV.
-
-### À actualiser après production de 2-3 piliers supplémentaires si
-
-- ~~Des règles transversales émergent sur la **diversité des formats A/B/C/SM** entre piliers (risque réel de monotonie si chaque pilier prend l'Option A — déjà observé sur les 2 premiers)~~ → **traité en v1.2** (règle bloquante de rotation série). Reste à surveiller : si la rotation produit des formats forcés qui ne servent pas la donnée, assouplir vers « dérogation sur signalement » plus fréquente
-- Une **nouvelle famille de pilier** (sans transition méthodologique, sans 3 catégories, données pré-1990, etc.) demande un sous-pattern non prévu ici
-- Claude Design révèle un comportement de rendu spécifique non anticipé (typo, échelle, export)
-- Le **test « comptage non-initié »** échoue sur un pilier malgré le respect des règles — signal qu'il manque une règle de signalisation
-
-### Prochains piliers candidats naturels
-
-- **`page-courbe-des-taux`** — DGS10/DGS2 remontent à 1976, pas de proxy nécessaire, thèse claire (inversion = signal récessif), candidat A
-- **`dollar-systeme-mondial`** — DXY ou TWEXBGS depuis 1973, thèse hégémonie / cycle, candidat A ou B
-- **`immobilier-cycles-taux-economie`** — Case-Shiller + mortgage rates, candidat B (comparaison cycles)
+Note d'usage, arbitrages tranchés, workflow et piliers candidats : `references/03-note-usage-arbitrages-workflow.md` (lire avant de proposer un pilier suivant). Version : v1.3 (17/09/2026) — découpage en références, alignement sur le chrome canonique v2.0 (sources gauche / signature droite, zéro cadratin, numérotation de pilier bannie), production en code depuis le CSV réel. Les trois heros piliers livrés en mai 2026 avec le pied inversé restent tels quels jusqu'à leur prochaine itération.

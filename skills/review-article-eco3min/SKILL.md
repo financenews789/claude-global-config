@@ -1,13 +1,13 @@
 ---
 name: review-article-eco3min
-description: Gate de review AVANT publication d'une page Eco3min chiffrée (étude, dataset, "Every X", chart page, FR/EN), déjà produite ou non. Couche d'orchestration QA : oriente vers l'audit extractif CSV-led de production-research-study §12-14 si le CSV existe, et fournit le fallback sans CSV (cohérence interne prose ↔ table ↔ cards — on certifie alors "cohérent", pas "100% exact"). Ajoute ce que les audits de valeurs ponctuelles ratent : tripwire de DIRECTION (claims de trajectoire type "declined steadily" contredits par le sentier réel), taxonomie des claims non-CSV (A issu du CSV / B sourcé externe / C inventé = interdit), cohérence inter-pages (pages sœurs), intégrité du CSV téléchargeable (trou, compteur), surface Rule IV / AMF. Produit un verdict GO/NO-GO rangé par criticité sans pushback fabriqué, et code la discipline de régénération (copie verbatim + str_replace + vérif). Activer pour "audite cette page", "review avant publication", "vérifie que c'est 100% exact".
+description: "Gate de review AVANT publication (ou après, sur une page déjà en ligne) de toute page Eco3min chiffrée : étude, page dataset, Every X, chart page, paire FR/EN. Ne réécrit pas la page, la certifie ou la bloque : verdict GO / NO-GO rangé 🔴 🟡 🟢, colonne structurante nommée, zéro pushback fabriqué, puis correction chirurgicale. Activer pour « audite cette page », « review avant que je publie », « vérifie que c'est 100% exact », « c'est cohérent ? », « GO ou NO-GO ? », « relis les chiffres », « vérifie avant le push r/economics », « la page dit X mais la table dit Y », « régénère avec uniquement les corrections », « la page est en 500 », « il reste des commentaires HTML ? », après toute régénération de page chiffrée, et pour tout verdict demandé sur un fact_check_audit.md ou un audit_extract.py. Skill courte, non découpée (les six passes servent à chaque invocation) ; pas de scripts/ propres : elle importe production-research-study/scripts/study_locks.py (Claims, close, editorial_locks, assert_no_html_comments) et oriente vers production-research-study references/05 (§12 audit extractif CSV-led, §13 cohérence multi-livrables, §14 patterns à haut risque) sans les dupliquer. Doctrines : recompute, ne lis jamais (chaque nombre est recalculé en Python depuis la source, jamais lu à l'écran pour être validé) ; piège de l'œil (un flag faux coûte autant de crédibilité qu'une erreur ratée : bonne fenêtre de calcul, sanity-check, puis flagger) ; branche A avec CSV = certifiable 100% exact contre la source, branche B sans CSV = cohérent en interne seulement, la table affichée devient la vérité de second rang et le verdict le dit ; six passes P1 à P6 plus P7 GATE ; tripwire de DIRECTION (steadily, monotonically, fell back, reculé régulièrement, sans interruption… déclenchent la vérification de la sous-série complète entre les deux dates ; catch canonique 0,57 → 0,10 → rebond 0,43 → 0,13 ; un état final entièrement résorbé reste vrai malgré un rebond, ne pas sur-corriger) ; taxonomie des claims A issu du CSV / B sourcé hors CSV / C ni l'un ni l'autre = interdit et halt ; zone dangereuse des claims cross-dataset des sections deux signaux (2s10s désinversée en septembre 2024, pas août ; 26 mois contre 25 sur la page sœur) ; cohérence inter-pages avec la page jumelle FR/EN en tête, lue au degré d'adaptation arbitré (1 miroir / 2 adaptation légère / 3 adaptation forte : seuls les faits communs doivent être identiques au chiffre près, les faits propres passent leur propre audit, un repère substitué conforme au degré n'est pas une erreur), et le registre eco3min-knowledge faits/claims.jsonl comme liste des pages sœurs ; intégrité du CSV téléchargeable (contiguïté, compteur N observations, jamais d'interpolation d'un trou) ; surface Rule IV / AMF sur titre, snippets, OP (aucun will / won't / should, aucun cadrage prédictif, claims attribués) ; GATE bloquant d'août 2026 : zéro commentaire HTML dans le post_content (Autoptimize avale une balise citée en prose et sert un HTTP 500 lisible au navigateur, 8 pages le 27 août 2026) et curl du statut réel avec et sans ?ao_noptimize=1 ; discipline de régénération = copie verbatim + str_replace chirurgical + vérification (nouvelle chaîne = 1, ancienne = 0, ancres d'intégrité, décimales FR en virgule). Hors périmètre : la production elle-même (production-research-study, production-dataset, production-every-x-record, production-chart-of-the-week), l'assemblage et l'import (eco3min-import-contenu-bilingue), la légalité de la donnée (sourcing-donnees-eco3min), la revue périodique des datasets périmés (revue-datasets-perimes), la revue de style (editeur-eco3min). Combiner avec production-research-study, editeur-eco3min, eco3min-import-contenu-bilingue, sourcing-donnees-eco3min, hub-card-etude."
 ---
 
 # Review pré-publication — Eco3min
 
 > Ce skill est le **gate qualité avant publication**, distinct de la production. Il s'applique à une page **déjà construite** (étude, dataset, "Every X", chart page, FR/EN) autant qu'à une page qu'on vient de produire. Il ne réécrit pas l'article : il le **certifie** — ou bloque — et corrige chirurgicalement.
 >
-> Voir aussi : `production-research-study` (audit extractif CSV-led §12, cohérence multi-livrables §13, patterns à haut risque §14 — ce skill les **oriente**, ne les duplique pas) · `editeur-eco3min` (AMF, termes proscrits) · `sourcing-donnees-eco3min` (légalité/provenance de la donnée publiée) · `narrative_audit.py` (module tripwire dates, Step 6.5b du projet killer studies).
+> Voir aussi : `production-research-study` (audit extractif CSV-led §12, cohérence multi-livrables §13, patterns à haut risque §14 — les trois dans `references/05-audit-extractif-coherence-patterns.md` depuis le découpage du 15/09/2026 ; ce skill les **oriente**, ne les duplique pas) · `editeur-eco3min` (AMF, termes proscrits : §4 et `references/03-amf-7-regles-disclaimer.md`) · `sourcing-donnees-eco3min` (légalité/provenance de la donnée publiée) · `narrative_audit.py` (module tripwire dates, Step 6.5b du projet killer studies ; sur disque `eco3min-projets/Eco3min Etude approdondie -  GENERIQUE/docs/narative-audit.py`, doctrine en `production-research-study/references/07-verrous-a-g.md` §18.5).
 
 ---
 
@@ -18,6 +18,7 @@ description: Gate de review AVANT publication d'une page Eco3min chiffrée (étu
 **Entrées** :
 - la page (bloc HTML/WP, FR ou EN) ;
 - **le(s) CSV source(s) si elles existent** — c'est la source de vérité. Si absente, voir §3 branche B.
+- si la page est **déjà en ligne** : lire son `post_content` par l'ability WPAI `ewpa/get-page` (ID lu dans la classe `page-id-*` du `<body>` de la page publique ; `ewpa/get-pages` ne sait pas chercher), jamais le texte rendu par le navigateur, qui n'expose ni les commentaires HTML ni le statut HTTP (cf. GATE).
 
 **Sortie** : un **verdict GO / NO-GO** avec findings rangés par criticité (§8). Jamais une liste fabriquée pour « faire rigoureux » : si rien de solide ne tient, le dire explicitement.
 
@@ -36,6 +37,7 @@ Corollaire — **le piège de l'œil** : avant de signaler une erreur, vérifier
 ### Branche A — CSV disponible
 → **Audit extractif CSV-led** : appliquer `production-research-study` §12 (le CSV énumère les claims, pas l'inverse), §13 (multi-livrables), §14 (patterns à haut risque). Ce skill ajoute par-dessus les passes P3→P6 (§4).
 → On peut alors certifier **« 100% exact contre la source »**.
+→ Lire `production-research-study/references/05-audit-extractif-coherence-patterns.md` avant P1 ; importer `production-research-study/scripts/study_locks.py` (`Claims`, `close`, `TOLERANCE`, docstring en tête du module) plutôt que réécrire un verifier.
 
 ### Branche B — pas de CSV (la page seule)
 → **Audit de cohérence interne**. La **table affichée devient la source de vérité de second rang**. On vérifie que tout concorde :
@@ -57,7 +59,8 @@ C'est cette branche qui a attrapé les erreurs de la page dollar (« five below 
 | **P3** | **Tripwire de DIRECTION** — claims de trajectoire | §5 (cœur de ce skill) |
 | **P4** | **Taxonomie des claims non-CSV** (A/B/C) | §6 |
 | **P5** | Cohérence **inter-pages** + intégrité artefact téléchargeable | §7 |
-| **P6** | Surface **Rule IV / AMF** (titre, snippets, OP) | editeur-eco3min, projet Step 7.5 |
+| **P6** | Surface **Rule IV / AMF** (titre, snippets, OP) | editeur-eco3min §4 (`references/03-amf-7-regles-disclaimer.md`) ; production-research-study Step 7 / §15 pre-flight r/economics (`references/10-social-preflight-upload.md`) et reviewer Rule IV §3.1 (`references/01-hook-prereview-pivot.md`) ; contrôle mécanique `study_locks.editorial_locks` |
+| **P7** | **GATE** : zéro commentaire HTML (avant import) + statut HTTP réel (page publiée) | GATE AJOUTÉ (août 2026), en fin de fichier |
 
 Une seule passe qui échoue sur du BLOQUANT → NO-GO. Pas de seuil « tolérable ».
 
@@ -79,6 +82,8 @@ print("monotone décroissant:", (seg.val.diff().dropna() <= 0).all())
 print("min:", seg.val.min(), "| max après le pic:", seg[seg.date > d_peak].val.max())
 ```
 
+Le module `narrative_audit` n'est pas versionné avec les skills (copie dans `docs/narative-audit.py` du projet GENERIQUE) : le bloc Python ci-dessus est la méthode opérationnelle du reviewer. En étude, chaque date en prose est en plus un tuple `NARRATIVE_EVENTS` du Step 6.5b (`production-research-study/references/07-verrous-a-g.md` §18.5).
+
 **Catch canonique** : « It then declined steadily … to 0.13 » / « a ensuite reculé régulièrement … 0,13 ». Le CSV montrait 0,57 → **0,10 (juil. 2025) → rebond à 0,43 (nov. 2025, à 0,07 du seuil)** → 0,13. Non monotone, avec retour à 0,07 du re-déclenchement. Ce claim se faisait **débunker à J+1 sur le CSV même offert au téléchargement**. Correctif : décrire le sentier réel — plus honnête *et* plus intéressant, et il pré-empte l'objection.
 
 **Note** : « fully reversed » / « entièrement résorbé » comme **état final** (retour à la baseline) reste vrai même si le chemin a rebondi — ne pas sur-corriger. C'est la **monotonie affirmée** qui est fausse, pas le retour à 0,13.
@@ -99,12 +104,17 @@ Précisions sur la **catégorie B** :
 - **Dates NBER, identité de série, formule** : vérifiables, stables — recalcul/contre-vérif rapide.
 - **Citations** (ex. Claudia Sahm) : sourcées + liées = pas inventées, mais le **verbatim** doit être confirmable. Si non vérifiable dans l'environnement, le **signaler** (« confirmer le mot-à-mot »), ne pas certifier.
 - **Zone dangereuse = claims cross-dataset dans une section « deux signaux » / appât-à-backlink.** Pas dans le CSV de la page, donc non couverts par l'audit extractif, **et** facilement recomputés par un lecteur. Exemple : « 2s10s inversée 26 mois, désinversée en août 2024 » — le mois était faux (consensus : **septembre 2024**, ~793 jours), et « 26 mois » divergeait de la page sœur (« 25 »). Ces claims exigent **vérif externe** (sources) **+** réconciliation inter-pages (§7).
+- **Contrôle rapide de la catégorie B** (registre des faits publiés, depuis le 16/09/2026) : `grep` du fait dans `~/eco3min/eco3min-knowledge/faits/claims.jsonl`. Présent avec la même valeur → B confirmé, page citée à l'appui ; présent avec une autre valeur → incohérence inter-pages à réconcilier en P5 ; absent → vérif externe obligatoire, rien n'est certifié par défaut.
 
 ---
 
 ## 7. P5 — Cohérence inter-pages & intégrité de l'artefact
 
 **Inter-pages** : tout nombre répété sur des pages **liées entre elles** doit concorder. Un lecteur qui clique verra les deux. Vus ici : 26 mois (page Sahm) vs 25 mois (page sœur yield curve) ; « deepest » vs « second-deepest » entre deux pages dollar. → choisir la valeur défendable (793 j ≈ 26 mois) et **aligner les deux pages**.
+
+**Page jumelle** : la version de l'autre langue (paire FR/EN) est la première page sœur à réconcilier, **au degré d'adaptation arbitré** à la production (`eco3min-import-contenu-bilingue`, « Décision bilingue » : 1 miroir, 2 adaptation légère, 3 adaptation forte ; le degré est écrit dans le recap de livraison, sinon le demander avant de flagger). Ce qui se réconcilie dépend du degré : degré 1, tous les faits ; degré 2, les données centrales — les points de référence substitués (Fed/Treasury/S&P 500 contre BCE/OAT/CAC 40) sont des claims B distincts, chacun vérifié de son côté ; degré 3, seule la thèse est commune, les données propres à chaque langue passent leur propre audit A ou B en section distincte. Dans les trois cas, invariant repris de la règle figée : un **fait commun** aux deux versions est identique au chiffre près, décimales FR en virgule, et un écart chiffré est un défaut **bloquant** (🔴), jamais un arrondi ; un chiffre « équivalent » fabriqué pour singer l'autre langue est un claim C. Une différence de repère ou de donnée conforme au degré n'est pas une erreur : ne pas la flagger.
+
+**Registre des faits publiés** : `grep` du fait dans `~/eco3min/eco3min-knowledge/faits/claims.jsonl` liste les autres pages qui l'affirment, au-delà des pages reliées par un lien. Une correction qui change un chiffre enregistré **ajoute** une ligne et pose `superseded` sur l'ancienne (append-only, cf. `eco3min-knowledge/CLAUDE.md`), jamais d'effacement.
 
 **Intégrité du CSV téléchargeable** (la page le présente sous « Data & reproducibility ») :
 - **Contiguïté** : pas de mois manquant au milieu de la fenêtre récente (le trou oct. 2025 vu ici).
@@ -141,6 +151,8 @@ Si rien de solide ne tient → le dire. **Ne pas fabriquer de pushback.**
 3. **Vérifier** : nouvelle chaîne présente (=1), ancienne partie (=0), ancres d'intégrité intactes (compteurs, shortcodes type `[mailpoet_form]`/`[lwptoc]`, nb de lignes de table, constantes type scale factor), et **décimales FR en virgule** si page FR (0,10 / 0,43 / 0,07).
 4. Livrer via `present_files` (fichier, pas bloc dans le chat — surtout sur mobile).
 
+Équivalents Claude Code : `create_file` = Write, `str_replace` = Edit, `present_files` = SendUserFile. Les vérifications du point 3 s'écrivent comme des assertions dans un fichier `.py` exécuté depuis le disque, jamais dans un heredoc shell (les backslashes des regex y disparaissent en silence).
+
 ---
 
 ## 10. Checklist finale (2 minutes)
@@ -154,6 +166,9 @@ Si rien de solide ne tient → le dire. **Ne pas fabriquer de pushback.**
 - [ ] P6 : titre/snippets/OP sans will/won't/should, sans cadrage prédictif, claims attribués (Rule IV + AMF).
 - [ ] Verdict GO/NO-GO rangé par criticité, colonne structurante nommée, zéro pushback fabriqué.
 - [ ] Si corrections : régénération par str_replace + vérif (§9).
+- [ ] GATE (P7) : zéro commentaire HTML dans le `post_content` (`assert_no_html_comments`) ; page publiée : `200 200` au curl avec et sans `?ao_noptimize=1`.
+- [ ] Page jumelle FR/EN : degré d'adaptation identifié (1 miroir / 2 légère / 3 forte) ; faits communs identiques au chiffre près, décimales FR en virgule ; faits propres du degré 2-3 audités séparément, aucun chiffre « équivalent » fabriqué.
+- [ ] Catégorie B et pages sœurs : `faits/claims.jsonl` interrogé ; chiffre corrigé → nouvelle ligne + `superseded`.
 
 ---
 
@@ -187,6 +202,8 @@ commentaire qui **cite une balise en prose** (`Pas de <script> ici`, `pas de <st
 Autoptimize scanne `<script>` / `<style>` en regex sans ignorer les commentaires, avale la prose
 comme du JavaScript, et la page part en **HTTP 500 avec le corps complet**.
 
+La même vérification est portée par `production-research-study/scripts/study_locks.py` (`assert_no_html_comments`, `find_html_comments`) ; `editorial_locks` du même module donne le contrôle mécanique de P6 (cadratins U+2014, tics IA, verbes prescriptifs `should` / `must`, verbes d'action) sur le titre, les snippets et l'OP.
+
 ### 2. Statut HTTP réel de la page publiée — NO-GO immédiat
 
 Le navigateur ne valide rien : Chrome affiche le corps d'une réponse 500 exactement comme un 200,
@@ -211,3 +228,8 @@ lisibles au navigateur, découvertes seulement par la Search Console.
 
 Règle de production associée : voir `eco3min-import-contenu-bilingue`, section
 « RÈGLE FIGÉE (août 2026) — Zéro commentaire HTML dans le contenu publié ».
+
+## Versions
+
+- **v1** (août 2026) — six passes, hiérarchie de criticité, discipline de régénération ; GATE commentaires HTML + statut HTTP ajouté après l'incident du 27 août 2026.
+- **v1.1** (17/09/2026) — description réécrite ; pointeurs réalignés sur les skills découpées (§12-14 → `references/05`, « Step 7.5 » inexistant → Step 7 / §15, chemin du module narrative_audit) ; P7 GATE dans la table des passes et la checklist ; catégorie B et pages sœurs adossées au registre `faits/claims.jsonl` ; page jumelle FR/EN en P5, lue au degré d'adaptation arbitré (miroir / légère / forte, règle figée d'import-bilingue) ; lecture d'une page publiée par `ewpa/get-page` ; équivalents Claude Code des outils ; `study_locks` comme contrôle mécanique du GATE et de P6. Aucune règle de fond retirée. Skill volontairement non découpée (213 lignes à l'origine, les six passes servent à chaque invocation).

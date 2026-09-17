@@ -14,13 +14,13 @@ Extrait de SKILL.md (découpage du 15/09/2026). §4.2, §5.2, §5.7 et les requ�
 
 | Table | Rôle | Cohabite avec legacy ? |
 |---|---|---|
-| `e3m_referentiel` | Liste figée piliers/sub_piliers/MAJEURs + catégories WP (FR + EN). Inclut colonnes `wp_category_slug` et `wp_category_id` (résolus par slug, pas par term_id) | Oui (cohabite avec `eco3min_audit_pillars` jusqu'au drop manuel) |
+| `e3m_referentiel` | Liste figée piliers/sub_piliers/MAJEURs + catégories WP (FR + EN). Inclut colonnes `wp_category_slug` et `wp_category_id` (résolus par slug, pas par term_id) | `eco3min_audit_pillars` migrée puis droppée le 15/09/2026 |
 | `e3m_articles` | Miroir des articles WP avec metas Eco3min + état (`green`/`orange`/`red`) + `translation_group_id` (lie FR ↔ EN) | Pas d'équivalent legacy |
-| `e3m_links` | Graphe des liens internes (peuplé par scanner V0.5). Colonnes : `src_post_id`, `target_post_id`, `is_cross_lang` | Doublon avec `eco3min_sa_links` jusqu'à drop V0.5 |
+| `e3m_links` | Graphe des liens internes (peuplé par scanner V0.5). Colonnes : `src_post_id`, `target_post_id`, `is_cross_lang` | `eco3min_sa_links` droppée le 15/09/2026 |
 | `e3m_patches_log` | Log des patches appliqués (anti-doublon par hash SHA256) | Pas d'équivalent legacy en BDD chez Paul |
 | `e3m_backups` | post_content avant chaque modification (rollback) | Pas d'équivalent legacy |
 
-**Règle** : ne JAMAIS toucher manuellement aux 4 metas critiques `_eco3min_level/_cluster/_sub_pilier/_parent_major` via SQL. Si tu dois absolument modifier une meta, passe par Custom Fields dans l'éditeur WP, ou appelle `Eco3min_Mega_Classifier::set_meta_safe()` en PHP. Voir section 12.4.
+**Règle** : ne JAMAIS toucher manuellement aux 4 metas critiques `_eco3min_level/_cluster/_sub_pilier/_parent_major` via SQL. Pour modifier une meta : Cleanup, `eco3min/set-metas`, Level Setter, Fix, Import « MAJ metas » (outillage dans `metas-eco3min` §3) ; en PHP dans le mega, `Eco3min_Mega_Classifier::set_meta_safe()`. Voir section 12.4.
 
 **Tables `e3m_*` ajoutées après V0.1** (README du mega) : `e3m_qa_clusters` (Q&A pages structurelles), `e3m_scan_state` (état courant du scan : running/idle, dernier chunk, progress), `e3m_imports_log` (historique des imports cluster + patches ; `e3m_patches_log` y pointe par FK), `e3m_tinder_queue` (queue des articles à classifier via l'UI Tinder), `e3m_multi_import_sessions` (sessions multi-pair V1.0.3+, avec `cross_cluster_export_filename` et `cross_cluster_targets_count` depuis V1.0.10). Colonnes de `e3m_links` : `src_post_id`, `target_post_id`, `target_url`, `anchor_text`, `is_internal`, `is_cross_lang`.
 

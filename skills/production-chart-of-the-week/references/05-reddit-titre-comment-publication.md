@@ -112,14 +112,20 @@ Anti-patterns titre confirmés (présents dans 0 des 15 top performers analysés
 - Pas de superlatif marketing ("biggest ever", "massive", "huge")
 
 Trois variantes systématiques
-Toujours proposer trois variantes au choix avant publication, idéalement chacune sur un pattern différent :
-Option A — Anchor number + descriptive (généralement le meilleur compromis)
-[OC] $1.1 trillion in 24 months: How Big Tech AI capex stacks up against Apollo, Marshall Plan, and Manhattan Project
-Option B — Pure descriptif sans chiffre (plus safe, moins viral)
-[OC] Big Tech AI capex (2025–2026) vs America's three biggest 20th-century mega-projects, in 2025 dollars
-Option C — Question pure (highest CTR, plus risqué côté mods)
-[OC] How does Big Tech's 2025–2026 AI capex compare to Apollo + Marshall Plan + Manhattan Project combined?
-Recommander A par défaut sauf si le sujet appelle clairement B ou C.
+Toujours proposer trois variantes au choix avant publication, idéalement chacune sur un pattern différent, et TOUTES conformes aux anti-patterns (pas de chiffre en tête, pas de question pure, pas de verdict, pas de N items non nommés). Les anciennes options A « $1.1 trillion in 24 months: … » (chiffre en tête) et C « How does … compare to … ? » (question pure) contredisaient les anti-patterns confirmés sur les 15 top performers ; retirées le 17/09/2026.
+Option A — Pattern 8, descriptif avec période et périmètre (défaut)
+[OC] Big Tech AI capital expenditure, 2025-2026, vs the Manhattan Project, the Marshall Plan and Apollo, in 2025 dollars
+Option B — Pattern 3, comparaison explicite « X vs Y [period] »
+[OC] Four hyperscalers' capex over 24 months vs America's three largest 20th-century public programs
+Option C — Pattern 2 ou 9 si la donnée le permet (superlatif temporel vérifié, ou durée)
+[OC] The largest two-year private capital program in US history, next to the three largest public ones, 1942-2026
+Recommander A par défaut. Sur un sujet d'affordability ou à factions (cf. ci-dessous), seule l'option A est proposée.
+
+Deux risques distincts sur le titre (cycles 15, 16, 19, 20 ; règle du 17/09/2026)
+- Risque MODÉRATION (règle 7) : un état factuel plat dans le titre (« has never had fewer cattle per person », « 26 of 30 were revised down ») ne l'a déclenché à aucun des cycles 7 repost, 10, 14, 16. Ce qui le déclenche : le teaser, l'opposition non résolue, les N items non nommés (cycle 7).
+- Risque RÉCEPTION FACTIONNELLE : sur un sujet d'affordability (loyer, scolarité, garde d'enfants, salaires, prix alimentaires) ou à factions, un verdict dans le titre, même exact et sourcé, se lit comme un démenti du vécu. Cycle 19 : « US tuition and childcare ran 59% ahead of inflation from 2000 to 2019, and 7.6% behind it since », ratio 65,8 %, un downvote pour deux upvotes, post retiré. Les précautions vivaient dans l'article et le top comment ; le titre part seul dans le feed.
+- Le contraire existe aussi : cycle 20, titre pattern 8 sans verdict sur un sujet zone 3, ratio sain mais 8 commentaires pour 82k vues, indifférence. Le compromis n'est pas « verdict ou pas verdict » mais : titre descriptif ET un élément du chart qui porte seul l'arrêt-scroll à taille feed (TEST FEED, référence 03).
+Règle : sur sujet d'affordability ou à factions, pattern 8 strict, le verdict reste dans le chart. Ailleurs, un état factuel plat (patterns 2, 9) reste possible et se teste contre les cinq indicateurs du test règle 7.
 
 
 ÉTAPE 5-BIS — Règles de non-prise de parti pour la ZONE 3 (BLOQUANTES)
@@ -135,7 +141,8 @@ Exemple incorrect : "DEVASTATING: U.S. employment has COLLAPSED outside healthca
 
 Règle 2 — Deux lectures présentées explicitement dans le top comment OP
 Format obligatoire à insérer dans le top comment Reddit (cf. ÉTAPE 6 sur la structure du comment) :
-"Some read this as [interpretation favorable to one side]. Others read this as [interpretation favorable to the other side]. The data points to one of these more clearly than the other — curious how this sub interprets it."
+"Some read this as [interpretation favorable to one side]. Others read this as [interpretation favorable to the other side]. The data points to one of these more clearly than the other. Curious how this sub interprets it."
+(Les templates anglais de ce fichier sont copiés tels quels dans Reddit : aucun tiret cadratin n'y figure, règle de l'ÉTAPE 8.)
 Pas d'affirmation éditoriale dans le commentaire Eco3min. Le débat naît du choix du viewer. L'OP est neutre, le sub se polarise tout seul.
 
 Règle 3 — Sources primaires bipartisanes ou gouvernementales uniquement
@@ -157,7 +164,7 @@ Le viewer fait l'inférence causale lui-même en lisant le chart. C'est la diff�
 
 Conséquence pour les réponses Reddit en zone 3
 En phase active T+0 à T+30min sur DIB, l'OP doit répondre uniquement aux questions méthodologiques (sources, calculs, périodes, définitions). Si un commentateur essaie de faire prendre parti à l'OP ("So you're saying Biden's economy is failing, right?"), redirect systématique vers les données :
-"The data comes from [source]. Readers can interpret as they see fit — I don't take a position on the policy debate."
+"The data comes from [source]. Readers can interpret as they see fit, I don't take a position on the policy debate."
 Pour le silence post-T+1h : strict, comme pour les autres zones (cf. ÉTAPE 8).
 
 
@@ -192,7 +199,11 @@ Sur DIB, le ratio post→comment est typiquement de 1-3 % en chart auto-suffisan
 
 Structure obligatoire (validée sur cycle AI capex mai 2026)
 [Ligne 1 — HOOK INTERPRETATIF FORT, jamais méta-commentaire]
-"There are only a handful of moments in modern US history where capital has been mobilized at this scale — and only one of them is entirely private-sector."
+"There are only a handful of moments in modern US history where capital has been mobilized at this scale, and only one of them is entirely private-sector."
+
+[Si la source est une agence statistique (BLS, BEA, Census, Treasury) : BLOC MÉCANISME juste après le hook, 2-3 phrases, AVANT les chiffres]
+Quick note on how this series is built, since it always comes up: [échantillon partiel à la première publication / benchmark annuel / désaisonnalisation / ce que la ligne mesure exactement]. That is why [le pattern visible sur le chart] shows up as it does.
+(Cycle 16 : la question « manipulation ou méthode ? » est certaine sur tout sujet d'agence ; c'est un tiers qui a fourni le mécanisme, sous une accusation à +54, et l'autorité explicative a été perdue. Pré-empter, pas répondre.)
 
 [Ligne blanche]
 
@@ -224,7 +235,7 @@ Tools: Python (matplotlib). Sources: [list]. Happy to answer methodology questio
 [Ligne blanche]
 
 [QUESTION OUVERTE FINALE qui force la réflexion + suggère qu'une réponse est dans les données]
-Honest open question for the sub: is this [phenomenon X] more like [historical case A] or like [historical case B]? The data points to one of these reads more clearly than the other — curious how this sub interprets it.
+Honest open question for the sub: is this [phenomenon X] more like [historical case A] or like [historical case B]? The data points to one of these reads more clearly than the other. Curious how this sub interprets it.
 
 Règles non-négociables
 - URL nue : jamais [click here](url). Le redditer doit voir l'URL en clair pour faire confiance.
@@ -232,6 +243,7 @@ Règles non-négociables
 - Lien APRÈS la valeur : ligne 9-10 du comment, jamais ligne 1-3. Si le lien arrive trop tôt, perçu comme marketing → scroll past.
 - Tools obligatoires : règle DIB, mods rejettent les posts [OC] sans mention des outils.
 - Sources nommées et vérifiables : 10-K date, série FRED, document gov spécifique. Anti-troll de premier niveau.
+- Mécanisme de la métrique dit en toutes lettres dans les bullets quand il y en a un : « converted to USD at market rates, not PPP », « mean wage (the OECD does not publish a comparable median), which flatters the most unequal countries », « net of income tax and employee contributions, single earner ». Cycle 21 : trois sous-fils sur la conversion et une dizaine sur mean/median, aucun pré-empté dans le comment.
 - Question ouverte AMF-safe : "is this more like X or Y?" jamais "should investors do Z?"
 
 Le hook intellectuel #2 = la promesse interactive

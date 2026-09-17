@@ -3,4 +3,5 @@
 !.gitignore
 !CLAUDE.md
 !skills/**
-!agents/**
+!agents/**__pycache__/
+*.pyc

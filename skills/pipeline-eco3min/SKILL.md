@@ -1,6 +1,6 @@
 ---
 name: pipeline-eco3min
-description: "Maintenance et évolution du pipeline de données Eco3min — les scripts qui génèrent les CSV/XLSX/JSON servis par les pages dataset. Trois pipelines : FRED (eco3min_updater.py + datasets.json), ECB (ecb_updater.py + ecb_datasets.json, SDMX), non-FRED (eco3min_updater_v2.py, registry + builders CODÉS EN DUR : CoinGecko, Shiller, World Bank, NY Fed, ENTSO-E, FAO, IMF), plus le composite pondéré score_eco3min.py en hook. Activer pour ajouter ou modifier un dataset, choisir où l'ajouter (config JSON vs builder code), créer un builder ou une source, déboguer un updater, faire évoluer les workflows, vérifier un series_id FRED, ou auditer la dette. Couvre config-driven vs code-driven, les invariants à ne jamais casser (dataset_id stable et unique par pipeline, date en 1re colonne, métrique en DERNIÈRE colonne, fichiers {id}.csv/.xlsx/.json, touch WP), les pièges du calcul composite, les fragilités des fetchers, le SFTP OVH. Couche DONNÉE en amont de production-dataset."
+description: "Maintenance et évolution du pipeline de données Eco3min (repo eco3min-data) : les scripts GitHub Actions qui génèrent les CSV / XLSX / JSON servis sous eco3min.fr/dataset/ et wp-content/dataset-meta/, en amont des pages dataset. Sept pipelines plus un composite hooké : FRED (eco3min_updater.py + config/datasets.json, entrées simple et composite), ECB (ecb_updater.py + ecb_datasets.json, SDMX), non-FRED v2 (eco3min_updater_v2.py, DATASET_REGISTRY + builders codés en dur : World Bank Pink Sheet, Shiller, NY Fed, FRED Coinbase CBBTCUSD / CBETHUSD, composites mixtes), EIA, FR (DBnomics, INSEE, Banque de France), articles, régime, score_eco3min.py. Activer pour « ajoute un dataset », « nouveau dataset », « où je mets cette série », « config JSON ou builder ? », « crée un builder », « nouvelle source », « nouvelle famille de source », « le CSV est vide », « rows:0 », « key_stats faux », « le workflow a échoué », « relance le workflow », « workflow_dispatch », « series_id », « calculation », « yoy_inputs », « input_scales », « scale », « dataset_id », « slug_en », « needs », « rights », « transform », « source_rights.py », « SERIES_RIGHTS », « onglet Source », « --no-touch », « --list », « SFTP OVH », « cron », « dette pipeline », « datasets_v2.json », « compute_key_stats dupliqué ». SKILL.md = colonne vertébrale (§0 carte des pipelines et namespaces SFTP, §1 arbre de décision, §2 contrat CSV / meta verbatim plus §2.6 droits de la source ajouté le 17/09/2026, règles bloquantes de §3 à §9 sous leurs numéros d'origine, §7 vérification d'un series_id, §10 dette technique, §11 checklist verbatim) ; références dans references/ (à lire quand la section le dit) : 01 pipelines config-driven FRED et ECB (schémas JSON complets, table des patterns de calculation, table yoy_inputs / input_scales / scale, SDMX), 02 pipeline v2 et composite scoré (exemple de registry, table des fetchers et de leurs fragilités, nouvelle famille de source, sources sous licence, hook lazy-import), 03 workflows GitHub Actions et recette de test local ; pas de scripts/ (les gardes vivent dans le repo lui-même). Doctrines : source de vérité = le code, pas ce skill, et le skill se patche quand ils divergent ; identifier le pipeline avant toute modif, un dataset_id appartient à un seul pipeline et 23 ids ne vivent que dans le code ; dataset_id immuable une fois publié et distinct du slug_en ; date en première colonne, métrique principale en DERNIÈRE colonne car compute_key_stats lit val_cols[-1] ; calculation n'est pas exécuté, c'est un pattern matching sur « - », « / », overlay / direct, donc « * 100 » est ignoré et un ratio annoncé en % exige scale: 100 ; « taux − inflation » exige yoy_inputs sinon on soustrait l'indice CPI brut ; soustraction de séries en niveau → input_scales, scale ne le remplace jamais ; pondération ou mapping en régimes → module autonome + hook, jamais une entrée composite JSON ; series_id FRED vérifié sur la page FRED avant toute entrée, jamais de mémoire ; série sous conditions → clé rights (v2) ou SERIES_RIGHTS (FRED) ET miroir eco3_source_rights() dans les snippets 36 et 114, jamais CC BY par défaut, statut lu par fred_license.py, pre-approval = pas d'entrée ; le name du registry nomme la source réelle ; output/datasets part en put * donc tout fichier déposé là est public, les inputs sous licence vont dans fixtures/ ; --no-touch sur tout run local, toujours depuis la racine du repo ; 10:30 UTC porte déjà trois jobs sur le même SFTP. Hors périmètre : la page HTML qui consomme le fichier (H1, cas A / A' / B, 18 blocs) → production-dataset ; la légalité de la source et les routes d'accès → sourcing-donnees-eco3min ; le classificateur de régime → regime-classifier-eco3min. Combiner avec production-dataset, sourcing-donnees-eco3min, regime-classifier-eco3min, revue-datasets-perimes, archi-eco3min."
 ---
 
 # Pipeline de données — Eco3min
@@ -9,6 +9,18 @@ description: "Maintenance et évolution du pipeline de données Eco3min — les 
 > La **couche PAGE** (rédaction du HTML qui consomme ces fichiers via les shortcodes) relève du skill `production-dataset`. Les deux skills partagent un **contrat** (§2) qu'aucun des deux ne doit casser unilatéralement.
 >
 > **Source de vérité = le code, pas ce skill.** Le pipeline doit évoluer. Ce skill fige les *invariants* et les *points d'extension* ; pour tout détail d'implémentation, relire la section concernée du script. Si une divergence apparaît entre ce skill et le code, le code gagne — et ce skill doit être patché.
+
+---
+
+## COMMENT LIRE CE SKILL (découpage du 17/09/2026)
+
+Ce fichier est la colonne vertébrale : la carte des pipelines, l'arbre de décision, le contrat CSV / meta, chaque règle BLOQUANTE de §3 à §9 sous son numéro d'origine, la vérification d'un `series_id`, la dette technique et la checklist. Les schémas JSON, les tables de patterns et de fetchers, les exemples de code et la recette de test ont été déplacés VERBATIM dans `references/` et font foi au même titre que ce fichier ; ils ne servent qu'au moment où l'on touche le pipeline concerné. Chaque section ci-dessous nomme le fichier à lire ; le lire est obligatoire au moment indiqué, pas facultatif. Pas de `scripts/` : les gardes sont dans le repo `eco3min-data` lui-même.
+
+| Fichier | Contenu | À lire |
+|---|---|---|
+| `references/01-pipelines-config-driven-fred-ecb.md` | §3 FRED : schéma complet de `datasets.json` (simple, composite), table des patterns de `calculation`, table `yoy_inputs` / `input_scales` / `scale` avec leurs cas, procédure §3.3 ; §4 ECB : schéma `ecb_datasets.json`, SDMX, composites par `input_datasets` | avant d'ajouter ou de modifier une entrée de `datasets.json` ou `ecb_datasets.json`, et avant de diagnostiquer un composite FRED faux |
+| `references/02-pipeline-v2-et-composite-score.md` | §5 v2 : exemple d'entrée `DATASET_REGISTRY`, table des fetchers et de leurs fragilités, ajout simple, nouvelle famille de source, sources sous licence ; §6 : modèle `score_eco3min.py` et hook lazy-import | avant d'écrire ou modifier un builder, avant de choisir entre v2 et pipeline dédié, avant tout indicateur pondéré |
+| `references/03-workflows-et-test-local.md` | §8 : squelette des workflows, requirements par pipeline, secrets, les deux workflows hors squelette, créneaux cron ; §9 : commandes de test local par pipeline et ce qu'il faut vérifier | avant de toucher un `.github/workflows/*.yml`, d'ajouter un secret, et avant tout run local |
 
 ---
 
@@ -90,161 +102,65 @@ ECB, EIA et FR produisent le **même bloc `key_stats` riche** (le `compute_key_s
 ### 2.5 Touch WordPress
 Après ≥1 dataset mis à jour, `POST {wp_touch_url}` avec `key=WP_TOUCH_SECRET` rafraîchit `dateModified`. `--no-touch` le désactive (test local). Ne pas retirer cet appel — c'est ce qui garde Google à jour.
 
----
+### 2.6 Droits de la source amont (ajout du 17/09/2026)
 
-## 3. Pipeline FRED — `eco3min_updater.py` (config-driven)
-
-### 3.1 Schéma `config/datasets.json`
-Top-level : `fred_api_key_env`, `output_dir`, `wp_meta_dir`, `wp_touch_url`, `wp_touch_secret_env`, `datasets:{simple:[],composite:[]}` (`wp_rest_url` et `update_schedules` sont vestigiaux).
-
-**Entrée `simple`** :
-```json
-{
-  "id": "us-unemployment-rate",
-  "name": "US Unemployment Rate (1948–2026)",
-  "slug_en": "us-unemployment-rate-dataset",
-  "cluster": "labor",
-  "frequency": "monthly",          // daily | weekly | monthly | quarterly
-  "update_schedule": "monthly",    // vestigial
-  "sources": [{"type": "fred", "series": "UNRATE"}],
-  "variables": ["date", "unemployment_rate"],
-  "unit": "%",
-  "description": "…"
-}
-```
-Le builder prend `sources[0].series` (premier source `type=="fred"`), resample selon `frequency`, nomme la colonne `variables[1]`. Si `variables[1]` finit par `_yoy`, calcule le YoY (12 pér. monthly, 4 quarterly, 1 sinon).
-
-**Entrée `composite`** :
-```json
-{
-  "id": "real-fed-funds-rate",
-  "calculation": "FEDFUNDS - CPIAUCSL_YOY",   // voir 3.2 — pattern, pas formule exécutée
-  "input_series": ["FEDFUNDS", "CPIAUCSL"],
-  "variables": ["date", "fed_funds_rate", "cpi_yoy", "real_fed_funds"],
-  ...
-}
-```
-
-### 3.2 ⚠️ Le piège du champ `calculation`
-`calculation` n'est **pas exécuté littéralement** : c'est une chaîne de documentation qui déclenche un **pattern matching grossier** dans `build_composite_dataset` :
-
-| Si la chaîne contient… | Le builder fait… |
-|---|---|
-| `" - "` | `ser_0 − ser_1 − …` (soustraction en chaîne de tous les input_series) |
-| `" / "` | `ser_0 / ser_1` (+ variante si `base_cpi` dans la chaîne → déflate par `ser_1/base`) |
-| `"overlay"` ou `"direct"` | passe chaque `ser_i` dans une colonne `variables[1+i]` (multi-colonnes, pas de calcul) |
-| sinon, 1 seul input | `ser_0` brut |
-
-Conséquences : `"WILL5000PRFC / GDP * 100"` → le `* 100` est **ignoré** (seul `/` compte). `"M2SL_YOY_PCT"` → aucun pattern → passe `ser_0` brut, **pas** de YoY. Toujours vérifier que le CSV produit correspond à la formule annoncée.
-
-### 3.2 bis Les trois champs qui rattrapent le pattern matching
-
-`yoy_inputs`, `input_scales` et `scale` corrigent les limites les plus fréquentes du §3.2. Défauts no-op (`[]`, `[]` et `1`) : invisibles sur les entrées qui ne les portent pas.
-
-| Champ | Effet | Quand il est indispensable |
-|---|---|---|
-| `yoy_inputs: ["SERIE", …]` | transforme ces `input_series` en variation YoY (%) **AVANT** le calcul, sur `_yoy_periods(freq)` (12 monthly, 4 quarterly, 52 weekly, 252 daily) | tout « taux nominal − inflation ». Sans lui, le pattern `" - "` soustrait l'**indice CPI brut** (~330) au lieu de l'inflation (~3) : c'est ce qui rend `real-fed-funds-rate`, `real-10y-treasury-yield`, `us-real-wages` justes. Rattrape aussi le cas à un seul input (`m2-growth-rate`, `calculation: "M2SL_YOY_PCT"`). |
-| `input_scales: [f, f, …]` | multiplie **chaque input** par son facteur, juste après le fetch et **AVANT** le calcul. Liste positionnelle alignée sur `input_series` ; plus courte → complétée par des `1` | mélange d'unités de compte dans une **soustraction**. `net-liquidity-index` (`WALCL - WTREGEN - RRPONTSYD`) : WALCL et WTREGEN sont en **millions**, RRPONTSYD en **milliards** (source NY Fed, pas H.4.1) → `input_scales: [1, 1, 1000]`. Sans lui, le terme RRP est écrasé d'un facteur 1000 : au pic de décembre 2022, net liquidity sortait à 8,12 T$ au lieu de 5,57 T$, **+2 554 Md$ (+46 %)**, et le drainage du RRP — l'essentiel du signal — était invisible. |
-| `scale: <float>` | multiplie la **colonne métrique dérivée** (`variables[-1]`) après calcul | homogénéiser les unités FRED. `$M / $B` → `scale: 0.1` pour sortir un % (`fed-balance-sheet-gdp`, `corporate-debt-gdp`) ; `$B / $B` → `scale: 100` (`us-interest-payments-gdp`). Existe aussi sur les entrées `simple`, appliqué à `variables[1]` (`us-initial-claims`, `scale: 0.001` → milliers). |
-
-Règle de contrôle : si `unit` vaut `"%"` et que le calcul est un `" / "` entre deux séries de même unité, il **faut** un `scale: 100`. Son absence est un bug silencieux — le CSV sort un ratio (0.75) affiché comme un pourcentage.
-
-**`scale` ne remplace jamais `input_scales`, et réciproquement.** `scale` est un facteur unique appliqué en sortie : il absorbe un décalage d'unité dans une **division** (`fed-balance-sheet-gdp`, `$M / $B` → `scale: 0.1`), parce que le facteur y est commun aux deux termes. Dans une **soustraction**, il rescale tous les termes ensemble et ne rattrape jamais un terme mal calibré — il faut normaliser en amont, input par input. Corollaire de contrat : `input_scales` corrige aussi la **colonne brute publiée** (`on_rrp` passe en millions, conforme au `unit` déclaré), ce que `scale` ne fait pas.
-
-Règle de contrôle : dès qu'un composite en `" - "` mêle des séries en **niveau** (dollars, personnes, barils) plutôt qu'en points de %, relire l'unité FRED de **chaque** input (§7) avant de committer. Les cinq autres composites en `" - "` de `datasets.json` sont tous en points de % — le risque est concentré sur les séries de niveau.
-
-Restent hors de portée de ces trois champs : pondération, mapping en régimes, transformation custom → **builder dédié** (§6), pas d'entrée composite JSON.
-
-### 3.3 Ajouter un dataset FRED
-1. Vérifier le `series_id` sur FRED (§7).
-2. Ajouter l'entrée dans `simple` ou `composite`.
-3. Ordonner `variables` avec la métrique dérivée **en dernier** (§2.3).
-4. Tester : `python scripts/eco3min_updater.py --dataset {id} --no-touch`, vérifier le CSV.
-5. Confirmer que l'id n'existe pas déjà ailleurs (§2.1, §10).
+Le contrat porte aussi la licence. Une série amont sous conditions (FMI, OCDE, BoE, Coinbase via FRED, toute série FRED « copyrighted: citation required ») ne sort jamais en CC BY 4.0 par défaut : `scripts/source_rights.py` porte `SOURCE_RIGHTS` (clé → holder, attribution, terms_url, notice) et `SERIES_RIGHTS` (series_id FRED → clé). Mécanique :
+- **FRED** (`eco3min_updater.py`) : `rights_for_config()` lit les `sources[].series` de l'entrée ; une série présente dans `SERIES_RIGHTS` déclenche l'onglet « Source » du XLSX et le bloc `source_rights` du meta JSON. Rien à déclarer dans `datasets.json`, mais **toute nouvelle série sous conditions doit entrer dans `SERIES_RIGHTS`**, liste explicite, jamais un motif.
+- **v2** (`eco3min_updater_v2.py`) : clé `"rights": "<clé>"` dans l'entrée `DATASET_REGISTRY`, plus `"transform": "…"` quand le composite transforme la série (condition d'intégrité du FMI, cf. `copper-gold-ratio`). Sans clé, le fichier part sans onglet Source.
+- **Site** : la même clé doit exister dans `eco3_source_rights()` des snippets 36 et 114 (repo `eco3min-wp`), sinon le JSON-LD de la page annonce CC BY 4.0 à tort. Les deux registres sont miroirs, à faire évoluer ensemble (22 pages corrigées le 16/09/2026 pour cette raison).
+- Le statut d'une série FRED se lit par script avant toute entrée : `~/.claude/skills/sourcing-donnees-eco3min/scripts/fred_license.py` (trois niveaux ; « pre-approval required » = pas d'entrée du tout, re-sourcer). Doctrine, trois usages d'une donnée et table des sources hors FRED : `sourcing-donnees-eco3min`, section « Cas FRED » et `references/03-licences-sources-pipeline.md`.
+- Le `name` du registry nomme la source réelle : « Gold Price History (World Bank Pink Sheet) », pas « (LBMA) » ; « Coinbase via FRED », pas CoinGecko (corrigés le 17/09/2026).
+- État au 17/09/2026 : clés `imf-pcps`, `imf-ifs`, `oecd-mei`, `coinbase-btc`, `coinbase-eth`, `boe-ogl` ; 29 séries FRED dans `SERIES_RIGHTS`. Registry v2 : 20 ids (le §0 en compte 19, audit du 27/08). `gold-price` et `silver-price` sont mensuels depuis le commit c6e293f ; l'exemple §5.1 de la référence 02, qui dit `daily`, lui est antérieur.
 
 ---
 
-## 4. Pipeline ECB — `ecb_updater.py` (config-driven, SDMX)
+## 3. Pipeline FRED — `eco3min_updater.py` (config-driven) — lire `references/01-pipelines-config-driven-fred-ecb.md` avant toute entrée de `datasets.json`
 
-### 4.1 Schéma `config/ecb_datasets.json`
-Top-level : `api_base_url`, `output_dir` (`./output/datasets-ecb`), `wp_meta_dir` (`./output/meta-ecb`), `wp_touch_url`, `wp_touch_secret_env`, `datasets:{simple:[],composite:[]}`.
-
-**Simple** : clés SDMX `ecb_dataflow` + `ecb_key`.
-```json
-{
-  "id": "ecb-euro-short-term-rate",
-  "slug_en": "euro-short-term-rate-dataset",
-  "cluster": "interest-rates",
-  "frequency": "daily",
-  "ecb_dataflow": "EST",
-  "ecb_key": "B.EU000A2X2A25.WT",
-  "variables": ["date", "estr_rate"],
-  "unit": "%",
-  "source_label": "ECB (€STR)"
-}
-```
-Le fetcher appelle `GET {api_base}/{dataflow}/{key}?format=csvdata`, lit `TIME_PERIOD`/`OBS_VALUE`, gère les formats de date `YYYY-MM-DD | YYYY-MM | YYYY-Www | YYYY-Qq`. Pas de clé API.
-
-**Composite** : `input_datasets` (liste d'**ids de simples déjà déclarés**) + `calculation` (`" - "` ou `" / "` uniquement). Alignement par `merge_asof` backward (gère fréquences hétérogènes : taux quotidien vs inflation mensuelle).
-
-### 4.2 Ajouter un dataset ECB
-Trouver `dataflow`/`key` sur le ECB Data Portal (data-api.ecb.europa.eu) → entrée `simple`. Pour un spread/ratio : déclarer les deux simples puis une entrée `composite` avec `input_datasets` + `calculation`.
+Bloquant :
+- §3.1 Le builder prend `sources[0].series` (premier source `type=="fred"`), resample selon `frequency`, nomme la colonne `variables[1]`. Si `variables[1]` finit par `_yoy`, calcule le YoY (12 pér. monthly, 4 quarterly, 1 sinon).
+- §3.2 `calculation` n'est **pas exécuté littéralement** : c'est une chaîne de documentation qui déclenche un **pattern matching grossier** dans `build_composite_dataset` :
+  Conséquences : `"WILL5000PRFC / GDP * 100"` → le `* 100` est **ignoré** (seul `/` compte). `"M2SL_YOY_PCT"` → aucun pattern → passe `ser_0` brut, **pas** de YoY. Toujours vérifier que le CSV produit correspond à la formule annoncée.
+- §3.2 bis `yoy_inputs`, `input_scales` et `scale` corrigent les limites les plus fréquentes du §3.2. Défauts no-op (`[]`, `[]` et `1`) : invisibles sur les entrées qui ne les portent pas.
+  Règle de contrôle : si `unit` vaut `"%"` et que le calcul est un `" / "` entre deux séries de même unité, il **faut** un `scale: 100`. Son absence est un bug silencieux — le CSV sort un ratio (0.75) affiché comme un pourcentage.
+  **`scale` ne remplace jamais `input_scales`, et réciproquement.** `scale` est un facteur unique appliqué en sortie : il absorbe un décalage d'unité dans une **division** (`fed-balance-sheet-gdp`, `$M / $B` → `scale: 0.1`), parce que le facteur y est commun aux deux termes. Dans une **soustraction**, il rescale tous les termes ensemble et ne rattrape jamais un terme mal calibré — il faut normaliser en amont, input par input. Corollaire de contrat : `input_scales` corrige aussi la **colonne brute publiée** (`on_rrp` passe en millions, conforme au `unit` déclaré), ce que `scale` ne fait pas.
+  Règle de contrôle : dès qu'un composite en `" - "` mêle des séries en **niveau** (dollars, personnes, barils) plutôt qu'en points de %, relire l'unité FRED de **chaque** input (§7) avant de committer. Les cinq autres composites en `" - "` de `datasets.json` sont tous en points de % — le risque est concentré sur les séries de niveau.
+  Restent hors de portée de ces trois champs : pondération, mapping en régimes, transformation custom → **builder dédié** (§6), pas d'entrée composite JSON.
+- §3.3 Ajouter un dataset FRED :
+  1. Vérifier le `series_id` sur FRED (§7).
+  2. Ajouter l'entrée dans `simple` ou `composite`.
+  3. Ordonner `variables` avec la métrique dérivée **en dernier** (§2.3).
+  4. Tester : `python scripts/eco3min_updater.py --dataset {id} --no-touch`, vérifier le CSV.
+  5. Confirmer que l'id n'existe pas déjà ailleurs (§2.1, §10).
 
 ---
 
-## 5. Pipeline non-FRED — `eco3min_updater_v2.py` (code-driven)
+## 4. Pipeline ECB — `ecb_updater.py` (config-driven, SDMX) — lire `references/01-pipelines-config-driven-fred-ecb.md` avant toute entrée de `ecb_datasets.json`
 
-### 5.1 Modèle : registry + builders, PAS de JSON
-`CONFIG_PATH = config/datasets_v2.json` est défini mais **jamais chargé** (variable morte, §10). Tout vit dans le code :
-- une **fonction `build_{id}(cfg, keys) -> DataFrame`** par dataset,
-- une **entrée dans `DATASET_REGISTRY`** :
-```python
-"silver-price": {
-    "builder": build_silver_price,
-    "needs": [],                 # clés requises ; ["fred"] si le builder appelle FRED
-    "name": "Silver Price History",
-    "slug_en": "silver-price-history-dataset",
-    "cluster": "commodities",
-    "frequency": "daily",
-    "unit": "USD/troy oz",
-},
-```
-`needs` gate l'exécution : si une clé requise manque, le dataset est skippé. Le builder doit retourner un DataFrame `date` + colonnes (métrique principale en dernier, §2.3). Save + meta `key_stats` sont gérés par le `main()` commun.
-
-### 5.2 Fetchers existants et leurs fragilités
-| Source | Fetcher | Fragilité à connaître |
-|---|---|---|
-| World Bank Pink Sheet | `fetch_worldbank_pinksheet()` | **URL annuelle codée en dur** (2026 puis 2025 fallback) → à bumper chaque année. Détecte les colonnes gold/silver par nom. Cache global. |
-| CoinGecko | `fetch_coingecko(coin_id, days=365)` | **365 jours max** sur l'API gratuite → BTC/ETH = 1 an glissant seulement, pas d'historique long. |
-| Shiller | `fetch_shiller()` | **Scrape `shillerdata.com`** (regex sur les `<a href>` cherchant `ie_data`), fallback ancienne URL Yale. Indices de colonnes du workbook en dur. Cassable si le site change. |
-| NY Fed ACM | `fetch_nyfed_term_premium()` | Indices de colonnes (`19`=10y, `11`=2y) en dur, `header=7`. Cassable si le fichier change de format. |
-| FRED (composites mixtes) | `fetch_fred_series(series_id, key)` | Standard ; `needs:["fred"]` obligatoire dans le registry. |
-
-### 5.3 Ajouter un dataset non-FRED simple
-Écrire un fetcher (si nouvelle source) + un `build_{id}` qui retourne `date` + colonne(s) → entrée registry avec `needs` correct. Tester `--dataset {id} --no-touch`.
-
-### 5.4 Ajouter une NOUVELLE FAMILLE de source (ENTSO-E, AGSI+, FAO, IMF, BIS, World Bank API…)
-Décision :
-- **Quelques datasets, API hétérogène, one-off** → rester en v2 : un fetcher + des builders + entrées registry. C'est le chemin par défaut pour la plupart des nouveaux de la roadmap.
-- **Famille entière, API uniforme, beaucoup de datasets** (comme l'a été l'ECB SDMX) → créer un **pipeline dédié** : nouveau script `{source}_updater.py` config-driven + `config/{source}_datasets.json` + workflow `{source}-update.yml` + dossiers SFTP `www/dataset/{source}` et `dataset-meta/{source}` + cron décalé des autres. Réutiliser le squelette d'`ecb_updater.py` (fetcher + builders simple/composite + save/meta/touch + main).
-
-Dans les deux cas : ne jamais réutiliser un `dataset_id` déjà pris (§2.1), respecter le contrat §2, ajouter le secret/clé éventuel aux workflows.
-
-### 5.5 Sources sous licence
-EPEX/Nord Pool (électricité), Caixin PMI, et autres flux payants/sous licence **ne sont pas redistribuables** en CSV public. Ne pas pipeliner avant résolution de la licence (cf. roadmap : statut 🔴).
+Bloquant :
+- §4.1 Le fetcher appelle `GET {api_base}/{dataflow}/{key}?format=csvdata`, lit `TIME_PERIOD`/`OBS_VALUE`, gère les formats de date `YYYY-MM-DD | YYYY-MM | YYYY-Www | YYYY-Qq`. Pas de clé API.
+  **Composite** : `input_datasets` (liste d'**ids de simples déjà déclarés**) + `calculation` (`" - "` ou `" / "` uniquement). Alignement par `merge_asof` backward (gère fréquences hétérogènes : taux quotidien vs inflation mensuelle).
+- §4.2 Trouver `dataflow`/`key` sur le ECB Data Portal (data-api.ecb.europa.eu) → entrée `simple`. Pour un spread/ratio : déclarer les deux simples puis une entrée `composite` avec `input_datasets` + `calculation`.
 
 ---
 
-## 6. Composite pondéré / scoré — modèle `score_eco3min.py`
+## 5. Pipeline non-FRED — `eco3min_updater_v2.py` (code-driven) — lire `references/02-pipeline-v2-et-composite-score.md` avant d'écrire ou modifier un builder
 
-Quand la logique dépasse `A−B` / `A/B` (pondération, mapping en régimes, percentile custom) : **module autonome** exposant `update(datasets_dir, meta_dir) -> dict`, avec son `compute`, son `build_meta` (format `key_stats` + champs custom), ses constantes (poids, seuils). Branché par **hook lazy-import** dans `eco3min_updater.py`, juste avant le log final :
-```python
-if args.all or args.dataset == "{id}":
-    from {module} import update as update_{id}
-    r = update_{id}(datasets_dir=output_dir, meta_dir=meta_dir)
-    success += 1
-```
-Avantages : pas d'import au top (pas de dépendance dure), pas de modif de `datasets.json`, isolé et testable seul (`python scripts/{module}.py`). C'est le modèle pour tout indicateur propriétaire futur.
+Bloquant :
+- §5.1 `CONFIG_PATH = config/datasets_v2.json` est défini mais **jamais chargé** (variable morte, §10). Tout vit dans le code : Une **fonction `build_{id}(cfg, keys) -> DataFrame`** par dataset et une **entrée dans `DATASET_REGISTRY`** (exemple complet dans la référence). `needs` gate l'exécution : si une clé requise manque, le dataset est skippé. Le builder doit retourner un DataFrame `date` + colonnes (métrique principale en dernier, §2.3). Save + meta `key_stats` sont gérés par le `main()` commun.
+- §5.2 Chaque fetcher a une fragilité connue (URL annuelle du Pink Sheet, scrape de shillerdata.com, indices de colonnes NY Fed en dur) : table dans la référence, à relire avant de toucher un fetcher.
+- §5.3 Écrire un fetcher (si nouvelle source) + un `build_{id}` qui retourne `date` + colonne(s) → entrée registry avec `needs` correct. Tester `--dataset {id} --no-touch`.
+- §5.4 Nouvelle famille de source :
+  - **Quelques datasets, API hétérogène, one-off** → rester en v2 : un fetcher + des builders + entrées registry. C'est le chemin par défaut pour la plupart des nouveaux de la roadmap.
+  - **Famille entière, API uniforme, beaucoup de datasets** (comme l'a été l'ECB SDMX) → créer un **pipeline dédié** : nouveau script `{source}_updater.py` config-driven + `config/{source}_datasets.json` + workflow `{source}-update.yml` + dossiers SFTP `www/dataset/{source}` et `dataset-meta/{source}` + cron décalé des autres. Réutiliser le squelette d'`ecb_updater.py` (fetcher + builders simple/composite + save/meta/touch + main).
+  Dans les deux cas : ne jamais réutiliser un `dataset_id` déjà pris (§2.1), respecter le contrat §2, ajouter le secret/clé éventuel aux workflows.
+- §5.5 EPEX/Nord Pool (électricité), Caixin PMI, et autres flux payants/sous licence **ne sont pas redistribuables** en CSV public. Ne pas pipeliner avant résolution de la licence (cf. roadmap : statut 🔴).
+
+---
+
+## 6. Composite pondéré / scoré — modèle `score_eco3min.py` — lire `references/02-pipeline-v2-et-composite-score.md` avant tout indicateur pondéré
+
+Bloquant :
+- Quand la logique dépasse `A−B` / `A/B` (pondération, mapping en régimes, percentile custom) : **module autonome** exposant `update(datasets_dir, meta_dir) -> dict`, avec son `compute`, son `build_meta` (format `key_stats` + champs custom), ses constantes (poids, seuils). Branché par **hook lazy-import** dans `eco3min_updater.py`, juste avant le log final : Squelette du hook dans la référence.
 
 ---
 
@@ -257,42 +173,29 @@ Beaucoup de codes de la roadmap sont **inférés** (statut 🟡) et peuvent ne p
 
 ---
 
-## 8. Workflows GitHub Actions
+## 8. Workflows GitHub Actions — lire `references/03-workflows-et-test-local.md` avant de toucher un workflow ou un secret
 
-Squelette commun (5 workflows : FRED, ECB, non-FRED, EIA, FR) : `schedule.cron` + `workflow_dispatch` (input optionnel `dataset`) → checkout → setup-python 3.11 → `pip install -r requirements*.txt` → run updater (`--dataset` si input, sinon `--all`) → list files → **SFTP via `sshpass` + `sftp`** (cd dossier serveur, lcd dossier output, `put *`) → job summary.
-
-- FRED, non-FRED, articles et régime : `requirements.txt`. ECB : `requirements-ecb.txt`. EIA : `requirements-eia.txt`. FR : `requirements-fr.txt`.
+Bloquant :
+- Squelette commun (5 workflows : FRED, ECB, non-FRED, EIA, FR) : `schedule.cron` + `workflow_dispatch` (input optionnel `dataset`) → checkout → setup-python 3.11 → `pip install -r requirements*.txt` → run updater (`--dataset` si input, sinon `--all`) → list files → **SFTP via `sshpass` + `sftp`** (cd dossier serveur, lcd dossier output, `put *`) → job summary.
 - Secrets consommés : `FRED_API_KEY`, `EIA_API_KEY`, `WP_TOUCH_SECRET`, `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`.
-- `timeout-minutes: 30` par job.
 - **Deux workflows sortent du squelette.** `update-articles.yml` tourne sur une fenêtre mensuelle (`0 9 11-19 * *`), pas en cron quotidien. `regime-update.yml` n'utilise pas `sshpass` + `put *` mais `wlixcc/SFTP-Deploy-Action`, **un step par fichier** (13 steps) : ajouter une sortie au classifier impose d'ajouter ses 3 steps de déploiement à la main, sinon le fichier est produit en CI et jamais servi.
 - Créneaux occupés : 08:00 (FRED, ECB), 09:30 (non-FRED), 10:30 (EIA, FR, régime), 09:00 les 11–19 (articles). **10:30 porte déjà trois jobs concurrents sur le même SFTP OVH** — un nouveau pipeline prend un créneau libre, et ce triplet mérite d'être étalé.
 
 ---
 
-## 9. Test local (recette)
+## 9. Test local (recette) — lire `references/03-workflows-et-test-local.md` avant tout run local
 
-Toujours **depuis la racine du repo** : les configs portent des chemins relatifs (`./output/datasets`), un lancement depuis `scripts/` écrit à côté.
-
-```bash
-export FRED_API_KEY=xxxx          # non requis pour ECB ni FR
-export EIA_API_KEY=xxxx           # EIA uniquement
-python scripts/eco3min_updater.py          --dataset {id} --no-touch
-python scripts/eco3min_updater_v2.py       --dataset {id} --no-touch   # ou --list
-python scripts/ecb_updater.py              --dataset {id} --no-touch
-python scripts/eia_updater.py              --dataset {id} --no-touch   # ou --list
-python scripts/fr_updater.py               --dataset {id} --no-touch   # ou --list
-python scripts/eco3min_articles_updater.py --dataset {id} --no-touch
-python scripts/score_eco3min.py     # pas d'argparse : écrit toujours tout
-python scripts/regime_classifier.py # pas d'argparse, ET touch WP non désactivable
-```
-Vérifier : `output/.../{id}.csv` (date 1re col, métrique dernière col), `.xlsx` présent, `output/meta/{id}.json` avec `key_stats` peuplé (pas `{"rows":0}` → sinon source vide / code faux). `--no-touch` évite de pinger WP en test.
+Bloquant :
+- Toujours **depuis la racine du repo** : les configs portent des chemins relatifs (`./output/datasets`), un lancement depuis `scripts/` écrit à côté.
+- Toujours `--no-touch` ; `score_eco3min.py` et `regime_classifier.py` n'ont pas d'argparse et le classifier touche WP à chaque exécution.
+- Vérifier : `output/.../{id}.csv` (date 1re col, métrique dernière col), `.xlsx` présent, `output/meta/{id}.json` avec `key_stats` peuplé (pas `{"rows":0}` → sinon source vide / code faux). `--no-touch` évite de pinger WP en test.
 
 ---
 
 ## 10. Dette technique connue (à arbitrer, pas à figer)
 
 1. **`datasets_v2.json` mort** (§5.1) : supprimer la variable ou réellement charger le fichier si on veut passer v2 en config-driven.
-2. **CoinGecko 365 j** (§5.2) : historique court ; toute page « depuis 20xx » est fausse tant que l'historique long n'est pas stitché (CSV statique + API pour le récent).
+2. **CoinGecko 365 j** (§5.2) : historique court ; toute page « depuis 20xx » est fausse tant que l'historique long n'est pas stitché (CSV statique + API pour le récent). **Réglé le 17/09/2026** par la bascule sur FRED CBBTCUSD / CBETHUSD (§5.2).
 3. **Fetchers à indices/URL en dur** (World Bank, Shiller, NY Fed, Damodaran) : surveiller, ce sont les premiers à casser sur changement amont.
 4. **`compute_key_stats` dupliqué 5 fois** (FRED, ECB, EIA, FR, `_save_regime_series`) : les corps sont aujourd'hui identiques, rien ne garantit qu'ils le restent. Candidat à la remontée dans `eco3min_common.py`.
 5. **`fixtures/` absent du repo et non suivi par git** : `regime_classifier.py` attend `bamlh0a0hym2_history.csv` et `wu_xia_history.csv` ; le classifier tourne donc en CI sans ces inputs sous licence.
@@ -315,3 +218,9 @@ Quand l'un de ces points est résolu, **mettre à jour ce skill et le README**.
 - [ ] Nouveau secret/clé éventuel ajouté au workflow ; cron décalé si nouveau pipeline
 - [ ] Contrat §2 respecté (la page `production-dataset` doit pouvoir consommer le fichier)
 - [ ] Si la modif touche un point de dette §10, README + ce skill mis à jour
+
+Ajout du 17/09/2026, s'ajoute à la checklist ci-dessus :
+
+- [ ] Série amont sous conditions : clé `rights` posée (v2) ou `series_id` ajouté à `SERIES_RIGHTS` (FRED), ET clé miroir dans `eco3_source_rights()` des snippets 36 et 114 (§2.6)
+- [ ] Nouvelle série FRED : statut lu par `fred_license.py` ; « pre-approval required » → pas d'entrée, re-sourcer
+- [ ] Le `name` du registry nomme la source réelle (Pink Sheet, pas LBMA ; Coinbase via FRED, pas CoinGecko)

@@ -65,6 +65,14 @@ Surveiller systématiquement le ratio upvotes Reddit (% d'upvotes vs total votes
 - Ratio > 95% : excellent, top quintile DIB (référence : Gold cycle mai 2026, 96%)
 Sur les topics à factions (cf. section "Non-prise de parti élargie"), viser ratio > 94%. Un ratio < 90% sur un topic à factions = échec d'application des règles non-prise de parti.
 
+KPI TRANSVERSE — CONVERSION VUE→UPVOTE (le KPI du PNG, ajouté au dashboard le 17/09/2026)
+`upvotes_24h / vues_24h`, imprimé par `dashboard.py cotw` par cycle et par `chart_type`. Le titre et le sujet font les vues (le sub sert le post), le chart fait l'upvote (le viewer vote depuis le feed). Ce ratio isole donc la performance du visuel de celle de la sélection :
+- < 0,2 % : le chart n'a pas converti le scroll. Le format se revoit AVANT le sujet (cycles 13, 19, 18, 2, 6, 9, 1, 20 ; au 21, 0,21 % sur 522k vues).
+- 0,2-0,5 % : correct (cycles 5, 8, 10, 12, 15, 16).
+- > 0,5 % : excellent (cycles 3, 7, 11, 14 : spaghetti focus ×2, stacked area, seuil).
+Médiane par famille sur 20 cycles : forme dans le temps 0,39 %, comparaison statique 0,11 % (référence 03, TEST FEED). À écrire dans `notes_echec` séparément du ratio d'upvotes : le ratio mesure la défendabilité (Q5, factions, titre), la conversion mesure la forme. Un cycle peut rater l'un et réussir l'autre (cycle 15 : ratio 98 %, conversion 0,25 % ; cycle 21 : 88,9 % et 0,21 %, les deux).
+Le ratio partages/upvotes, lui, a échoué quatre cycles de suite à décrire la portée réelle (cycles 15 à 19 : reprise HN/X/LinkedIn invisible pour le compteur Reddit) ; il reste suivi, mais il n'est plus l'indicateur principal de portée hors-DIB, les référents Clarity le sont.
+
 Signaux temps-réel pendant le post (utiles pour décisions in-flight)
 - Ratio vues→upvotes à T+30 min : >0.5% = excellent, 0.2-0.5% = correct, <0.2% = le chart ne convertit pas. Si <0.2% à 30 min : ne pas insister à pousser via cross-post agressif, le post va plafonner.
 - Ratio comments/upvotes : >20% = engagement très fort, le sujet polarise (bon pour traction). 5-15% = engagement normal. <5% = post passif, peu de débat.

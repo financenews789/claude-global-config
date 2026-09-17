@@ -77,8 +77,10 @@ Extrait de SKILL.md (découpage du 15/09/2026), **réécrit le 15/09/2026** : le
       reprend au dernier post traité)
 
 10. Re-scan → vérification (Diagnostic, Conseil, ou MCP eco3min/links mode=inbound)
-    → metas : rien à poser (metas-eco3min §4) ; Paul classifie les satellites
-    livrés en uncategorized.
+    → metas : rien à poser (metas-eco3min §4). Mega ≥ 1.0.15 : les satellites
+    arrivent en `satellite` avec parent_major (le validator exige le
+    parent_major_pair_id) ; mega 1.0.14 : ils arrivent en uncategorized et Paul
+    les classifie après import.
 ```
 
 ### 2.2 Optimisation du maillage d'un cluster existant (conseil T1/T2/T3)
@@ -131,7 +133,7 @@ Tous dans `~/eco3min/eco3min-projets/`. Leur `CLAUDE.md` ne porte que la plomber
 
 **Workflow** : bootstrap (spec lue, snapshot daté, écarts blueprint/spec consignés dans `blueprint_deviations`) → « paire 1 » (MAJEUR, gate de données du composant) → « suivant » → … → « bundle » (JSON d'import unique + validation cluster-wide) → « snippet » (composant du MAJEUR) → « C » (inputs de la phase C).
 
-**Output** : N JSONs de revue + **1 JSON batch importable** (`create_cluster_bilingual`, Format C v1.1) + `snippet.php` + liste des post_id sources pour la phase C. Levels : MAJEUR en `major_article`, satellites en `uncategorized` (Paul classifie après import).
+**Output** : N JSONs de revue + **1 JSON batch importable** (`create_cluster_bilingual`, Format C v1.1) + `snippet.php` + liste des post_id sources pour la phase C. Levels : MAJEUR en `major_article`, satellites en `satellite` avec `parent_major_pair_id` (mega ≥ 1.0.15, 17/09/2026) — en `uncategorized` seulement si le mega live est encore 1.0.14 (Paul classifie alors après import).
 
 **Durée typique** : 1-2 h pour 25 paires, étalable (NEW CHAT par session, recoller le blueprint).
 
@@ -178,7 +180,7 @@ Tous dans `~/eco3min/eco3min-projets/`. Leur `CLAUDE.md` ne porte que la plomber
 6. **Export cibles** (~2 min) : onglet Maillage → « Format AVEC HTML — manuel » sur les post_id sources du signal « C ».
 7. **Projet C** (~15-30 min, NEW CHAT) : `patches-{cluster}-00N.json`.
 8. **Import patches** (~5 min) : onglet Maillage, dry run, apply.
-9. **Vérification** : re-scan, Diagnostic (zéro split-brain, zéro article sans cluster sur les nouvelles paires), Conseil ; classification des satellites `uncategorized` (Tinder mega ou Cleanup `level`).
+9. **Vérification** : re-scan, Diagnostic (zéro split-brain, zéro article sans cluster sur les nouvelles paires), Conseil ; sous mega 1.0.14 seulement, classification des satellites `uncategorized` (Tinder mega ou Cleanup `level`).
 
 **Durée totale** : ~2-3 h.
 
@@ -198,8 +200,8 @@ Tous dans `~/eco3min/eco3min-projets/`. Leur `CLAUDE.md` ne porte que la plomber
 
 - **Tinder du mega** (onglet Scan & Classification) : ne montre que les articles dont une des 4 metas critiques est vide ; écrit level + cluster + sub_pilier (slug) + parent_major via `set_meta_safe`. Raccourcis clavier Y/Enter accepter, S/Esc skip.
 - **Cleanup import** avec `level` (overwrite réversible) + `cluster` + `sub_pilier` : un seul import, piloté par post_id — cf §14.8.
-- **Level Setter** (level seul, pas `satellite`) ; **Fix 153** (→ `major_article` seul).
-- **MCP `eco3min/set-metas`** : dry-run par défaut, `mode=fill` (défaut) ou `overwrite`, validation des 11 levels et des slugs de rattachement, rollback par `eco3min/rollback`.
+- **Level Setter** (level seul ; `satellite` depuis 1.1.0) ; **Fix 153** (→ `major_article` seul).
+- **MCP `eco3min/set-metas`** : dry-run par défaut, `mode=fill` (défaut) ou `overwrite`, validation des 13 levels (`exclu` depuis 1.2.3) et des slugs de rattachement, rollback par `eco3min/rollback`.
 
 **Règle** : ne JAMAIS modifier `_eco3min_*` directement via SQL sur des articles déjà classifiés. Le boulot Tinder humain est sacré. Le SQL direct ne déclenche pas non plus les hooks du snippet SUBPILLAR SYNC (cf `metas-eco3min`).
 

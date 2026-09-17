@@ -1,6 +1,6 @@
 ---
 name: production-hero-majeur
-description: Production des visuels hero des pages MAJEUR d'eco3min.fr (article de fond d'un cluster), FR/EN. Activer pour créer/itérer un hero de majeur. Logique opposée au pilier : argument visuel d'UNE thèse (renversement consensus→thèse), pas cartographie d'un territoire. Identité : fond blanc (vs crème pilier), compo éditoriale aérée, tag MAJEUR — [pilier parent]. Liberté de forme (menu ouvert, courbe NON défaut, anti-répétition) sur socle d'honnêteté minimal. Couvre : thèse/renversement/preuve, gate 2.0 données réelles (rien de chiffré sans CSV ; toute forme qui IMPLIQUE de la donnée y tombe, pas de points décoratifs), vérif méthode/label 2.3 (formule = label, jamais 'Damodaran' sur ce qui n'en est pas), règle 'preuve d'abord' (concept réservé aux thèses sans preuve chiffrable), socle verrouillé (typo 3 familles, terracotta unique, sourcing, AMF, 1536×864), 3 tests. Combiner avec brand-kit-eco3min, visuels-eco3min, editeur-eco3min, archi-eco3min ; pendant de production-hero-pilier.
+description: "Production des visuels hero des pages MAJEUR d'eco3min.fr (article de fond qui ancre un cluster MAJEUR + satellites), FR et EN, 1536×864 sur fond blanc — l'argument visuel d'UNE thèse, pas la cartographie d'un territoire. Activer pour créer ou itérer un hero de majeur : « hero du majeur », « hero de l'article majeur X », « le majeur de [pilier] », « thèse / renversement / preuve », « forme du majeur précédent », « dumbbell », « preuve d'abord », « c'est un majeur ou un pilier ? », « fond blanc », « tag MAJEUR ». Skill courte, non découpée : tout sert à chaque invocation. Pas de scripts/ propres (gardes : brand-kit-eco3min/scripts/brand_tokens.py et visuels-eco3min/scripts/mpl_guards.py). Doctrines : logique opposée au pilier (thèse vs territoire, blanc vs crème, aéré vs dense) ; test d'échec : si le visuel pourrait illustrer trois autres articles du domaine, il porte le sujet, pas la thèse ; liberté de forme sur menu ouvert, la courbe n'est PAS le réflexe, pas deux majeurs consécutifs sur la même forme ; règle d'or : UN dispositif dominant, jamais l'empilement ; gate 2.0 absolu : rien de chiffré sans le CSV/XLSX réel ET légalement publiable, étendu à toute forme qui implique de la donnée (pas de points décoratifs, pas de polyligne à l'œil) ; vérification méthode ET label 2.3 : formule écrite, jamais un nom de méthode (Damodaran, Shiller, ACM) sur une construction qui n'en est pas une, sanity-check de magnitude avant de tracer ; règle « preuve d'abord » : la forme conceptuelle n'est légitime que sans preuve chiffrable, sinon montrer et non illustrer ; socle verrouillé (3 familles typo, terracotta unique en mode sobre ou rang 1 en catégoriel, sourcing bas-gauche et signature Eco3min Research + URL bas-droite selon le chrome canonique brand-kit v2.0 §0, AMF, 1536×864 lisible à 380 px) ; 3 tests dont la lecture 5 s thèse-led, le plus important pour un majeur ; anti-patterns de mai 2026 (courbe eyeballed, label méthode faux, dispersion field décoratif, terracotta isolé, source Yahoo non publiable) et le pattern de résolution dumbbell value/growth ; production en code depuis le CSV réel, Claude Design pour explorer. Hors périmètre : heros de pilier (production-hero-pilier) et d'article (production-hero-article-eco3min) ; tokens et chrome (brand-kit-eco3min) ; AMF visuelle, choix de chart, rendu (visuels-eco3min) ; provenance et licence (sourcing-donnees-eco3min). Combiner avec brand-kit-eco3min, visuels-eco3min, sourcing-donnees-eco3min, editeur-eco3min, archi-eco3min ; pendant de production-hero-pilier."
 ---
 
 # Production — Hero visuel pour article MAJEUR Eco3min
@@ -67,7 +67,7 @@ Valeurs/polylignes depuis le CSV. Footer = formule validée (2.3). Variante EN :
 - **Honnêteté data** — gate 2.0 + 2.3 ; axes jamais tronqués ; proxy/composite signalé dans le visuel ET en footer.
 - **Typo — 3 familles, aucune autre** (signature Eco3min) : Source Serif 4 (titres) · Inter (chiffres/axes, `tabular-nums`) · IBM Plex Mono (codes, tags, sourcing).
 - **Accent terracotta `#B85C3C`** — un seul rôle accentué par visuel, jamais un cluster ; un accent isolé sans signification est à retirer.
-- **Sourcing footer 2 lignes + watermark `Eco3min — Research` + URL** ; codes série explicites ; mention Eco3min toujours présente.
+- **Sourcing footer 2 lignes bas-gauche + signature `Eco3min Research` ligne 1 et URL ligne 2 bas-droite** (chrome canonique `brand-kit-eco3min` v2.0 §0 ; zéro cadratin dans les textes courants du visuel) ; codes série explicites ; mention Eco3min toujours présente.
 - **AMF** — aucune flèche/zone achat-vente, aucune cible de prix, annotations descriptives, aucun terme dramaturgique. « Marquer » = clarté du renversement, pas sensationnalisme.
 - **Export 1536×864**, lisible à 380 px.
 
@@ -94,10 +94,15 @@ Article majeur intégral · slug + **pilier parent** (tag/watermark) · **CSV/XL
 - `sourcing-donnees-eco3min` — source de vérité provenance/licence/légalité des données tracées (gate 2.0 : propre, pas seulement réelle).
 - `production-hero-pilier` — pendant pilier (logique inverse : territoire vs thèse, crème vs blanc, dense vs aéré).
 - `visuels-eco3min` — AMF, sourcing, qualité, choix de chart. `editeur-eco3min` — ton, AMF du titre/sous-titre. `archi-eco3min` — slugs FR/EN, pilier parent.
-- `prompt-hero-majeur-eco3min` v2.1 — dérivé Claude Design de ce skill (workflow recommandé par défaut).
+- `prompt-hero-majeur-eco3min` v2.1 — dérivé Claude Design de ce skill, outil d'**exploration** des 2-3 options (étape 4). La **livraison** se rend en code depuis le CSV réel : HTML/SVG → Playwright (`visuels-eco3min` §7 bis) ou matplotlib + `mpl_guards` (§7 ter), `brand_tokens.check_source` sur le script avant livraison (décision du 17/09/2026, alignée sur `production-hero-article-eco3min` et `production-hero-pilier` v1.3).
 
 ## À actualiser après 2-3 majeurs si
 - Une forme du menu domine au point de relancer la monotonie (risque symétrique : tout en dumbbell/divergence).
 - La qualité oscille trop entre majeurs (prix de la liberté) → resserrer le menu aux 4-5 formes fiables.
-- La convention « fond blanc = majeur » est adoptée → la graver dans `brand-kit-eco3min`.
+- ~~La convention « fond blanc = majeur » est adoptée → la graver dans `brand-kit-eco3min`.~~ Fait : gravée en `brand-kit-eco3min` v1.1 §2.2.
 - Un layout canonique majeur stable émerge (zones, hiérarchie de signaux) → le figer comme l'a fait le skill pilier.
+
+## Versions
+
+- **v0.3** (juillet 2026) — alignement sur `brand-kit-eco3min` v1.1.
+- **v0.4** (17/09/2026) — description réécrite ; socle aligné sur le chrome canonique `brand-kit-eco3min` v2.0 §0 (sources bas-gauche, signature `Eco3min Research` + URL bas-droite, zéro cadratin) ; livraison en code depuis le CSV réel, Claude Design pour l'exploration ; point « fond blanc » clos. Aucune règle de fond modifiée. Skill volontairement non découpée (103 lignes, tout sert à chaque invocation).

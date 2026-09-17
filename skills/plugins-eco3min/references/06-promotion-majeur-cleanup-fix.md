@@ -23,14 +23,14 @@ Extrait de SKILL.md (découpage du 15/09/2026), **réécrit le 15/09/2026** cont
 | `sub_pilier` | `_eco3min_sub_pilier` | **fill-only** ; doit être le **slug de la PAGE sous-pilier** connue (cf `archi-eco3min` §sub_piliers) | `_e3mc_bak_sub` |
 | `parent_major` | `_eco3min_parent_major` | fill-only ; **omis** sur un majeur | **aucun** |
 
-Garde-fous : post en `publish` obligatoire (sinon `skipped`) ; entrée sans aucun des trois champs → `skipped` ; valeur inconnue → `skipped`. L'import est **piloté par post_id** : les pages n'ont pas besoin de figurer dans l'export pending (qui ne liste que les classés-mais-orphelins de silo — sur un export réel : 0 `uncategorized` sur 780 items). **Pas de prévisualisation** : le bouton « Importer & ecrire les metas » écrit directement, le résultat n'affiche que `written` / `skipped` → relire le JSON avant de cliquer, et vérifier ensuite par `eco3min/get-content` ou le Diagnostic mega.
+Garde-fous : post en `publish` obligatoire (sinon `skipped`) ; entrée sans aucun des trois champs → `skipped` ; valeur inconnue → `skipped`. L'import est **piloté par post_id** : les pages n'ont pas besoin de figurer dans l'export pending (qui ne liste que les classés-mais-orphelins de silo — sur un export réel : 0 `uncategorized` sur 780 items). **Cleanup 1.2.0 (lot du 17/09/2026)** : bouton « Previsualiser » (aucune écriture), résultat ligne par ligne avec la raison de chaque skip, backup `_e3mc_bak_pm`, « Restaurer les rattachements importés » → toujours Prévisualiser avant Importer. **Sous 1.1.0 (live)** : pas de prévisualisation, le bouton « Importer & ecrire les metas » écrit directement et le résultat n'affiche que `written` / `skipped` → relire le JSON avant de cliquer, et vérifier ensuite par `eco3min/get-content` ou le Diagnostic mega.
 
 **Alternatives pour le level seul** (quand cluster + sous-pilier sont déjà posés) :
 
 | Outil | URL | Ce qu'il fait |
 |---|---|---|
 | **Fix** (snippet 153) → onglet 1 « Promote majeur » | `admin.php?page=e3m-fix` | post_id ou URL, un par ligne ; Prévisualiser (`<level actuel> → major_article`) ; Appliquer ; écrit **uniquement `_eco3min_level`** vers `major_article`, backup `_e3m_lvl_bak`, bouton Restaurer |
-| **Level Setter** | `tools.php?page=eco3min-level-setter` | n'importe lequel des 12 levels **sauf `satellite`**, backup `_e3m_lvlset_bak`, Restaurer |
+| **Level Setter** | `tools.php?page=eco3min-level-setter` | n'importe lequel des 13 levels (`satellite` inclus depuis 1.1.0, absent en 1.0.0), backup `_e3m_lvlset_bak`, Restaurer |
 | **MCP `eco3min/set-metas`** | — | dry-run par défaut, `mode=overwrite`, validation des levels et des slugs, rollback par `eco3min/rollback` |
 
 **GÂCHES à connaître (vérifiées 15/09/2026) :**

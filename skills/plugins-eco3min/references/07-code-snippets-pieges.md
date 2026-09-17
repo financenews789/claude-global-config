@@ -58,7 +58,7 @@ sans erreur : on croit avoir deploye, rien n'a bouge, et le site porte desormais
 deux versions du meme code dont une dormante.
 
 `ewpa/update-code-snippet` et `ewpa/set-code-snippet-active` (Enable Abilities
-for MCP 2.11.1, opt-in) existent mais **désactivent tout snippet actif dont le
+for MCP, 2.12.0 en live le 17/09/2026, opt-in) existent mais **désactivent tout snippet actif dont le
 code change** et exigent une réactivation manuelle dans wp-admin : même boucle
 manuelle, avec en prime une fenêtre où le snippet ne tourne pas. Les laisser
 décochées dans Réglages › WP Abilities.

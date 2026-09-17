@@ -258,3 +258,218 @@ def assert_no_html_comments(html):
     found = find_html_comments(html)
     assert not found, 'commentaire HTML dans le contenu: %r' % [c[:60] for c in found[:5]]
     return True
+
+
+# ── Verrou H — anti-répétition de série (ajouté le 17/09/2026) ───────────────
+# Constaté sur R3→R9 : squelette fixe voulu (blocs machine), mais trois figures
+# de prose revenaient d'une étude à l'autre : la phrase-pivot toujours bâtie en
+# antithèse (« a shared trend, not a shared week » ; « absorbs the shock; records
+# the anchor » ; « bought no margin; it is the margin »), le Beat 1 titré « What
+# the [X] story says » deux études de suite, le label « Robustness, disclosed: »
+# verbatim de R3 à R9. Le squelette est le contrat d'audit et reste ; c'est la
+# phrase qui doit tourner. Le verrou lit les études déjà livrées dans out/ et
+# bloque la répétition, il n'impose aucune forme.
+import datetime as _dt
+import glob as _glob
+import os as _os
+
+# H2 des blocs fixes (§19) : autorisés à l'identique sur toute la série.
+FIXED_H2 = {
+    'latest observation', 'summary', 'executive summary', 'key statistics',
+    'the record in six numbers', 'forward distribution', 'levels to watch',
+    'key levels to watch', 'historical turning points', 'methodology',
+    'data sources and references', 'sources and references', 'data sources & references',
+    'sources', 'limitations', 'limits', 'frequently asked questions', 'faq', 'questions',
+    'related', 'related research', 'download the dataset', 'data tables',
+    'decade and episode tables', 'era and episode tables', 'era and lead-lag tables',
+    'era, decade and frequency tables', 'decade by decade',
+    # FR
+    'dernière observation', 'derniere observation', 'résumé', 'resume', 'synthèse', 'synthese',
+    'le dossier en six chiffres', 'distribution à terme', 'distribution a terme',
+    'niveaux à surveiller', 'niveaux a surveiller', 'points de retournement historiques',
+    'méthodologie', 'methodologie', 'sources et références', 'sources et references',
+    'limites', 'questions fréquentes', 'questions frequentes', 'foire aux questions',
+    'à lire aussi', 'a lire aussi', 'tableaux de données', 'tableaux de donnees',
+}
+# Blocs fixes dont le libellé varie d'une étude à l'autre (panneau de stats,
+# tableaux, distribution forward, points de retournement) : familles.
+FIXED_H2_PATTERNS = (
+    r'six (numbers|chiffres|nombres)',
+    r'^points de retournement',
+    r'^(historical )?turning points',
+    r'^tableaux? (par|de|des|d.)\b',
+    r'\btables$',
+    r'^distribution (forward|à terme|a terme)',
+    r'^forward distribution',
+    r'^what .+ (was|were) followed by$',
+    r'^ce qui a suivi .+',
+)
+
+# Gabarits de titre de Beat : un même gabarit sur deux études consécutives = ÉCHEC.
+H2_TEMPLATES = (
+    r'^what the .+ (story|reading|narrative|view|thesis) says$',
+    r'^ce que (dit|raconte) (le|la|l.)\s?.+',
+    r'^where (the|that|this) .+ (holds up|is weakest|sits|breaks)$',
+    r'^what this does not settle$',
+    r'^ce que (cela|ça|ceci) ne tranche pas$',
+    r'^pick any .+',
+    r'^choisis(sez)? .+',
+)
+
+# Labels de la phrase de robustesse (TL;DR). Le même label que l'étude
+# précédente = ÉCHEC. Le menu vit dans references/07-verrous-a-g.md §18.3 H.
+ROBUSTNESS_LABELS = (
+    'robustness, disclosed', 'checked the other way', 'same result if', 'same sign if',
+    'alternative measure', 'the sample without', 'with a later start', 'on the other convention',
+    'robustesse, divulguée', 'robustesse, divulguee', 'vérifié dans l.autre sens', 'verifie dans l.autre sens',
+    'même résultat si', 'meme resultat si', 'même signe si', 'meme signe si', 'mesure alternative',
+    'l.échantillon sans', 'l.echantillon sans', 'avec un départ plus tardif', 'avec un depart plus tardif',
+    'sur l.autre convention',
+)
+
+PIVOT_FIGURES = ('antithesis', 'temporal', 'number', 'question', 'definition', 'other')
+_FIGURE_FR = {'antithèse': 'antithesis', 'antithese': 'antithesis', 'temporel': 'temporal',
+              'temporelle': 'temporal', 'chiffre': 'number', 'nombre': 'number',
+              'définition': 'definition', 'autre': 'other'}
+
+_H2 = re.compile(r'<h2[^>]*>(.*?)</h2>', re.S | re.I)
+_README_DATE = re.compile(r'Produit le (\d{2})/(\d{2})/(\d{4})')
+_README_PIVOT = re.compile(
+    r'\*\*Phrase-pivot\*\*[^\n]*?(?:figure\s*:\s*([a-zA-Zéè]+))?[^\n]*\n\s*\n((?:>[^\n]*\n?)+)', re.I)
+
+
+def h2_titles(html):
+    """Visible text of every <h2>, in order, whitespace collapsed."""
+    return [_WS.sub(' ', _TAG.sub('', t)).strip() for t in _H2.findall(html)]
+
+
+def classify_pivot(sentence):
+    """Heuristic figure of a pivot sentence; the README declaration wins when present.
+
+    temporal   : opens on a time marker (Before/Since/Avant/Depuis/In 20xx)
+    question   : ends with ?
+    antithesis : ', not ' / ' pas ' / ' non ' / but / two clauses on ';' or ' : '
+    number     : carries a digit and no opposition marker
+    definition : 'X is a Y' / 'X est un Y' without opposition
+    """
+    s = sentence.strip().strip('>').strip()
+    low = s.lower()
+    if re.match(r'^(before|since|after|until|avant|depuis|après|apres|jusqu|in \d{4}|en \d{4})', low):
+        return 'temporal'
+    if s.endswith('?'):
+        return 'question'
+    if re.search(r',\s*not\b|\bnot\s+an?\b|\s(pas|non)\s|;|\s:\s|\bbut\b|\bmais\b', low):
+        return 'antithesis'
+    if re.search(r'\d', s):
+        return 'number'
+    if re.search(r'\b(is|are|est|sont)\s+(a|an|the|un|une|le|la|l.)\b', low):
+        return 'definition'
+    return 'other'
+
+
+def study_fingerprint(study_dir):
+    """What Verrou H compares: H2 per language, robustness label, pivot figure, date."""
+    fp = {'id': _os.path.basename(_os.path.normpath(study_dir)), 'date': None,
+          'h2': {}, 'label': {}, 'pivot': {}, 'figure': None}
+    for lang, name in (('EN', 'page_body.html'), ('FR', 'page_fr.html')):
+        p = _os.path.join(study_dir, name)
+        if not _os.path.exists(p):
+            continue
+        html = open(p, encoding='utf-8').read()
+        fp['h2'][lang] = h2_titles(html)
+        low = strip_html(html).lower()
+        fp['label'][lang] = next((l for l in ROBUSTNESS_LABELS if re.search(l, low)), None)
+    readme = _os.path.join(study_dir, 'README_DELIVERABLE.md')
+    if _os.path.exists(readme):
+        txt = open(readme, encoding='utf-8').read()
+        m = _README_DATE.search(txt)
+        if m:
+            fp['date'] = '%s-%s-%s' % (m.group(3), m.group(2), m.group(1))
+        m = _README_PIVOT.search(txt)
+        if m:
+            quotes = [q.strip('> ').strip() for q in m.group(2).strip().split('\n') if q.strip('> ').strip()]
+            if quotes:
+                fp['pivot'] = {'EN': quotes[0], 'FR': quotes[1] if len(quotes) > 1 else None}
+                declared = (m.group(1) or '').lower()
+                declared = _FIGURE_FR.get(declared, declared)
+                fp['figure'] = declared if declared in PIVOT_FIGURES else classify_pivot(quotes[0])
+    if not fp['date']:
+        body = _os.path.join(study_dir, 'page_body.html')
+        if _os.path.exists(body):
+            fp['date'] = _dt.datetime.fromtimestamp(_os.path.getmtime(body)).strftime('%Y-%m-%d')
+    return fp
+
+
+def series_corpus(out_dir, exclude=()):
+    """Fingerprints of every delivered study in out_dir (has page_body.html), oldest first."""
+    fps = []
+    for d in sorted(_glob.glob(_os.path.join(out_dir, '*'))):
+        if not _os.path.isdir(d) or _os.path.basename(d) in exclude:
+            continue
+        if not _os.path.exists(_os.path.join(d, 'page_body.html')):
+            continue
+        fps.append(study_fingerprint(d))
+    return sorted(fps, key=lambda f: (f['date'] or '', f['id']))
+
+
+def _template_of(title):
+    low = title.lower().strip()
+    for pat in H2_TEMPLATES:
+        if re.match(pat, low):
+            return pat
+    return None
+
+
+def series_repetition(current, corpus):
+    """Verrou H. `current` = study_fingerprint(dir), `corpus` = series_corpus(out, exclude=[id]).
+
+    Returns {'h2_dup': [...], 'h2_template': [...], 'label': [...], 'pivot_figure': [...]};
+    every list must be empty. Rules:
+      h2_dup        a non-fixed H2 identical (case-insensitive) to any previous study's H2
+      h2_template   a Beat H2 built on a gabarit (H2_TEMPLATES) that the IMMEDIATELY
+                    previous study also used
+      label         robustness label identical to the previous study's, same language
+      pivot_figure  pivot sentence figure identical to the previous study's
+    An empty corpus (first study of a series) passes by construction.
+    """
+    out = {'h2_dup': [], 'h2_template': [], 'label': [], 'pivot_figure': []}
+    if not corpus:
+        return out
+    prev = corpus[-1]
+    for lang, titles in current['h2'].items():
+        seen = {}
+        for fp in corpus:
+            for t in fp['h2'].get(lang, []):
+                seen.setdefault(t.lower().strip(), fp['id'])
+        prev_templates = {_template_of(t) for t in prev['h2'].get(lang, [])} - {None}
+        for t in titles:
+            key = t.lower().strip()
+            if key in FIXED_H2 or any(re.search(pat, key) for pat in FIXED_H2_PATTERNS):
+                continue
+            if key in seen:
+                out['h2_dup'].append((lang, t, seen[key]))
+            tpl = _template_of(t)
+            if tpl and tpl in prev_templates:
+                out['h2_template'].append((lang, t, prev['id'], tpl))
+        cur_label = current['label'].get(lang)
+        if cur_label and cur_label == prev['label'].get(lang):
+            out['label'].append((lang, cur_label, prev['id']))
+    if current['figure'] and current['figure'] == prev['figure']:
+        out['pivot_figure'].append((current['figure'], current['pivot'].get('EN'),
+                                    prev['id'], prev['pivot'].get('EN')))
+    return out
+
+
+def assert_series_locks(study_dir, out_dir=None):
+    """One-call Verrou H for audit_extract.py: prints the check, raises on any repetition."""
+    out_dir = out_dir or _os.path.dirname(_os.path.normpath(study_dir))
+    cur = study_fingerprint(study_dir)
+    corpus = series_corpus(out_dir, exclude=[cur['id']])
+    corpus = [fp for fp in corpus if (fp['date'] or '') <= (cur['date'] or '9999')]
+    rep = series_repetition(cur, corpus)
+    print('[Verrou H] %s contre %d étude(s) livrée(s) (%s) ; figure pivot = %s'
+          % (cur['id'], len(corpus), ', '.join(fp['id'] for fp in corpus) or 'aucune', cur['figure']))
+    for k, v in rep.items():
+        print('[Verrou H] %-13s %s' % (k, 'clean' if not v else v))
+    assert not any(rep.values()), ('Verrou H, répétition de série', rep)
+    return rep

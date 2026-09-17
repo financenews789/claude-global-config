@@ -1,6 +1,6 @@
 ---
 name: visuels-eco3min
-description: Standards de production et révision des visuels Eco3min (eco3min.fr) — charts macro-financiers, infographies, images sociales, illustrations. Couvre : sourcing intégré au visuel (institution + date dans le graphique), conformité AMF en data viz (pas de flèches achat/vente, zones prescriptives, cibles de prix), choix du type de chart selon la donnée, anti-patterns finance (pie charts, double axe Y, axes manipulés), cohérence chiffrée article/visuel, qualité technique, copyright. v1.2 : direct labeling en bout de ligne (légende détachée bannie si 6 séries ou moins) et famille multi-entités (pays/actifs/secteurs en palette catégorielle du brand kit, spaghetti focus au-delà de 6 séries). À combiner systématiquement avec brand-kit-eco3min qui définit typo, palette catégorielle 7 rangs, 3 registres de fond et codes régime. Ce skill porte les règles de fond (AMF, sourcing, qualité, choix de chart) qui s'appliquent en complément du brand kit.
+description: "Standards de fond de tout visuel Eco3min (eco3min.fr), FR et EN — charts macro-financiers, heros, infographies, images sociales, illustrations : sourcing intégré au visuel, conformité AMF en data viz, choix du type de chart selon la donnée, échelles et axes, annotations, cohérence chiffrée article/visuel, qualité technique, recettes de rendu PNG et leurs assertions, copyright, critère de publication. Activer pour toute création ou révision d'un visuel, et dès qu'une demande contient « chart », « graphique », « hero », « héro », « visuel », « PNG », « SVG », « matplotlib », « Playwright », « rendu », « police de repli », « DejaVu », « débordement », « chevauchement », « dollar échappé », « mathtext », « légende », « direct labeling », « double axe », « pie chart », « échelle log », « bandes grisées », « récessions NBER », « flèche », « cible de prix », « c'est AMF-compliant ? », « le chiffre du chart ne matche pas l'article », « copyright du graphique ». Structure : SKILL.md = colonne vertébrale (sourcing §1, les 7 interdictions AMF condensées §2, règles bloquantes de choix de chart et de direct labeling §3, axes §4, cohérence §6, qualité §7, séquence Playwright §7 bis et cinq assertions matplotlib §7 ter condensées, critère de publication §9, checklist §10 verbatim) ; références dans references/ (à lire quand la section le dit) : 01 les 7 interdictions AMF détaillées, 02 tableau de choix de chart, échelles, annotations, 03 recette Playwright complète, 04 code des cinq assertions matplotlib et garde ASCII, 05 copyright et versioning ; gardes réutilisables dans scripts/mpl_guards.py (police rendue, débordement du canvas, chevauchement d'en-tête, dollars échappés, sources avant signature, glyphes hors ASCII) à importer dans tout script matplotlib au lieu de recopier les assertions. Doctrines : la source vit dans le visuel lui-même (institution + code de série + date), pas seulement dans la légende ; un graphique peut violer l'AMF même si le texte ne la viole pas (7 interdictions : flèches achat/vente, zones prescriptives, cibles de prix, scénario unique, allocations recommandées, ranking géographique normatif, timing) ; les bandes grisées portent une légende explicite ; le type de chart sert la donnée, pas le joli (pie, 3D, double axe sauf cas validé, gradient décoratif interdits) ; direct labeling en bout de ligne obligatoire ≤6 séries, légende détachée bannie, spaghetti focus au-delà ; axe Y à zéro pour les barres, libre pour les lignes, log signalé ; tout chiffre du visuel matche le texte, et c'est l'article qui se corrige ; les échecs de rendu sont silencieux (police de repli, titre rogné, textes superposés, mathtext, sources qui mordent la signature) et ne s'attrapent que par assertion dans le script, jamais à l'œil (cycle 20, R2, R4, R6) ; polices vérifiées à l'œil sur le premier visuel d'une série. Hors périmètre : tokens (hex, familles, fonds, formats, chrome canonique) → brand-kit-eco3min ; provenance et licence des données → sourcing-donnees-eco3min ; voix et AMF du texte → editeur-eco3min ; doctrine propre à chaque famille de hero → production-hero-pilier, production-hero-majeur, production-hero-article-eco3min ; charts Reddit → production-chart-of-the-week (dont scripts/chart_guards.py, implémentation éprouvée des mêmes assertions). Combiner avec brand-kit-eco3min (toujours), editeur-eco3min, sourcing-donnees-eco3min, et la skill de production de la famille concernée."
 ---
 
 # Standards visuels Eco3min
@@ -17,16 +17,41 @@ description: Standards de production et révision des visuels Eco3min (eco3min.f
 
 ---
 
+## COMMENT LIRE CE SKILL (découpage du 17/09/2026)
+
+Ce fichier est la colonne vertébrale : chaque règle BLOQUANTE, condensée sous son numéro d'origine, la checklist verbatim et le moment où lire chaque référence. Le texte complet (exemples ❌ / ✅, tableau de choix de chart, recettes de rendu avec leur code, copyright, versioning) a été déplacé VERBATIM dans `references/` et fait foi au même titre que ce fichier. `scripts/mpl_guards.py` porte les assertions du §7 ter : on l'importe, on ne les recopie plus.
+
+| Fichier | Contenu | À lire |
+|---|---|---|
+| `references/01-amf-7-interdictions.md` | §2 : les 7 interdictions AMF visuelles, chaque ❌ et son ✅ | avant de poser une annotation, une zone, une projection ou un ranking sur un chart |
+| `references/02-choix-chart-echelles-annotations.md` | §3, §4, §5 : tableau donnée → chart, direct labeling, anti-patterns absolus, axes, log, annotations recommandées | avant de choisir le type de chart, puis avant de fixer les axes |
+| `references/03-rendu-playwright.md` | §7 bis : séquence de chargement des polices, réglages, auto-ajustement du titre, vérification, repli | avant tout rendu HTML/SVG → PNG |
+| `references/04-rendu-matplotlib-assertions.md` | §7 ter : code et motif des cinq assertions + garde ASCII | avant tout `savefig` matplotlib, et quand une assertion de `mpl_guards` échoue |
+| `references/05-copyright-versioning.md` | §8 copyright, historique v1.0 → v1.6 | avant d'intégrer un élément tiers (logo, capture, image générée) ; à chaque évolution du skill |
+| `scripts/mpl_guards.py` | `load_brand_fonts`, `assert_fonts_rendered`, `assert_no_overflow`, `assert_no_header_overlap`, `assert_escaped_dollars`, `assert_sources_before_signature`, `assert_ascii_or_cmap`, `run_guards` | importé par tout script matplotlib d'un visuel Eco3min |
+
+Utilisation depuis un script de chart :
+
+    sys.path.insert(0, os.path.expanduser('~/.claude/skills/visuels-eco3min/scripts'))
+    from mpl_guards import load_brand_fonts, assert_escaped_dollars, run_guards
+    CMAP = load_brand_fonts(FONT_DIR)      # enregistre les TTF, asserte les 3 familles, retourne le cmap
+    ...
+    run_guards(fig, ax, CMAP)              # les cinq assertions + ASCII, avant fig.savefig
+
+Les cycles Chart of the Week importent `production-chart-of-the-week/scripts/chart_guards.py`, implémentation éprouvée des mêmes gardes avec le bandeau de killer phrase ; les deux modules portent la même doctrine (§7 ter).
+
+---
+
 ## 1. Sourcing intégré dans le visuel
 
 Même règle qu'en rédactionnel : la source apparaît **dans le visuel lui-même**, pas seulement dans la légende d'article. Un graphique extrait du contexte (capture, repost, AI Overview) doit rester attribuable.
 
-**Position standard** : coin inférieur (gauche ou droite), petite taille, mais lisible.
+**Position standard** : coin inférieur **gauche** (chrome canonique brand-kit v2.0 §0 ; la signature Eco3min occupe le coin droit), petite taille, mais lisible.
 
 **Format type**
-- Données brutes d'une institution : `Source : BCE — T4 2025`
-- Calculs Eco3min : `Calculs Eco3min sur données FRED` ou `Calculs Eco3min — sources : BCE, BRI, INSEE`
-- Estimation : `≈ estimation Eco3min — méthode dans l'article`
+- Données brutes d'une institution : `Source: BCE · T4 2025`
+- Calculs Eco3min : `Calculs Eco3min sur données FRED` ou `Calculs Eco3min · sources : BCE, BRI, INSEE`
+- Estimation : `≈ estimation Eco3min · méthode dans l'article`
 
 **Mention Eco3min** : présence systématique, discrète, en bas du visuel. Pas de logo géant. Le but est l'attribution, pas le branding.
 
@@ -36,128 +61,45 @@ Pour le format canonique 2 lignes en IBM Plex Mono, voir `brand-kit-eco3min` sec
 
 ---
 
-## 2. Conformité AMF visuelle — 7 interdictions
+## 2. Conformité AMF visuelle — 7 interdictions (lire `references/01-amf-7-interdictions.md` avant toute annotation)
 
 Toutes les règles AMF du skill `editeur-eco3min` ont une équivalence visuelle. Un graphique peut violer la conformité AMF même si le texte de l'article ne la viole pas.
 
-### 2.1 Pas de flèches achat/vente
-
-❌ Flèche verte montante avec texte "Buy", "Acheter", "Long"
-❌ Flèche rouge descendante avec texte "Sell", "Vendre", "Short"
-❌ Flèche neutre + label "Opportunité" / "Point d'entrée"
-
-✅ Si tu veux signaler un événement : annotation neutre datée (`27 oct. 2024 — annonce BCE`), sans direction prescriptive.
-
-### 2.2 Pas de zones colorées prescriptives
-
-❌ Bande verte "zone d'achat", bande rouge "zone de vente"
-❌ Zone "survendu" / "suracheté" présentée comme actionnable
-
-✅ Zones grisées pour marquer **régimes économiques** (récessions NBER, cycles d'inflation, etc.) — descriptif, pas prescriptif. Légende explicite : `Zones grisées : récessions NBER`.
-
-✅ Zones colorées via codes régime du brand kit (inflationniste, désinflationniste, stagflation, etc.) — descriptif par nature, jamais prescriptif.
-
-### 2.3 Pas de cibles ou objectifs de prix
-
-❌ Ligne pointillée projetée vers une cible avec label "Objectif 5 800 pts"
-❌ Fourchette d'arrivée colorée
-❌ Annotation "Cible technique" sur un graphique
-
-✅ Projections d'institutions tierces, attribuées et nommées : `Projection FMI WEO oct. 2025 (zone grisée = bande de confiance)`. Le lecteur sait qui projette quoi.
-
-### 2.4 Pas de scénarios sans dispositif de nuance
-
-❌ Une seule trajectoire prospective tracée fermement, sans cadrage
-❌ "Si X alors Y dans 12 mois" matérialisé en ligne ferme
-
-✅ Scénarios multiples (au moins 2, idéalement 3 — central, optimiste, pessimiste) tous tracés avec la même fermeté visuelle. Légende explicite : `Scénarios hypothétiques — non prédictifs`.
-
-### 2.5 Pas d'allocations recommandées en visuel
-
-❌ Pie chart "Allocation prudente : 30 % actions / 70 % obligations"
-❌ Bar chart comparatif "Profil dynamique vs prudent"
-
-✅ Allocations historiques observées, sourcées : `Allocations moyennes des fonds 60/40 — données Vanguard 2010-2024`. Descriptif, pas normatif.
-
-### 2.6 Pas de comparaisons géographiques avec ranking visuel
-
-❌ Bar chart trié décroissant "Pays les plus attractifs pour investir"
-❌ Carte chloroplèthe avec gradient "Performance" et podium implicite
-
-✅ Bar chart trié, mais légende neutre (`PER prospectif par marché — données Bloomberg, 28 avril 2026`). Pas de mot normatif dans le titre, juste des chiffres.
-
-### 2.7 Pas de timing matérialisé visuellement
-
-❌ Annotation "Bon moment pour entrer" / "Sortir maintenant"
-❌ Zone colorée "Fenêtre tactique"
-
-✅ Annotation factuelle datée. Le lecteur tire ses propres conclusions.
+Bloquant :
+1. **Pas de flèches achat/vente** — annotation neutre datée à la place.
+2. **Pas de zones colorées prescriptives** — les zones grisées marquent des régimes économiques (récessions, cycles), descriptif, avec **légende explicite** : `Zones grisées : récessions NBER`. Zones en codes régime du brand kit : descriptif par nature.
+3. **Pas de cibles ou objectifs de prix** — seules les projections d'institutions tierces, attribuées et nommées.
+4. **Pas de scénarios sans dispositif de nuance** — au moins 2, idéalement 3 scénarios, même fermeté visuelle, légende `Scénarios hypothétiques — non prédictifs`.
+5. **Pas d'allocations recommandées en visuel** — allocations historiques observées, sourcées, seulement.
+6. **Pas de comparaisons géographiques avec ranking visuel** — bar chart trié admis, légende neutre, aucun mot normatif dans le titre.
+7. **Pas de timing matérialisé visuellement** — annotation factuelle datée, le lecteur conclut.
 
 ---
 
-## 3. Choix du type de chart selon la donnée
+## 3. Choix du type de chart selon la donnée (lire `references/02-choix-chart-echelles-annotations.md` avant de choisir)
 
-Règles standard de data viz finance — Claude doit choisir le type qui sert la donnée, pas le type qui fait joli.
+Règles standard de data viz finance — Claude doit choisir le type qui sert la donnée, pas le type qui fait joli. Le tableau donnée → chart approprié → à éviter est dans la référence 02.
 
-| Donnée | Chart approprié | À éviter |
-|---|---|---|
-| Série temporelle longue (taux, indices, ratios dans le temps) | Line chart | Bar chart, pie chart |
-| Comparaison ponctuelle entre N catégories | Bar chart (horizontal si labels longs) | Line chart, pie chart |
-| Composition d'un total à un instant | Bar chart empilé OU table | Pie chart au-delà de 3 segments |
-| Évolution d'une composition dans le temps | Stacked area chart, stacked bar | Pie chart séquentiel |
-| Corrélation entre deux variables | Scatter plot, avec ligne de régression si pertinent | Bar chart |
-| Distribution d'une variable | Histogram, boxplot, density plot | Bar chart trié |
-| Comparaison de distributions par catégorie | Kernel density / ridge plot, violin plot | Bar chart de moyennes seules |
-| Matrice de relations (corrélations, exposition sectorielle) | Heatmap | Multiple bar charts juxtaposés |
-| Comparaison rang temporel (qui dépasse qui dans le temps) | Bump chart, slope chart | Line chart standard |
-| Coût combiné de 2 dimensions continues | Heatmap avec gradient continu + isocourbes | Bar chart multi-dimensions |
-| **Comparaison multi-entités dans le temps** (pays, actifs, secteurs, indicateurs — 2 à 6 séries) | Line chart multi-séries en palette catégorielle (`brand-kit-eco3min` §2.5), labels directs en bout de ligne | Légende détachée ; couleurs ad hoc ; >6 séries pleines |
-| Comparaison multi-entités >6 séries | Spaghetti focus : N séries grises en arrière-plan + 1-2 séries accentuées (rangs 1-2) | 8+ couleurs pleines simultanées |
-
-Le format **multi-entités** (le format signature OWID/FT) est historiquement sous-utilisé chez Eco3min — le mobiliser dès que la donnée est comparative par nature, plutôt que N charts mono-série juxtaposés.
-
-### Direct labeling — règle générale (v1.2)
-
-Pour tout chart à ≤6 séries : **chaque série est labellisée directement en bout de ligne** (ou au point le plus dégagé), dans la couleur de sa série, en Inter 11-12 px. **Légende détachée bannie** — elle force des allers-retours œil-légende, casse la lecture 5 secondes, et pénalise les lecteurs daltoniens (le label direct désambiguïse ce que la couleur seule ne garantit pas). Au-delà de 6 séries (spaghetti focus), seules les séries accentuées sont labellisées ; le nuage gris reçoit un label collectif unique (« autres pays OCDE », etc.).
-
-### Anti-patterns absolus
-
-**Pie charts** : à éviter en macro-finance. Mauvaise lisibilité au-delà de 3 segments, lecture des proportions imprécise. Préférer un bar chart trié décroissant.
-
-**3D** : jamais. Distorsion de perception, aucune valeur ajoutée.
-
-**Double axe Y** : à éviter sauf nécessité réelle (deux variables fortement corrélées dont les unités diffèrent). Si utilisé, mentionner explicitement le risque de manipulation visuelle dans la légende. Cas validé : BBB-share (axe gauche, %) + BBB OAS spread (axe droit, bps) sur même chart — corrélation économique forte, deux unités, légende explicite.
-
-**Gradient décoratif** : pas de gradient sans signification. Une couleur = une catégorie, ou un gradient = une dimension continue (ex : intensité d'inflation par pays, coût d'accessibilité du logement).
+Bloquant :
+- **Multi-entités (pays, actifs, secteurs, indicateurs — 2 à 6 séries)** : line chart multi-séries en palette catégorielle (`brand-kit-eco3min` §2.5), labels directs en bout de ligne. Au-delà de 6 séries : spaghetti focus (N séries grises en arrière-plan + 1-2 séries accentuées aux rangs 1-2). Le format multi-entités est historiquement sous-utilisé chez Eco3min — le mobiliser dès que la donnée est comparative par nature.
+- **Direct labeling** : pour tout chart à ≤6 séries, **chaque série est labellisée directement en bout de ligne** (ou au point le plus dégagé), dans la couleur de sa série, en Inter 11-12 px. **Légende détachée bannie**. Au-delà de 6 séries, seules les séries accentuées sont labellisées ; le nuage gris reçoit un label collectif unique.
+- **Anti-patterns absolus** : pie charts à éviter en macro-finance (illisible au-delà de 3 segments) ; **3D : jamais** ; **double axe Y** à éviter sauf nécessité réelle (deux variables fortement corrélées dont les unités diffèrent), avec mention explicite du risque dans la légende — cas validé BBB-share + BBB OAS ; **gradient décoratif** interdit : une couleur = une catégorie, ou un gradient = une dimension continue.
 
 ---
 
-## 4. Échelles et axes
+## 4. Échelles et axes (lire `references/02-choix-chart-echelles-annotations.md` avant de fixer les axes)
 
-**Axe Y commence à zéro** : obligatoire pour les bar charts. Optionnel — souvent indésirable — pour les line charts de prix, ratios, indices (couper l'axe rend la dynamique lisible).
-
-**Échelle logarithmique** : à utiliser pour
-- Séries de prix ou indices sur plus de 10 ans (un S&P 500 sur 100 ans en linéaire est illisible)
-- Ratios à très grande dynamique
-- Comparaison de croissances en %
-
-Toujours indiquer `(échelle log)` dans le titre ou la légende.
-
-**Étiquettes d'axes** : unités explicites systématiquement (`%`, `points de base`, `milliards EUR`, `% du PIB`, `index 100 = janv. 2020`).
-
-**Période** : titre du chart inclut la période (`PIB américain 1970-2026`). Pas de chart sans cadrage temporel.
+Bloquant :
+- **Axe Y commence à zéro** : obligatoire pour les bar charts. Optionnel — souvent indésirable — pour les line charts de prix, ratios, indices.
+- **Échelle logarithmique** pour les séries de prix ou indices sur plus de 10 ans, les ratios à très grande dynamique, les comparaisons de croissances en % ; toujours indiquer `(échelle log)` dans le titre ou la légende.
+- **Unités explicites** sur toutes les étiquettes d'axes (`%`, `points de base`, `milliards EUR`, `% du PIB`, `index 100 = janv. 2020`).
+- **Période dans le titre** du chart. Pas de chart sans cadrage temporel.
 
 ---
 
-## 5. Annotations recommandées
+## 5. Annotations recommandées (lire `references/02-choix-chart-echelles-annotations.md`)
 
-Un visuel macro gagne en valeur quand il contextualise.
-
-- **Récessions** : zones grisées (NBER pour USA, datations OFCE/INSEE pour France, CEPR pour zone euro)
-- **Événements clés** : annotations textuelles datées (`mars 2020 — COVID`, `oct. 2008 — Lehman`, `févr. 2022 — invasion Ukraine`)
-- **Moyennes historiques** : ligne horizontale en pointillé avec label (`moyenne 1980-2020 : 4,2 %`)
-- **Régimes nommés** : zones ombrées en couleur du code régime correspondant (voir `brand-kit-eco3min` section 3)
-- **Marqueur principal** : 1 accent terracotta `#B85C3C` sur le moment-clé (voir `brand-kit-eco3min` section 2.3 pour la règle d'unicité)
+Récessions en zones grisées légendées (NBER, OFCE/INSEE, CEPR) ; événements clés en annotations textuelles datées ; moyennes historiques en pointillé avec label ; régimes nommés en couleur du code régime (`brand-kit-eco3min` §3) ; **marqueur principal** : 1 accent terracotta `#B85C3C` sur le moment-clé (règle d'unicité `brand-kit-eco3min` §2.3).
 
 ---
 
@@ -189,202 +131,39 @@ Une seule de ces erreurs disqualifie le visuel pour publication.
 
 ---
 
-## 7 bis. Rendu PNG — recette Playwright
+## 7 bis. Rendu PNG — recette Playwright (lire `references/03-rendu-playwright.md` avant tout rendu HTML/SVG)
 
-Le rendu de référence des visuels codés (heros, charts HTML/SVG) passe
-par **Chromium via Playwright**, pas par une capture manuelle ni par matplotlib :
-c'est le seul chemin qui garantit les trois familles typographiques réelles.
+Chromium rend la page **avant** que les Google Fonts soient chargées si on ne l'attend pas explicitement : PNG en police de repli, **sans erreur, sans avertissement**.
 
-### Le piège des polices
-
-Chromium rend la page **avant** que les Google Fonts soient chargées si on ne
-l'attend pas explicitement. Le résultat est un PNG en police de repli —
-**sans erreur, sans avertissement**, exactement comme la retombée silencieuse
-de matplotlib sur DejaVu Sans. Un visuel entier peut partir en production dans la
-mauvaise typo sans que rien ne le signale.
-
-### Séquence obligatoire — aucune étape n'est facultative
-
+**Séquence obligatoire — aucune étape n'est facultative** :
 1. `set_content(html, wait_until="load")`
 2. `await page.evaluate("document.fonts.ready")`
 3. `wait_for_timeout(650)` — 650 à 700 ms ; en dessous, le rendu part trop tôt
-4. exécuter l'auto-ajustement de titre (voir plus bas)
+4. exécuter l'auto-ajustement de titre (`window.__fit()`, attendre `window.__fit_done` par `wait_for_function`)
 5. `wait_for_timeout(150)`
-6. `screenshot(..., clip={...})`
+6. `screenshot(..., clip={"x":0,"y":0,"width":W,"height":H})`
 
-Sauter l'étape 2 **ou** l'étape 3 suffit à produire le repli silencieux.
-
-### Réglages
-
-- `viewport` aux dimensions cibles, `device_scale_factor=2` — on rend en
-  rétine, puis on redescend aux dimensions exactes par PIL/LANCZOS.
-- `screenshot` avec un `clip` **explicite**
-  `{"x":0,"y":0,"width":W,"height":H}` : sans lui, une marge parasite ou un
-  débordement d'un pixel change les dimensions du fichier.
-- SVG : géométrie **pré-calculée en Python** puis embarquée en
-  SVG inline dans le HTML. Un SVG chargé en ressource externe déclenche des
-  blocages cross-origin. Full-canvas en `viewBox="0 0 W H"`,
-  `position:absolute; inset:0`, le texte HTML par-dessus en `z-index`.
-
-### Auto-ajustement du titre
-
-Boucle JS qui décrémente la taille de police depuis ~44 px jusqu'à un
-plancher de 24-26 px tant que le titre déborde de son budget de deux lignes.
-
-**Doit tourner après confirmation du chargement des polices** — mesurer
-avant, c'est mesurer la police de repli, donc calculer un mauvais palier.
-
-L'exposer en `window.__fit()`, l'appeler par `page.evaluate()`, et attendre
-`window.__fit_done` via `wait_for_function()` plutôt que par un timeout fixe.
-
-### Vérification
-
-Vérifier explicitement la police rendue sur le **premier visuel d'une
-série** — même consigne que pour matplotlib. Un zoom sur un mot en
-Source Serif 4 suffit : si le rendu est en sans-serif, toute la série est
-à refaire.
-
-### Repli
-
-Si Chromium est indisponible, l'installer (`playwright install chromium`). En
-dernier recours seulement, rendre un SVG pur via `cairosvg` — mais la
-fidélité typographique y est moins bonne.
+Sauter l'étape 2 **ou** l'étape 3 suffit à produire le repli silencieux. `viewport` aux dimensions cibles, `device_scale_factor=2`, redescente par PIL/LANCZOS ; SVG pré-calculé en Python et embarqué inline (jamais en ressource externe). L'auto-ajustement du titre tourne **après** confirmation du chargement des polices. Vérifier la police rendue à l'œil sur le **premier visuel d'une série**.
 
 ---
 
-## 7 ter. Rendu matplotlib — quatre assertions avant `savefig`
+## 7 ter. Rendu matplotlib — cinq assertions avant `savefig` (lire `references/04-rendu-matplotlib-assertions.md` avant tout `savefig`, importer `scripts/mpl_guards.py`)
 
-Le §7 bis couvre le chemin Playwright, qui est celui des heros et des charts
-HTML. Les charts codés en matplotlib — Chart of the Week, visuels de dataset,
-séries longues — passent par un autre chemin, avec ses propres échecs
-silencieux. Aucun d'eux ne lève d'exception : le PNG sort, il a l'air correct
-sur une vignette, et le défaut ne se voit qu'agrandi ou pas du tout.
+Aucun de ces échecs ne lève d'exception : le PNG sort, il a l'air correct sur une vignette. **Les assertions se posent dans le script, pas dans la relecture.**
 
-**Les quatre assertions se posent dans le script, pas dans la relecture.** Une
-inspection visuelle rapide a laissé passer les trois premières au moins une fois
-chacune, sur des scripts écrits par quelqu'un qui connaissait le piège.
+1. **La police demandée est bien la police rendue** — `FontProperties(family=X).get_name() == X` pour les trois familles (repli DejaVu Sans silencieux).
+2. **Aucun texte ne déborde du canvas** — boîte englobante de chaque texte dans `[0, W] × [0, H]` (un titre trop long est rogné, pas mis à la ligne).
+3. **Les textes d'en-tête ne se recouvrent pas** — intersection des boîtes de `fig.texts` < 12 % de la plus petite.
+4. **Les `$` sont échappés** — deux `$` non échappés basculent la chaîne en mathtext italique ; écrire `\\$` et asserter.
+5. **Le pied de source ne mord pas la signature** (16/09/2026, R6) — `x1` de la ligne `Sources` < `x0` de `Eco3min Research` − 8 px : test d'ordre horizontal, le seuil de 12 % laissant passer une morsure de fin de ligne.
 
-### 1. La police demandée est bien la police rendue
-
-Matplotlib retombe sur DejaVu Sans **sans erreur ni avertissement** quand la
-famille n'est pas enregistrée. Voir la recette d'instanciation en mémoire de
-projet ; le contrôle, lui, tient en trois lignes.
-
-```python
-from matplotlib.font_manager import FontProperties
-for family in ('Source Serif 4', 'Inter', 'IBM Plex Mono'):
-    got = FontProperties(family=family).get_name()
-    assert got == family, 'repli de police : demandé %r, obtenu %r' % (family, got)
-```
-
-### 2. Aucun texte ne déborde du canvas
-
-Un titre trop long est **rogné au bord du PNG**, pas mis à la ligne, pas réduit.
-Sur un rendu 1920×1080 examiné en vignette, un titre amputé de ses trois
-derniers mots passe inaperçu.
-
-```python
-fig.canvas.draw()
-r = fig.canvas.get_renderer()
-W, H = fig.get_size_inches() * fig.dpi
-for t in list(fig.texts) + list(ax.texts):
-    bb = t.get_window_extent(renderer=r)
-    assert -1 <= bb.x0 and bb.x1 <= W + 1, 'débordement horizontal : %r' % t.get_text()[:48]
-    assert -1 <= bb.y0 and bb.y1 <= H + 1, 'débordement vertical : %r' % t.get_text()[:48]
-```
-
-### 3. Les textes d'en-tête ne se recouvrent pas
-
-Titre, sous-titre, badge d'unité et bandeau de killer phrase sont posés en
-coordonnées figure. Il suffit qu'un titre s'allonge d'un mot pour que le badge
-en haut à droite lui passe dessus. Le recouvrement est parfaitement lisible en
-plein écran et invisible sur une vignette.
-
-La tolérance n'est pas cosmétique : les boîtes englobantes de texte incluent
-toute la hauteur de ligne, donc deux lignes empilées serré se touchent sans se
-gêner. Seule une vraie morsure compte.
-
-```python
-from matplotlib.transforms import Bbox
-boxes = [(t.get_text()[:40], t.get_window_extent(renderer=r)) for t in fig.texts]
-for i in range(len(boxes)):
-    for j in range(i + 1, len(boxes)):
-        (na, a), (nb, b) = boxes[i], boxes[j]
-        inter = Bbox.intersection(a, b)
-        if inter is None:
-            continue
-        share = (inter.width * inter.height) / min(a.width * a.height, b.width * b.height)
-        assert share < 0.12, 'chevauchement %.0f%% : %r / %r' % (share * 100, na, nb)
-```
-
-### 4. Les `$` sont échappés
-
-**Deux `$` non échappés dans une même chaîne basculent tout le texte intermédiaire
-en mathtext**, rendu en italique mathématique, espacement cassé, sans le moindre
-avertissement. C'est le piège le plus vicieux de la liste parce qu'il ne frappe
-que les visuels en dollars, et qu'une killer phrase du type
-`"Refunds averaged $0.4bn a month. In June the Treasury paid back $49.2bn."`
-part entièrement en italique : le lecteur voit une phrase bizarre, pas une erreur.
-
-Dans une chaîne Python, écrire `\\$`. Et asserter :
-
-```python
-assert '$' not in TEXTE.replace('\\$', ''), 'dollar non échappé : %r' % TEXTE
-```
-
-Le même piège existe sur les libellés d'axe construits à la volée : un
-`'$%d bn' % v` isolé passe, deux `$` dans le même libellé basculent.
-
-### 5. Le pied de source ne mord pas le watermark (ajouté le 16/09/2026)
-
-La troisième assertion tolère 12 % de recouvrement de la plus petite boîte,
-et c'est le bon seuil pour deux lignes empilées. Mais sur une ligne de sources
-longue, une morsure de fin de ligne sur le watermark reste sous 12 % de la boîte
-du watermark et passe. Vu sur R6, chart ladder FR : « …rendement total du
-marché US)Eco3min Research ». Asserter l'ordre horizontal, pas seulement le
-recouvrement.
-
-```python
-foot = [t for t in fig.texts if t.get_text().startswith('Sources')]
-wm = [t for t in fig.texts if t.get_text().startswith('Eco3min Research')]
-if foot and wm:
-    assert foot[0].get_window_extent(renderer=r).x1 < wm[0].get_window_extent(renderer=r).x0 - 8,         'the source line runs into the watermark'
-```
-
-Même famille que le garde étendu aux graduations et libellés d'axe (R2, R4) :
-chaque niveau de texte oublié par le balayage se rejoue.
-
-### Bonus, même famille : les glyphes hors ASCII
-
-IBM Plex Mono n'a **ni U+2009 ni U+202F**. Une espace fine insécable dans un
-« 2 499 » à la française est rendue par une police de substitution, en silence.
-Le contrôle le moins coûteux est de rester en ASCII dans tout texte de visuel et
-de l'asserter ; sinon, vérifier le cmap de la police demandée pour chaque
-caractère non ASCII.
-
-```python
-for t in list(fig.texts) + list(ax.texts):
-    assert t.get_text().isascii(), 'glyphe hors ASCII, vérifier le cmap : %r' % t.get_text()
-```
+Bonus, même famille : IBM Plex Mono n'a ni U+2009 ni U+202F — rester en ASCII dans tout texte de visuel et l'asserter, sinon vérifier le cmap de chaque glyphe non ASCII. Même famille que le garde étendu aux graduations et libellés d'axe (R2, R4) : chaque niveau de texte oublié par le balayage se rejoue.
 
 ---
 
-## 8. Copyright et droits visuels
+## 8. Copyright et droits visuels (lire `references/05-copyright-versioning.md` avant d'intégrer un élément tiers)
 
-**Interdit**
-- Logos de médias concurrents (Bloomberg Terminal, TradingView, Refinitiv Eikon, Koyfin)
-- Captures d'écran d'articles tiers, de pages web, de newsletters
-- Images générées contenant marques, logos, personnages IP (Disney, Marvel, mascottes de banques, etc.)
-- Reproduction de graphiques publiés ailleurs (FT, Bloomberg, etc.) — toujours reproduire à partir des données brutes
-- Photos de personnalités identifiables sans droits
-- Sheet music, paroles de chansons (cas rare mais peut survenir en illustration d'article culturel/économique)
-
-**Autorisé**
-- Données brutes des sources publiques (FRED, BCE, INSEE, BRI, etc.) — c'est de la donnée, pas de l'image protégée
-- Graphiques produits par Eco3min à partir de ces données (output original)
-- Visuels génératifs créés en propre, à condition d'être originaux et de ne reproduire aucune IP identifiable
-
-**Données fournisseurs payants** (Bloomberg, Refinitiv, S&P) : vérifier les droits d'usage avant publication. Souvent licence personnelle, redistribution interdite.
+Interdits : logos de médias concurrents, captures d'écran d'articles ou de pages tiers, images générées contenant marques ou personnages IP, **reproduction de graphiques publiés ailleurs** (toujours reproduire à partir des données brutes), photos de personnalités sans droits. Autorisés : données brutes des sources publiques, graphiques produits par Eco3min à partir de ces données, visuels génératifs originaux. Données fournisseurs payants (Bloomberg, Refinitiv, S&P) : vérifier les droits d'usage avant publication.
 
 ---
 
@@ -455,13 +234,13 @@ Avant chaque publication, poser ces questions :
 - [ ] Le visuel apporte quelque chose que le texte ne fournit pas
 - [ ] Le visuel est compréhensible en standalone
 
+**Chrome canonique (brand-kit-eco3min v2.0 §0)**
+- [ ] Sources bas-gauche, signature `Eco3min Research` bas-droite, zéro cadratin dans le visuel
+- [ ] `mpl_guards.run_guards` (ou `chart_guards` sur un cycle Chart of the Week) passé avant `savefig`
+- [ ] `brand_tokens.check_source` passé sur le script ou le SVG
+
 ---
 
-## Versioning
+## Versioning (historique complet dans `references/05-copyright-versioning.md`)
 
-- **v1.0** (création initiale) — corpus de règles AMF, sourcing, data viz, qualité technique. Philosophie initiale : « aucune charte graphique imposée ».
-- **v1.1** (mai 2026) — alignement avec `brand-kit-eco3min v1.0`. La philosophie est révisée : le minimum commun (typo, palette, codes régime, accent) est désormais fourni par le brand kit ; ce skill garde son rôle de référence sur les règles de fond (AMF, sourcing, qualité, choix de chart). Aucune règle de fond modifiée.
-- **v1.2** (juillet 2026) — alignement avec `brand-kit-eco3min v1.1` (diversité chromatique contrôlée). Ajouts : famille de charts multi-entités (palette catégorielle §2.5) + pattern spaghetti focus au tableau de choix ; règle générale de direct labeling en bout de ligne, légende détachée bannie ≤6 séries ; checklist mise à jour (3 registres de fond, mode chromatique). Aucune règle AMF, sourcing ou qualité modifiée.
-- **v1.3** (septembre 2026) — ajout du §7 bis « Rendu PNG — recette Playwright » : séquence de chargement des polices, auto-ajustement de titre, SVG inline. Extrait du projet « repair image », où cette connaissance était piégée depuis la V3. Aucune règle AMF, sourcing ou qualité modifiée.
-- **v1.5** (16 septembre 2026, étude R6) — §7 ter, cinquième assertion : la ligne de sources se termine avant le watermark (test d'ordre horizontal, le seuil de 12 % laissant passer une morsure de fin de ligne). Aucune règle modifiée.
-- **v1.4** (septembre 2026, cycle 20 Chart of the Week) — ajout du §7 ter « Rendu matplotlib — quatre assertions avant `savefig` » : repli de police, débordement de canvas, chevauchement des textes d'en-tête, échappement des `$` (mathtext), plus le garde ASCII sur le cmap. Le §7 bis ne couvrait que le chemin Playwright ; les charts matplotlib ont leurs propres échecs silencieux, et les trois premières assertions ont chacune attrapé un défaut réel sur un script écrit par quelqu'un qui connaissait le piège. Le point U+202F d'IBM Plex Mono, jusqu'ici seulement en mémoire de projet, trouve ici son foyer. Aucune règle AMF, sourcing ou qualité modifiée.
+- **v1.6** (17/09/2026) — découpage en références + `scripts/mpl_guards.py` (les cinq assertions du §7 ter et le garde ASCII, importables) ; alignement sur le chrome canonique de `brand-kit-eco3min` v2.0 (sources à gauche, signature `Eco3min Research` à droite, zéro cadratin dans les exemples de format du §1) ; §7 bis ne prétend plus exclure matplotlib, régi par §7 ter. Aucune règle AMF, sourcing ou qualité modifiée.

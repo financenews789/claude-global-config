@@ -27,6 +27,8 @@ Le réseau s'étend au-delà de FRED. Trois familles de sources, qui changent la
 | **Non-FRED à API/CSV** | ECB SDMX, Eurostat, IMF (PCP, COFER), BIS, World Bank, AGSI+/GIE, ENTSO-E, FAO, CoinGecko | Pas de fredgraph — pointer la **page source** (pas forcément un CSV direct) ou seulement le CSV Eco3min | `data-series` = code source réel ; si le script de chart global ne sait pas lire cette source, le graphique peut être omis (voir §14.1) |
 | **Composite (dérivé)** | Construit par Eco3min à partir de 2+ séries (FRED et/ou non-FRED) | **Pas de fredgraph unique.** Si toutes les composantes sont FRED-publiques → lister les séries composantes. Sinon → CSV Eco3min uniquement | `data-series` = **code interne** (NET_LIQ, SP500_M2…) — jamais en SEO |
 
+> Mise à jour du 17/09/2026 : CoinGecko retiré des familles vivantes (ses API Terms interdisent la redistribution des données). BTC / ETH relèvent désormais de la famille FRED (Coinbase `CBBTCUSD` / `CBETHUSD`, « citation required » → licence FRED déclarée par `rights`, jamais CC BY). LBMA ne sert qu'une clôture citée, jamais un CSV ; l'historique or / argent est le World Bank Pink Sheet. Voir §12.4.
+
 **Conséquences directes :**
 - Le texte du spinner est **`Loading data…`** (générique), pas `Loading FRED data…` — il sert pour toutes les sources.
 - La méthodologie ne dit `pull from the FRED API` que si la source EST FRED. Pour ECB → « pull from the ECB SDMX API », pour Shiller → « pull Shiller's ie_data.xls workbook », pour un composite → « recomputed by an Eco3min pipeline that combines… ».

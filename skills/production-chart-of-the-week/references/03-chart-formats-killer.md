@@ -103,6 +103,7 @@ Exemples de double encodage valide :
 - hiérarchie ET valeur (treemap, sunburst)
 - N catégories ET temps simultanés (small multiples, stacked area)
 Un single-line chart à une série ou un bar chart simple à N barres uniformes n'encode qu'1 dimension visible (la valeur sur l'axe Y/X). ÉCHEC automatique de Q1.
+PRÉCISION (17/09/2026, cycle 21) : un encodage est VISUEL ou n'est pas. Position, longueur, couleur, taille, pente, épaisseur comptent ; une colonne de chiffres, une valeur en bout de barre, un badge ou une annotation ne comptent pas, ce sont du texte, et du texte que le feed ne rend pas. Au cycle 21, Q1 a été coché sur « minutes (barre) + prix en dollars (colonne) » : la colonne de prix était le second encodage, elle est invisible à 375 px, et le message (le rang des prix ne suit pas le rang du temps de travail) n'était lisible qu'en lisant seize nombres. Le feed a vu une barre longue et quinze courtes : profil de conversion d'un bar chart classé, 0,21 % sur 522k vues, sous la norme du compte. Le même découplage encodé visuellement (par exemple deux classements reliés, prix à gauche, temps à droite, la Suisse traversant du haut vers le bas) aurait été un vrai Q1. Test : cacher tout texte du preview feed ; si la seconde dimension disparaît avec le texte, elle n'existait pas.
 
 Q2 — ARRÊT-SCROLL : un viewer qui voit le chart sans lire le titre s'arrête-t-il dessus parce que le pattern visuel attire l'œil ?
 Pattern attractif = contraste fort, asymétrie marquée, structure répétitive (small multiples, heatmap), trajectoire surprenante (slope chart croisé), densité visuelle (ridge plot empilé), géométrie inattendue (Sankey, waterfall).
@@ -132,6 +133,25 @@ PRÉCÉDENTS :
 - Cycle 11 : generation-share vs age-band → les 2 commentaires les plus upvotés du thread étaient cette critique, ratio 92%.
 - Cycle 21 (Big Mac en minutes de travail, 15/09/2026) : salaire MOYEN OCDE, Q5 coché sur « labellisé average, jamais median » (test de label, pas de cadrage). Commentaire le plus upvoté du fil (+346) : « Average wage in US 100% is not $36/hr lol. This entire list is tainted », puis une dizaine de sous-fils mean vs median (+122, +82, +20, « stats 101 », « now make it median and get sadder »), déclinés pays par pays (Pologne, Suisse, Suède). Ratio 88,9 % sous le plancher zone 1 (92 %) malgré 1 100 upvotes et 522k vues. L'objection n'était dans aucune des 7 objections pré-écrites alors que Q5 avait nommé l'axe.
 DISTINCT DE Q4 : Q4 = tromperie VISUELLE (échelle / log qui inverse la première impression). Q5 = choix de MÉTRIQUE / cadrage (quelle variable on montre). Un chart peut passer Q4 et rater Q5 : au cycle 11 l'encodage stacked-area était lisible (Q4 OK) mais le cadrage par génération était le cadrage attaquable (Q5 FAIL). Le tell : si l'objection prévisible porte sur "tu aurais dû montrer X plutôt que Y", c'est Q5 ; si elle porte sur "ton échelle trompe l'œil", c'est Q4.
+
+TEST FEED 375 px (17/09/2026, BLOQUANT avant livraison du PNG, complète Q2 et Q3)
+
+Le viewer médian de r/dataisbeautiful vote depuis le feed de l'application, où le PNG 1920×1080 s'affiche à environ 375 px de large (le double sur desktop). À cette taille survivent : le titre (capitale ~9 px à 31 pt), la forme de la donnée, les couleurs des pôles. Ne survivent pas : les labels de valeur, la colonne de prix, la killer phrase, les sources, le badge d'unité. Vérifié sur les cycles 19, 20 et 21 en réduisant les PNG livrés à 375 px : au 21 il reste « une barre bleue longue, quinze grises, une terracotta courte » ; au 20 « une texture de colonnes et un gouffre à droite dont le sens ne se lit pas » ; au 19 « un écheveau de lignes ». Les conversions vue→upvote correspondantes : 0,21 %, 0,18 %, 0,06 %.
+
+Procédure :
+1. Après `fig.savefig(out)`, appeler `feed_preview(out)` (dans `scripts/chart_guards.py`). Deux fichiers : `*_feed375.png` (la taille réelle) et `*_feed375_x3.png` (les mêmes pixels agrandis ×3 sans lissage, pour que la lecture d'image voie ce qu'un téléphone montre).
+2. LIRE le `_x3` et répondre par écrit, dans la checklist du cycle :
+   - F1 : le titre se lit.
+   - F2 : la forme de la donnée se lit sans un seul label, et elle raconte la même chose que le titre. Si la forme dit « rien n'a changé » ou « une liste », F2 échoue même si le PNG plein écran est superbe.
+   - F3 : les deux pôles du récit (le hero et son contraire) se distinguent l'un de l'autre et du peloton.
+3. `feed_metrics(fig, ax, title_artist, renderer)` donne deux nombres à citer : `title_cap_px_at_feed` (indicatif ≥ 8 px ; 31 pt en donne ~9) et `plot_share` (part du canvas couverte par la zone de tracé ; indicatif ≥ 0,35, cycle 21 = 0,40). Ce sont des repères, pas des assertions : une valeur sous le repère se justifie par écrit ou se corrige.
+4. Un F en échec se corrige DANS LE CHART : contraste des pôles, épaisseur des lignes, cadrage temporel qui met le retournement au centre, série d'écart qui franchit zéro, hero visuel plus grand. Jamais en changeant le titre : le titre fait les vues, la forme fait l'upvote.
+
+Corollaires :
+- Q2 (arrêt-scroll) et Q3 (insight sans légende) se jugent sur le preview feed, pas sur le PNG ouvert.
+- La killer phrase, les annotations et les labels sont hors périmètre de Q1-Q3 : ils servent la page eco3min et le partage hors Reddit (X, LinkedIn, où l'image s'ouvre en grand). Un chart qui a besoin de sa killer phrase pour être compris n'a pas de forme.
+- Le retournement, le croisement ou l'écart qui EST le sujet se place au centre du visuel. Cycle 15 : croisement projeté à l'extrême droite du plot dans un petit cercle creux, 0,25 % ; le fix noté au tracker (cadrer 1990-2045, ou tracer la série d'écart 65+ moins moins-de-18 franchissant zéro) est exactement une correction F2.
+- Sur ce compte (20 cycles, tracker), la conversion vue→upvote médiane est de 0,39 % pour les charts dont le visuel principal est une forme dans le temps (spaghetti, aire, seuil, deux courbes ; n = 11) contre 0,11 % pour les comparaisons statiques (barres classées, dumbbell, small multiples, slope, scatter, colonnes ; n = 9). L'écart tient à ancrage fort seul (0,39 % contre 0,11 %, n = 7 contre 5). Inférence, confiance moyenne-forte : n petit, effet sujet non contrôlé, mais aucune comparaison statique n'a dépassé 0,29 % et aucune forme temporelle à ancrage fort n'est descendue sous 0,25 %. Conséquence pratique : une comparaison statique se propose en le disant, avec une cible de conversion de 0,1-0,2 %, et le passage de l'un à l'autre compte comme la rotation de format.
 
 Formats à plafond viral connu sur DIB (À ÉVITER POUR REDDIT — sauf exception zone 3)
 Ces formats sont autorisés comme illustration sur la page eco3min mais ne sont PAS uploadés sur DIB en post principal, sauf exception zone 3 :
@@ -228,7 +248,7 @@ Caractéristiques d'un bon pivot :
 Effet recherché : transforme une "liste désordonnée" en "narrative structurelle". Le viewer scan en 2 secondes : 3 items d'un côté du pivot, 3 de l'autre. Le pivot devient le point de référence implicite pour évaluer les autres.
 Référence cycle 7 : Big Mac (STABLE, ±0%, "tracked wages exactly") au centre du dumbbell, 3 items "MORE WORK" au-dessus, 2 items "LESS WORK" en dessous. Visualisé avec double-bordure beige+slate sur le dot pour signifier "deux époques superposées au même point".
 
-Règle de diversité entre cycles : si un cycle utilise spaghetti focus, les 2-3 suivants doivent utiliser autre chose. Tracker le format utilisé par cycle (colonne `format_chart` de `cotw_cycles.csv`, alerte « format identique 3× » du dashboard) dans le Google Sheet (cf. INSTRUCTIONS — section TRACKING).
+Règle de diversité entre cycles : si un cycle utilise spaghetti focus, les 2-3 suivants doivent utiliser autre chose. Tracker le format utilisé par cycle (colonne `format_chart` de `cotw_cycles.csv`, alerte « format identique 3× » du dashboard `scripts/dashboard.py cotw` d'eco3min-knowledge).
 
 Règle de diversité entre cycles (SECONDAIRE au test beautiful, mais maintenue)
 Ne pas répéter le même type de chart deux semaines de suite, et pas plus de deux fois sur quatre cycles consécutifs.
@@ -285,7 +305,7 @@ Distinction fonctionnelle entre les trois hooks
 | :-- | :-- | :-- | :-- |
 | Backlink Hook | Article HTML, phrase citable ≤25 mots | Re-shares journalistes, citations médias | Médias, journalistes |
 | Killer phrase visuelle | Banner cream/sand dans le chart PNG | Cross-platform shares (Twitter, LinkedIn) | Lecteurs hors-Reddit, partage natif |
-| Title Reddit | Submission Reddit, ≤140 chars | Clic depuis le feed Reddit | Reddit DIB users |
+| Title Reddit | Submission Reddit, 100-150 caractères | Clic depuis le feed Reddit | Reddit DIB users |
 
 Les trois hooks sont complémentaires et non redondants. Le chart partagé sur X sans légende doit raconter une histoire avec le killer phrase ; le lien Eco3min partagé doit promettre du value-add via le Backlink Hook ; le post Reddit doit faire cliquer via le title.
 
@@ -297,6 +317,8 @@ Caractéristiques d'une bonne killer phrase visuelle
 - Habillage léger : filet terracotta à gauche et fond sand (#F2EAD8) à faible opacité, ou banner sand bordé cream (#E5DFD3). Le pavé plein et bordé pèse trop en vignette (relecture cycle 21)
 - Elle porte l'ARBITRAGE, pas le multiple : « le burger le plus cher du monde est le plus vite gagné : 7,3 min ; Mexique 62,6 min » oui ; « 8,6× » non. Le multiple exact reste au top comment (curiosity gap), c'est ce qui réconcilie cette étape avec l'anti-pattern « pas de ratio sur le chart »
 - Position : entre subtitle et chart body, ou sous le titre du chart selon le layout
+- Elle ne se lit PAS dans le feed Reddit (12-13 pt = 2-3 px de capitale à 375 px) : elle n'est jamais le porteur de Q2 ou Q3, et le chart doit fonctionner sans elle (cf. TEST FEED, ÉTAPE 3-BIS). Son terrain : X, LinkedIn, la page eco3min, où l'image s'ouvre en grand.
+- Quand la métrique a un mécanisme (conversion de monnaie, moyenne vs médiane, net vs brut, par tête), il est écrit en toutes lettres dans la killer phrase, le sous-titre ou la ligne de méthode : « converted to USD at market rates », « mean wage, pulled up by top earners ». Cycle 21 : la colonne « BIG MAC, USD » n'a pas suffi, trois commentaires sur la conversion.
 
 Quand NE PAS produire de killer phrase visuelle
 Si le sujet ne permet pas une killer phrase factuelle vérifiable, ne pas en inventer une. Mieux vaut un chart sans banner qu'une phrase fausse, prétentieuse, ou qui drift vers Bloomberg op-ed. Exemple de phrase à éviter : "An absolutely insane shift in American cost of living" (suggestif, non vérifiable, drift identitaire).

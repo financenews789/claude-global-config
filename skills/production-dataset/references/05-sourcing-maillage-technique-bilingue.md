@@ -12,9 +12,18 @@ Cas miroir (commodities) : nommer la source d'origine ET le miroir — « IMF Pr
 Sources intégrées au flux, jamais en bibliographie : « FRED series NASDAQCOM », « ECB SDMX, BSI dataset », « ENTSO-E Transparency Platform », « Robert Shiller, Yale (ie_data.xls) », « CoinGecko API ».
 
 ### 12.3 Whitelist des sources autorisées
-FRED, NBER, BIS, BEA, BLS, Shiller (Yale ie_data), ECB SDW / SDMX, Eurostat, Banque de France, INSEE, IMF (WEO, Primary Commodity Prices, COFER), OECD, World Bank, Damodaran (NYU Stern), Kenneth French data library, S&P Dow Jones Indices, MSCI, CBOE, **CoinGecko, LBMA, AGSI+/GIE, ENTSO-E Transparency Platform, FAO**.
+Depuis le 17/09/2026, la liste plate est remplacée par la table de `sourcing-donnees-eco3min/references/03-licences-sources-pipeline.md`, qui distingue trois usages : (a) cotation citée en prose, (b) série tracée dans un visuel, (c) CSV redistribué. **Une page dataset relève de (c).** Oui pour (c), avec la licence réelle déclarée : FRED public domain et citation required, ECB, Eurostat, BIS, BLS, BEA, NBER, INSEE, Banque de France, IMF, OECD, World Bank (dont Pink Sheet), FAO, Shiller (dérivés seulement), Kenneth French, Damodaran. Citables en (a) mais **pas de CSV** : CoinGecko, LBMA, S&P Dow Jones Indices, MSCI, CBOE hors séries FRED (VIXCLS est citation required via FRED), Nasdaq, Euronext — c'était la liste des pages en défaut corrigées les 16 et 17/09/2026. AGSI+/GIE et ENTSO-E : ligne « à vérifier » dans la table, donc pas de page tant qu'elle n'est pas datée.
 
-Toute autre source nommée doit être **web_search-vérifiée** avant publication. Les sources sous licence/paywall (EPEX/Nord Pool électricité, Caixin PMI, etc.) ne sont pas redistribuables : si une donnée en dépend, NE PAS produire la page avant résolution de la licence.
+Toute autre source nommée doit être **web_search-vérifiée** avant publication, puis ajoutée à la table avec sa date. Les sources sous licence/paywall (EPEX/Nord Pool électricité, Caixin PMI, etc.) ne sont pas redistribuables : si une donnée en dépend, NE PAS produire la page avant résolution de la licence.
+
+### 12.4 Licence affichée = conditions réelles de la source (ajout du 17/09/2026)
+
+La page dit de la licence exactement ce que la source permet, ni plus ni moins.
+- **Ce que la prose peut écrire.** « CC BY 4.0 » ou « public domain » seulement si la source l'est (FRED public domain, World Bank, OECD, FAO, EIA, BLS). Une série FRED « copyrighted: citation required » (Chicago Fed, NY Fed, Moody's `BAA`, `T10YIE`, `RRPONTSYD`, `VIXCLS`, `PCOPPUSDM`, Coinbase `CBBTCUSD` / `CBETHUSD`), une série IMF ou BoE se décrit comme réutilisable **avec attribution à la source et à FRED**, jamais sous Creative Commons. Une série « pre-approval required » (`SP500`, `NASDAQCOM`, `DJIA`, `BAML*`, Case-Shiller) n'a pas de page dataset qui redistribue : re-sourcer (prix d'ETF, Shiller, French) ou n'embarquer que le graphique servi par FRED en le disant.
+- **Ce que le snippet déclare.** La ligne du dataset dans le snippet 36 (US) ou 114 (non-US) porte `'rights' => '<clé>'` quand la source l'exige (`imf`, `imf_ifs`, `chicago_fed`, `stlouis_fed`, `ny_fed`, `dallas_fed`, `boe`, `oecd`, `coinbase_btc`, `coinbase_eth` au 17/09/2026). C'est elle qui met `license` / `usageInfo` / `copyrightHolder` / `citation` dans le JSON-LD et la notice « Source terms » sous la page. Sans clé, le JSON-LD annonce CC BY 4.0 à tort : 22 pages corrigées le 16/09/2026 pour cette raison. La clé vit en miroir dans `eco3min-data/scripts/source_rights.py` (`pipeline-eco3min` §2.6) : les deux registres évoluent ensemble.
+- **Ce que le H1 et l'Overview promettent.** La source réelle (Pink Sheet, pas « LBMA Fix » ; Coinbase via FRED, pas CoinGecko), la profondeur réelle (2014 pour `CBBTCUSD`, pas 2010), les formats réellement servis (une page qui n'embarque qu'un graphique FRED ne dit pas « CSV, Excel »). Le `name` du registry pipeline et le H1 disent la même source.
+- **Le statut se lit par script**, jamais de mémoire : `python ~/.claude/skills/sourcing-donnees-eco3min/scripts/fred_license.py <ID>` (code retour 2 = pre-approval).
+- **Test sur la page rendue** : `curl -s <url> | grep -o '"license":"[^"]*"'` et la phrase de la prose disent la même chose ; une page « citation required » affiche la notice « Source terms » ; `grep -c 'CC BY'` vaut 0 sur une page dont la source n'est pas CC BY.
 
 ---
 
@@ -62,6 +71,7 @@ La page reflète un CSV/JSON mis à jour automatiquement. **Le détail du pipeli
 - Pipeline FRED : daily cron (Mon–Sat) via GitHub Actions, SFTP OVH.
 - Pipeline ECB : daily cron décalé du FRED.
 - Pipelines spécifiques (Shiller ie_data, CoinGecko, World Bank Pink Sheet, IMF, ENTSO-E, AGSI…) : fréquence variable, souvent mensuelle ou alignée sur la release amont.
+- Mise à jour du 17/09/2026 : BTC / ETH ne viennent plus de CoinGecko mais de FRED (`CBBTCUSD` / `CBETHUSD`, pipeline v2, quotidien) ; or / argent sont mensuels (Pink Sheet). La Methodology dit « pulled from the FRED API (Coinbase series CBBTCUSD) », pas « CoinGecko ».
 - WordPress touch endpoint rafraîchit `dateModified` pour l'indexation Google.
 
 La Methodology mentionne brièvement la cadence, adaptée à la source (« updated daily via automated pull from the FRED API » / « monthly, after Shiller refreshes ie_data.xls »).

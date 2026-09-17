@@ -27,8 +27,10 @@ H1 : `{Concept canonique}: {Description}`. Le code source (FRED ou autre) **n'ap
 | FRED non-googlé (commodity) | `Arabica Coffee Price: Monthly Global Spot Price Since 1980` | `arabica coffee price` |
 | FRED non-googlé (métal) | `Iron Ore Price: Monthly Global Benchmark Since 1980` | `iron ore price` |
 | Non-FRED (enquête) | `ISM Manufacturing PMI: Monthly Survey Data Since 1948` | `ism manufacturing pmi` |
-| Non-FRED (crypto) | `Bitcoin Price History (BTC-USD): Daily Data Since 2010` | `bitcoin price history` |
-| Non-FRED (métal précieux) | `Silver Price History: Daily Spot Price Since 1968 (LBMA Fix)` | `silver price history` |
+| FRED via Coinbase (crypto, `CBBTCUSD`) | `Bitcoin Price History (BTC-USD): Daily Coinbase Prices Since 2014` | `bitcoin price history` |
+| Non-FRED (métal précieux, World Bank Pink Sheet) | `Silver Price History: Monthly Average in USD Since 1960 (World Bank Data)` | `silver price history` |
+
+Les deux dernières lignes ont été corrigées le 17/09/2026 : les anciens exemples nommaient une source (LBMA Fix) ou une profondeur (2010) que la donnée servie n'a pas. Un H1 ne promet que ce que le CSV contient (§12.4).
 
 La source réelle est nommée dans le bloc Sources et la Methodology, **pas** dans le H1.
 

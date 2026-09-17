@@ -356,6 +356,10 @@ Quand on produit un batch, **minimum 2 liens vers des FAQ du même batch** dans 
 
 Les 4 liens de la section Related Questions doivent être thématiquement étroitement liés. Pas de lien vers une FAQ d'un autre domaine si non strictement nécessaire.
 
+### 11.6 Metas éditoriales d'une Q&A — doctrine figée le 17/09/2026
+
+Chaque page Q&A porte, **dès l'import**, `level = faq`, `cluster` = le **pilier thématique** de sa langue (jamais le hub `qa`/`qr`, sauf repli quand aucun pilier ne domine ses liens sortants) et `sub_pilier` = le sous-pilier de ce pilier vers lequel elle renvoie le plus. Le choix se lit dans les liens de la page elle-même : le pilier et le sous-pilier qui reçoivent le plus de liens du bloc « Go deeper » et du corps sont le rattachement. Slugs de piliers et sous-piliers par langue dans `archi-eco3min` (références 03). Le bundle les porte : bloc `eco3min` de « Page bilingue » (Eco3min Import ≥ 2.3.0) ou champs du Q&A Importer ; sinon, seconde passe « MAJ metas » ou `eco3min/set-metas`. Une Q&A laissée sur le hub reste invisible des projets A/B/C (snapshot par silo) et du rattrapage d'orphelins, et ressort dans l'export pending du Cleanup à chaque cycle. Doctrine et historique : `metas-eco3min` §9.4.
+
 ---
 
 ## 12. Cohérence cross-FAQ dans un batch

@@ -1,6 +1,6 @@
 ---
 name: sourcing-donnees-eco3min
-description: Doctrine de sourcing des données PUBLIÉES sur eco3min.fr (charts, datasets, études) — provenance, licence, légalité. Activer pour toute décision de source à publier, ou doute légal sur une donnée. Cadre FR/UE + nuances US ; PAS un avis juridique. Règle cardinale : footer = source RÉELLE des chiffres, jamais relabelliser vers une source plus propre. Interdit ferme : Yahoo/yfinance et agrégateurs scrapés comme source d'un CSV publié — le problème est leurs CGU, pas les chiffres. Hiérarchie des sources propres : (1) primaires publiques (FRED, ECB, BIS, IMF, BLS…) ; (2) émetteur du fonds (iShares/BlackRock) ; (3) API licenciée (Tiingo…) ; (4) indices sous licence (MSCI/Russell/S&P) : tracer le PRIX d'un ETF, pas l'indice. Couvre les TROIS niveaux de licence FRED (public domain / citation required / PRE-APPROVAL required), faits non protégés (Feist) vs droit sui generis UE, marques, traçabilité, cross-check. Combiner avec pipeline-eco3min, visuels-eco3min.
+description: "Doctrine de sourcing de toute donnée PUBLIÉE sur eco3min.fr (charts, heros, pages dataset, études, chiffres en prose) : provenance, licence, légalité, routes d'accès. Activer pour toute décision de source, tout doute légal sur une donnée, et dès qu'une demande contient « quelle source », « c'est publiable ? », « on peut redistribuer ? », « licence », « CC BY », « citation required », « pre-approval », « copyrighted », « domaine public », « CGU », « scraping », « yfinance », « Yahoo », « FRED », « series-tag », « DBnomics », « Pink Sheet », « endpoint », « 403 », « User-Agent », « provenance », « cross-check », « composite », « intrant », « prix d'ETF », « proxy », « indice sous licence », « MSCI », « S&P », « LBMA », « CoinGecko », « footer », « label de source », « source réelle ». Cadre FR/UE avec nuances US ; PAS un avis juridique. SKILL.md = colonne vertébrale (règle cardinale, interdiction ferme, hiérarchie des sources, section « Cas FRED » complète avec ses trois niveaux, principes légaux, traçabilité, cross-check, checklist verbatim, fond vs live, séries dérivées, condensés des annexes A et B, ajout du 17/09/2026 sur les trois usages d'une donnée) ; références dans references/ (à lire quand la section le dit) : 01 annexe A, sources macro gratuites par zone (mondial, Europe, Inde, Chine, autres, marché) ; 02 annexe B, points d'entrée opérationnels (ordre des routes curl puis WebFetch puis Browser pane, échecs datés, cours de clôture, piège de fin de mois, replis FRED, endpoints par domaine, User-Agent et formats, règle d'arrêt) ; 03 licences des sources réellement en pipeline hors FRED (CoinGecko, LBMA, Pink Sheet, IMF, OECD, BoE, ECB, Eurostat, BIS, ENTSO-E, AGSI+, Shiller, Fama-French, Nasdaq, Euronext) avec l'usage autorisé et la date de vérification ; scripts/fred_license.py = lecture du tag de licence FRED par série, niveau hérité par un composite, refus si ID inconnu (testé sur les 19 séries de la table). Doctrines : footer = source RÉELLE des chiffres, la source et le label bougent ensemble, jamais relabelliser vers une source plus propre (épisode Yahoo → iShares, mai 2026 ; « LBMA » sur une donnée Pink Sheet, 17/09/2026) ; Yahoo, yfinance et agrégateurs scrapés interdits comme source d'un CSV publié, le problème est leurs CGU pas les chiffres, contractuel donc portable partout ; hiérarchie (1) primaires publiques (2) émetteur du fonds (3) API licenciée (4) indice sous licence → tracer le PRIX d'un ETF nommé, pas l'indice ; FRED distingue TROIS niveaux (corrigé le 10/09/2026) : public domain → CSV CC BY 4.0, citation required → publiable avec attribution mais JAMAIS sous-licencié en CC BY, déclarer la vraie licence par eco3_source_rights(), pre-approval required (BAML*, SP500, NASDAQCOM, DJIA, CSUSHPINSA) → retirer ou re-sourcer, rien ne se déclare ; le contrôle de licence est un GATE avant de mesurer la profondeur d'une série (étude R5, 10/09/2026), lu par script ; un composite hérite du niveau le plus dur de ses intrants, la division ne lave rien ; fredgraph.csv en boucle n'est pas l'API ; un 403 se teste et se date, jamais « cette source est bloquée » ; source bloquée → s'arrêter et demander les fichiers, jamais la mémoire du modèle ; cross-check contre une 2e source avant tout chiffre point-précis ; ne jamais promettre du temps réel sur une source de fond décalée ; trois usages distincts (cotation ponctuelle en prose, série tracée, CSV redistribué), les CGU peuvent autoriser le premier et interdire le dernier (CoinGecko : redistribution interdite, route propre FRED CBBTCUSD / CBETHUSD ; LBMA : historique sous licence IBA, route propre Pink Sheet). Hors périmètre : le code des fetchers et le registry → pipeline-eco3min ; le footer et le sourcing intégré au visuel → visuels-eco3min et brand-kit-eco3min ; la page dataset elle-même → production-dataset ; les chiffres cités en prose → editeur-eco3min. Combiner avec pipeline-eco3min, visuels-eco3min, production-dataset, production-research-study, production-chart-of-the-week, production-hero-pilier, production-hero-majeur, production-hero-article-eco3min, editeur-eco3min, revue-datasets-perimes."
 ---
 
 # Sourcing des données Eco3min — provenance, licence, légalité
@@ -10,6 +10,25 @@ description: Doctrine de sourcing des données PUBLIÉES sur eco3min.fr (charts,
 Doctrine de sourcing pour **toute donnée publiée** sur eco3min.fr : charts, heros, pages dataset, études. Couche transverse, **en amont de `pipeline-eco3min`** (au moment du fetch) et **de `visuels-eco3min` / `production-dataset` / `production-hero-*`** (au moment de la publication : footer, label).
 
 **Pas un avis juridique** — ni Paul ni Claude ne sont juristes. Cadre de raisonnement : droit **FR/UE** (site `.fr`, hébergement OVH, éditeur français) avec nuances US. C'est un repérage opérationnel pour rester du bon côté et garder une chaîne data propre, pas une garantie légale.
+
+## COMMENT LIRE CE SKILL (découpage du 17/09/2026)
+
+Ce fichier est la colonne vertébrale : la règle cardinale, l'interdiction ferme, la hiérarchie des sources, la section « Cas FRED » complète (c'est le gate), les principes légaux, la traçabilité, le cross-check, la checklist, le piège de fraîcheur et les séries dérivées. Les deux annexes (catalogue des institutions par zone, points d'entrée opérationnels) ont été déplacées VERBATIM dans `references/` et font foi au même titre que ce fichier ; elles ne servent qu'au moment du fetch. Chaque section ci-dessous nomme le fichier à lire ; le lire est obligatoire au moment indiqué, pas facultatif. `scripts/fred_license.py` remplace la lecture manuelle du tag FRED.
+
+| Fichier | Contenu | À lire |
+|---|---|---|
+| `references/01-sources-macro-par-zone.md` | Annexe A : principe de lecture (macro ouverte, cotations sous licence), sources mondiales (World Bank, IMF, BIS, OECD, DBnomics, UN), Europe, Inde, Chine, autres zones, parade marché (prix d'ETF, Kenneth French) | avant de choisir une institution pour une série hors FRED / ECB, et pour toute zone hors US et zone euro |
+| `references/02-points-entree-endpoints.md` | Annexe B : ordre des trois routes (curl, WebFetch, Browser pane), échecs datés et locaux, gestes du Browser pane, cours de clôture datés, piège de fin de mois, replis FRED, endpoints par domaine, User-Agent et formats exigés, règle d'arrêt, réflexe | avant tout fetch, et dès qu'un accès échoue (403, 503, timeout, réponse vide) |
+| `references/03-licences-sources-pipeline.md` | AJOUT 17/09/2026 : les trois usages d'une donnée (cotation ponctuelle, série tracée, CSV redistribué), table des sources réellement en pipeline hors FRED avec conditions, attribution, usage autorisé et date de vérification, ce que ça change (CoinGecko, LBMA, clés source_rights) | avant de publier un CSV ou un visuel d'une source hors FRED, et avant d'ajouter une famille de source au pipeline |
+| `scripts/fred_license.py` | lecture du tag `series-tag` par série, trois niveaux, niveau hérité par un composite, refus si ID inconnu ou page illisible (jamais « public domain » par défaut), CLI avec codes retour | au gate de licence, sur chaque série destinée à une colonne publiée et chaque intrant d'un composite ; à chaque revue de datasets |
+
+Utilisation du script :
+
+    sys.path.insert(0, os.path.expanduser('~/.claude/skills/sourcing-donnees-eco3min/scripts'))
+    from fred_license import check_series, composite_level, can_ccby, publishable
+    python scripts/fred_license.py --composite --ccby DGS10 T10YIE   # code retour 1 : pas CC BY ; 2 : pre-approval
+
+Test : `python scripts/test_fred_license.py` (19 séries de la table « Cas FRED » + tests négatifs, réseau requis).
 
 ## Règle cardinale
 
@@ -88,6 +107,21 @@ lire une série pour produire une analyse n'est ni l'un ni l'autre, et la même
 page autorise expressément « Create an app using a subset of FRED data through
 the free API ».
 
+## Trois usages d'une donnée, et les sources hors FRED (ajout du 17/09/2026) — lire `references/03-licences-sources-pipeline.md` avant de publier un CSV ou un visuel d'une source hors FRED
+
+Ce que la section « Cas FRED » fait pour FRED, cette référence le fait pour les autres sources du pipeline. Ajout du 17/09/2026, après lecture des conditions LBMA et CoinGecko et des tags FRED de 25 séries.
+
+Bloquant :
+- **Trancher l'usage avant de choisir la source.** (a) cotation ponctuelle citée en prose ou dans un tableau daté (baromètre, bulletin) ; (b) série tracée dans un visuel ; (c) CSV / XLSX redistribué (page dataset, fichier d'étude). Les CGU d'une source autorisent souvent (a) et interdisent (c). Une source « OK » pour le baromètre n'est pas « OK » pour une page dataset.
+- **Le tag FRED se lit par script**, `scripts/fred_license.py`, sur chaque série destinée à une colonne publiée et chaque intrant d'un composite. Un ID inconnu, une page illisible ou un tag absent = échec, jamais « public domain » par défaut.
+- **CoinGecko** : intégration commerciale autorisée avec « Powered by CoinGecko », **redistribution des données interdite** (API Terms §4.1.6 et §6.2, lus le 17/09/2026). Pas de CSV construit depuis CoinGecko. Route propre pour BTC / ETH : FRED `CBBTCUSD` / `CBETHUSD` (Coinbase, « citation required » lu le 17/09/2026 → publiable avec attribution, jamais CC BY, historique depuis 2014 / 2016).
+- **LBMA** : le JSON `prices.lbma.org.uk` sert une clôture datée (usage a). Un historique redistribué exige une licence IBA (« A licence from IBA is required in order to obtain, use or redistribute real-time or historical benchmark data », lu le 17/09/2026). Route propre or / argent : le Pink Sheet de la Banque mondiale (CC BY 4.0, moyenne mensuelle du fixing PM), déjà celle du pipeline. Le label doit le dire ; « LBMA » seul sur une donnée Pink Sheet est un relabellisage (règle cardinale).
+- **Toute source publiée en (c) a sa clé** dans `eco3min-data/scripts/source_rights.py` et son miroir `eco3_source_rights()` (snippets 36 et 114) ; sans clé, le défaut CC BY 4.0 du snippet s'applique à tort (22 pages corrigées le 16/09/2026).
+- **Une ligne « à vérifier » de la table n'autorise rien** : relire les conditions à la source, dater la lecture, puis publier.
+- Le tag FRED d'une série peut changer : relire les tags des séries publiées à chaque revue de datasets, pas seulement à la création de la page.
+
+S'ajoute à la checklist ci-dessous : usage (a / b / c) tranché et écrit ; tags FRED lus par script ; clé `source_rights` présente pour toute source hors défaut ; label = source réelle y compris pour or / argent (Pink Sheet, pas « LBMA »).
+
 ## Principes légaux (rationale — pas un avis)
 
 - **Les faits ne sont pas protégeables par le copyright** (US : arrêt *Feist*, pas de « sweat of the brow »). En UE/France : idem pour les faits **isolés**, MAIS il existe un **droit sui generis des bases de données** (Dir. 96/9/CE ; CPI art. L341-1 s.) qui protège l'extraction d'une **part substantielle** d'une base. Quelques dizaines de points dans un chart dérivé ≠ part substantielle → **risque faible**.
@@ -115,192 +149,25 @@ Vérifier les niveaux/chiffres contre une **2e source** ou contre une performanc
 - [ ] Chiffres **recoupés** vs 2e source / performance connue
 - [ ] **Provenance consignée** (source, code, URL, licence, méthode, date)
 
-## Annexe — sources macro mondiales gratuites (équivalents FRED par zone)
+## Annexe — sources macro mondiales gratuites (équivalents FRED par zone) — lire `references/01-sources-macro-par-zone.md` avant de choisir une institution hors FRED / ECB
 
-**Principe de lecture** : la **macro/officiel** (taux, inflation, PIB, crédit, change officiel, immobilier, balance des paiements) est ouverte et gratuite quasi partout. Les **cotations de marché** (cours d'actions, indices boursiers en niveau) sont sous licence d'affichage de bourse → **payantes partout, toutes zones** → parade = prix d'ETF (émetteur) ou rendement académique (Fama-French, versions régionales gratuites). Cette annexe ne couvre QUE la macro/officiel.
+Bloquant :
+- **Principe de lecture** : la **macro/officiel** (taux, inflation, PIB, crédit, change officiel, immobilier, balance des paiements) est ouverte et gratuite quasi partout. Les **cotations de marché** (cours d'actions, indices boursiers en niveau) sont sous licence d'affichage de bourse → **payantes partout, toutes zones** → parade = prix d'ETF (émetteur) ou rendement académique (Fama-French, versions régionales gratuites). Cette annexe ne couvre QUE la macro/officiel.
+- DBnomics = souvent le point d'entrée le plus efficace : une API pour des dizaines de sources, licence héritée de la source d'origine (à tracer quand même).
+- Marché (actions / indices) : Pas de source gratuite ET commerciale pour les cotations, **aucune zone**. Utiliser : **prix d'ETF** (donnée d'émetteur, attribuée) ou **Kenneth French Data Library** — versions régionales gratuites : **Europe, Japan, Asia-Pacific ex-Japan, North America, Emerging Markets, Developed** (portefeuilles value/growth/size, total return, © Fama & French).
+- **Réflexe transversal** : licences variables (World Bank CC-BY très permissif ; banques centrales = attribution ; quelques séries hébergées portent des restrictions de tiers). Toujours vérifier les conditions de LA série avant publication ; footer = source réelle.
 
-### Mondial / multi-pays (à privilégier — un seul point d'entrée, plusieurs pays)
-| Source | Couvre | Licence | Accès |
-|---|---|---|---|
-| **World Bank Open Data** | tous pays, macro/dev | **CC-BY** (commercial OK + attribution) | API + CSV |
-| **IMF** (IFS, BoP, WEO) | tous pays, macro/dette/BoP | usage large, attribution | API SDMX + CSV |
-| **BIS** | banques centrales, crédit, taux, prix immo, FX transfrontalier | attribution | CSV / API |
-| **OECD.Stat** | pays OECD + partenaires | attribution (vérifier série) | API SDMX + CSV |
-| **DBnomics** (CEPREMAP, FR) | **agrège** FRED, ECB, Eurostat, INSEE, IMF, BIS… | hérite de la source | **API unique** + Python |
-| **UN Data / Comtrade** | démographie, commerce | attribution | API + CSV |
+## Annexe B — points d'entrée opérationnels (testés) — lire `references/02-points-entree-endpoints.md` avant tout fetch, et dès qu'un accès échoue
 
-> DBnomics = souvent le point d'entrée le plus efficace : une API pour des dizaines de sources, licence héritée de la source d'origine (à tracer quand même).
-
-### Europe
-| Zone | Institution | Note |
-|---|---|---|
-| Zone euro | **ECB Data Portal (SDMX)** | équivalent FRED zone euro — déjà dans le pipeline |
-| UE | **Eurostat** | toute l'UE, harmonisé |
-| France | **Banque de France Webstat**, **INSEE** | libre |
-| Allemagne | **Bundesbank** | libre |
-| Italie / Espagne | **Banca d'Italia** / **Banco de España** | libre |
-| UK | **ONS**, **Bank of England** | libre |
-
-### Inde
-| Source | Note |
-|---|---|
-| **RBI — DBIE** (Database on Indian Economy) | macro/monétaire officiel, gratuit |
-| **MoSPI** | statistiques nationales officielles |
-| ⚠️ CEIC / Trading Economics | **payant/licencié** — PAS comme source publiée |
-
-### Chine (prudence — confiance moyenne)
-| Source | Note |
-|---|---|
-| **NBS** (National Bureau of Statistics), **PBoC** | officiel gratuit, mais accès programmatique inégal, anglais partiel |
-| **Voie recommandée : World Bank / IMF / BIS** | retraitent les séries chinoises avec méthodo homogène et comparable |
-| ⚠️ Sourcer explicitement « données officielles chinoises » ; ne pas sur-interpréter (fiabilité/comparabilité débattues) |
-
-### Autres zones
-| Zone | Institution |
-|---|---|
-| US emploi/prix | **BLS** |
-| Japon | **Bank of Japan**, e-Stat |
-| Brésil | **Banco Central do Brasil (SGS)** |
-| Canada | **Statistics Canada** |
-| Afrique / Amérique latine / Asie (général) | **World Bank + DBnomics** (meilleure couverture homogène) |
-
-### Marché (actions/indices) — rappel parade
-Pas de source gratuite ET commerciale pour les cotations, **aucune zone**. Utiliser : **prix d'ETF** (donnée d'émetteur, attribuée) ou **Kenneth French Data Library** — versions régionales gratuites : **Europe, Japan, Asia-Pacific ex-Japan, North America, Emerging Markets, Developed** (portefeuilles value/growth/size, total return, © Fama & French).
-
-**Réflexe transversal** : licences variables (World Bank CC-BY très permissif ; banques centrales = attribution ; quelques séries hébergées portent des restrictions de tiers). Toujours vérifier les conditions de LA série avant publication ; footer = source réelle.
-
-## Annexe B — points d'entrée opérationnels (testés)
-
-L'annexe A dit quelle institution est propre. Celle-ci dit **par où l'atteindre,
-et où ça casse**. À corriger dès qu'un endpoint change — un
-endpoint mort ici coûte une session.
-
-### Comment atteindre une source — l'ordre des routes
-
-Il y a trois routes vers une source, de la plus rapide à la plus lente. **Les
-essayer dans cet ordre**, et ne descendre d'un cran qu'après un échec constaté.
-
-1. **`curl` depuis le Bash** — la plus rapide, et elle rend le fichier brut.
-   Testé le 04/09/2026 : FRED (`fredgraph.csv`), BLS, BEA, Chicago Fed, Richmond
-   Fed, ECB SDMX et LBMA répondent tous **HTTP 200** depuis l'environnement
-   Claude Code.
-2. **`WebFetch`** — quand on veut une lecture de page plutôt qu'un fichier.
-   Testé le même jour sur `fred.stlouisfed.org/series/{ID}` : rend la dernière
-   observation et sa date.
-3. **Le Browser pane** (`navigate`, `get_page_text`, `javascript_tool`) — le
-   repli quand les deux premières échouent, et **la seule route pour une page
-   derrière authentification** (un écran wp-admin, par exemple).
-
-⚠️ **Ne pas inverser cet ordre.** Le Browser pane coûte plusieurs tours par
-lecture ; `curl` en coûte un.
-
-#### Les échecs sont datés et locaux, jamais une propriété de la source
-
-Trois observations opposées coexistent dans l'historique de ce site :
-
-| Constat | Origine | Statut au 04/09/2026 |
-|---|---|---|
-| `fredgraph.csv` renvoie **503** | projet Héro V3 | non reproduit |
-| `curl fredgraph.csv` « peu fiable, egress resets / 403 » | projet Research Study | non reproduit |
-| `WebFetch` **403** sur FRED, BLS, BEA, Chicago Fed, Richmond Fed ; Bash sans réseau | projet Baromètre, 02/09/2026 | **non reproduit — 7 sources sur 7 en 200** |
-
-Ces trois notes étaient vraies dans leur environnement et à leur date. Aucune
-n'est une propriété de l'institution.
-
-**La règle** : un 403, un 503 ou un timeout se **teste** avant d'être conclu, et
-se **date** quand il est consigné. Ne jamais écrire « cette source est bloquée » —
-écrire « bloquée depuis tel environnement, le tel jour », et passer à la route
-suivante. Une note d'échec non datée fait perdre plus de temps qu'elle n'en fait
-gagner : elle détourne durablement de la route la plus rapide.
-
-#### Gestes utiles du Browser pane, quand on y est
-
-- ⚠️ **`get_page_text` repart toujours du haut de la page.** Pour lire un passage
-  plus bas, passer par `javascript_tool` et découper `document.body.innerText`.
-- ⚠️ **`browser_batch` s'interrompt après environ trois actions par appel.**
-  Batcher court.
-- **FRED, `fetch` same-origin** : depuis une page FRED déjà ouverte,
-  `fetch('fredgraph.csv?id={ID}&cosd={AAAA-MM-JJ}&coed={AAAA-MM-JJ}')` rend le
-  CSV daté. Utile quand on est déjà dans le navigateur, et **une seule série à la
-  fois** — le multi-séries renvoie un ZIP.
-
-#### Cours de clôture — sources datées connues
-
-| Marché | Source |
-|---|---|
-| S&P 500, Dow Jones | FRED (`SP500`, `DJIA`) |
-| Nasdaq Composite | `api.nasdaq.com/api/quote/COMP/historical` |
-| Places Euronext | `live.euronext.com` — affiche un « Previous Close » daté |
-| Or | `prices.lbma.org.uk/json/gold_pm.json` — fixing PM, historique complet |
-| **DAX, Euro Stoxx 50** | **aucune source primaire datée connue** — Deutsche Börse et STOXX sont restés inaccessibles |
-
-#### ⚠️ Le piège de fin de mois
-
-**Vérifier le calendrier de chaque place avant de dater une clôture.** Les
-bourses ne ferment pas les mêmes jours.
-
-Cas vécu : le **31 août 2026** était le Summer Bank Holiday britannique. Ni
-clôture FTSE 100, ni fixing LBMA ce jour-là — alors que Paris, Francfort et
-New York cotaient. Une valeur « au 31 » aurait été fausse sur deux lignes d'un
-même tableau, sans qu'aucun contrôle ne le signale.
-
-#### FRED — replis si l'accès direct échoue
-
-Dans l'ordre : la **route en deux temps** (charger la page de la série, puis
-`fred.stlouisfed.org/data/{SERIES_ID}.txt`) · les **miroirs Eco3min**
-(`https://eco3min.fr/dataset/{id}.csv` — ce que servent réellement les pages du
-site, donc ce qu'il faut auditer) · l'**émetteur direct** (US Treasury pour les
-CMT, BLS pour l'IPC, NY Fed pour l'ACM — souvent plus frais que FRED) · l'API
-FRED officielle avec clé.
-
-Ne jamais conclure « la donnée n'existe pas » sur un seul échec d'accès.
-
-### Endpoints par domaine
-
-| Domaine | Point d'entrée |
-|---|---|
-| BCE — taux, MIR, SDMX | `data-api.ecb.europa.eu/service/data/{FLOW}/{KEY}?format=csvdata` |
-| Eurostat | `ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/{dataset}?format=JSON` |
-| US Treasury — CMT | `home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/{ANNEE}/all` |
-| BLS — IPC | `api.bls.gov/publicAPI/v1/timeseries/data/` — sans clé, mais **fenêtre de 10 ans maximum** par appel |
-| BRI — crédit | `stats.bis.org/api/v1/data/WS_TC/{key}/all?format=csv` |
-| LBMA — or / argent | `prices.lbma.org.uk/json/gold_pm.json` et `silver.json` |
-| NY Fed — prime de terme ACM | téléchargement Excel direct depuis le site NY Fed |
-| FMI — PortWatch | `portwatch.imf.org/api/download/v1/items/{id}/csv?layers=0` |
-| Banque mondiale — matières premières | Pink Sheet XLSX sur `thedocs.worldbank.org` — **l'URL change chaque année**, la localiser par recherche web plutôt que la mettre en dur |
-| Banque mondiale — CPI | API `FP.CPI.TOTL` (1960→T-1, base 2010=100) |
-| FAO — FFPI | classeur en téléchargement direct, CC BY 4.0 |
-| EIA (énergie US) | fichiers bulk |
-| USDA NASS (agriculture US) | API Quick Stats |
-| Fed d'Atlanta — microdonnées DCPC | archive ZIP en téléchargement direct |
-
-### En-têtes et formats exigés
-
-Trois sources refusent les requêtes sans `User-Agent` explicite. Le
-symptôme n'est pas une erreur claire : c'est un refus ou une réponse vide,
-qu'on met du temps à attribuer à l'en-tête.
-
-| Source | Contrainte |
-|---|---|
-| **BLS** (fichiers plats) | `User-Agent` explicite **obligatoire**, avec un contact réel : `Eco3min research contact@eco3min.fr`. Sans lui, refus. |
-| **World Bank WDI** (API) | `User-Agent` explicite obligatoire lui aussi. |
-| **OECD** (SDMX) | via curl avec `format=csvfilewithlabels` — sinon les libellés de dimension manquent et la série est inexploitable. |
-| **BLS v1** (API) | **ignore les filtres d'année** (parser par année soi-même), sauter `M13`, sauter les valeurs `'-'`. Une moyenne d'année partielle se divulgue comme telle. |
-| **Robert Shiller** (`ie_data.xls`) | se parse avec `xlrd==1.2.0`. Les versions ultérieures ont retiré le support du `.xls` : l'installation par défaut échoue. |
-| **Jacks 1850–2025** (XLSX) | **bloqué par captcha** à toute récupération automatisée. Un clic humain passe : demander le fichier. |
-| **World Bank Pink Sheet** | feuilles d'indices annuels : **les données commencent ligne 10**. Nominal et réel MUV, colonnes Fertilizers et Precious Metals incluses, plus le déflateur MUV. |
-
-### Règle d'arrêt
-
-Si une source nécessaire est bloquée : **s'arrêter et demander les
-fichiers à Paul.** Ne jamais substituer la mémoire du modèle à une
-récupération ratée.
-
-### Réflexe
-
-Tout endpoint mis en dur périme. Avant d'en déclarer un mort,
-vérifier que ce n'est pas simplement l'année ou le nom de fichier qui a
-tourné — c'est le cas le plus fréquent, notamment sur le Pink Sheet.
+Bloquant :
+- Il y a trois routes vers une source, de la plus rapide à la plus lente. **Les essayer dans cet ordre**, et ne descendre d'un cran qu'après un échec constaté. 1. **`curl` depuis le Bash** — la plus rapide, et elle rend le fichier brut. 2. **`WebFetch`** — quand on veut une lecture de page plutôt qu'un fichier. 3. **Le Browser pane** (`navigate`, `get_page_text`, `javascript_tool`) — le repli quand les deux premières échouent, et **la seule route pour une page derrière authentification** (un écran wp-admin, par exemple). ⚠️ **Ne pas inverser cet ordre.** Le Browser pane coûte plusieurs tours par lecture ; `curl` en coûte un.
+- **La règle** : un 403, un 503 ou un timeout se **teste** avant d'être conclu, et se **date** quand il est consigné. Ne jamais écrire « cette source est bloquée » — écrire « bloquée depuis tel environnement, le tel jour », et passer à la route suivante. Une note d'échec non datée fait perdre plus de temps qu'elle n'en fait gagner : elle détourne durablement de la route la plus rapide.
+- **Vérifier le calendrier de chaque place avant de dater une clôture.** Les bourses ne ferment pas les mêmes jours. Cas vécu : le **31 août 2026** était le Summer Bank Holiday britannique. Ni clôture FTSE 100, ni fixing LBMA ce jour-là — alors que Paris, Francfort et New York cotaient. Une valeur « au 31 » aurait été fausse sur deux lignes d'un même tableau, sans qu'aucun contrôle ne le signale.
+- FRED, replis si l'accès direct échoue. Dans l'ordre : la **route en deux temps** (charger la page de la série, puis `fred.stlouisfed.org/data/{SERIES_ID}.txt`) · les **miroirs Eco3min** (`https://eco3min.fr/dataset/{id}.csv` — ce que servent réellement les pages du site, donc ce qu'il faut auditer) · l'**émetteur direct** (US Treasury pour les CMT, BLS pour l'IPC, NY Fed pour l'ACM — souvent plus frais que FRED) · l'API FRED officielle avec clé. Ne jamais conclure « la donnée n'existe pas » sur un seul échec d'accès.
+- Trois sources refusent les requêtes sans `User-Agent` explicite. Le symptôme n'est pas une erreur claire : c'est un refus ou une réponse vide, qu'on met du temps à attribuer à l'en-tête. BLS et World Bank WDI exigent un `User-Agent` avec un contact réel (`Eco3min research contact@eco3min.fr`) ; OECD SDMX exige `format=csvfilewithlabels` ; BLS v1 ignore les filtres d'année et plafonne à 10 ans par appel ; Shiller `ie_data.xls` se parse avec `xlrd==1.2.0` ; Jacks 1850–2025 est bloqué par captcha (demander le fichier) ; Pink Sheet : données à partir de la ligne 10, URL qui change chaque année.
+- Cours de clôture datés : S&P 500 et Dow via FRED (`SP500`, `DJIA`, usage cotation ponctuelle seulement, cf. ajout du 17/09/2026), Nasdaq via `api.nasdaq.com`, Euronext via `live.euronext.com`, or via LBMA ; **DAX, Euro Stoxx 50** : **aucune source primaire datée connue** — Deutsche Börse et STOXX sont restés inaccessibles.
+- Règle d'arrêt : Si une source nécessaire est bloquée : **s'arrêter et demander les fichiers à Paul.** Ne jamais substituer la mémoire du modèle à une récupération ratée.
+- Réflexe : Tout endpoint mis en dur périme. Avant d'en déclarer un mort, vérifier que ce n'est pas simplement l'année ou le nom de fichier qui a tourné — c'est le cas le plus fréquent, notamment sur le Pink Sheet.
 
 ## Fond (décalé) vs live (temps réel) — piège de fraîcheur
 

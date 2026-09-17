@@ -8,7 +8,7 @@ Extrait VERBATIM de SKILL.md (découpage du 15/09/2026), sauf §12.1 (liste de v
 
 ### 12.1 Vue d'ensemble
 
-Le **mega-plugin Eco3min** unifie 6 plugins legacy en une seule extension WordPress et ajoute 3 modules nouveaux. Il vit en cohabitation avec les plugins legacy : tu peux activer le mega sans désactiver le legacy. Les conflits sont évités par préfixes BDD distincts (`e3m_` vs `eco3min_`) et hooks distincts.
+Le **mega-plugin Eco3min** unifie 6 plugins legacy en une seule extension WordPress et ajoute 3 modules nouveaux. Il a été conçu pour cohabiter avec les plugins legacy (préfixes BDD distincts `e3m_` vs `eco3min_`, hooks distincts) ; depuis le 15/09/2026 les six absorbés sont tous désinstallés ou désactivés, la question ne se pose plus.
 
 **Versionning** (README du plugin + en-tête `eco3min-mega.php`) :
 - **V0.1 (jan 2026)** — MVP minimal : tables + onglets 1/3/4 + garde-fou immutabilité + Format C v1.1
@@ -19,12 +19,14 @@ Le **mega-plugin Eco3min** unifie 6 plugins legacy en une seule extension WordPr
 - **V1.0.11 (mai 2026)** — drag & drop multi-fichiers (`Eco3min_Mega_Upload_Helper`, hook `eco3min_mega_upload_imports`, `.json` ≤ 10 Mo, anti-collision) dans Import cluster et Maillage : plus besoin de FileZilla
 - **V1.0.12 (mai 2026)** — apply des patches chunked + progress bar live post par post (`eco3min_mega_import_patches_apply_start` / `_chunk`, session dans un transient 1 h, reprise) ; spinner sur le dry run
 - **V1.0.13 / 1.0.13.1 (juin 2026)** — **Fusion du plugin « Maillage Ultime »** en 3 onglets internes : 🩺 **Diagnostic** (split-brain sous-pilier, cohérence des metas), 🧭 **Conseil** (conseil de maillage T1/T2/T3 read-only sur les tables `e3m_*`, JSON pour le projet C), 🧹 **Réconciliation** (mesure slug_only / conflits slug ≠ ID ; seul onglet MU qui écrit : suppression réversible des ID sous-pilier en conflit, slug fait foi, bouton Restaurer). Les 4 classes MU vivent dans `includes/maillage-ultime/` avec `require` protégés `if (!class_exists())`. **Piège résolu** : ne JAMAIS laisser le plugin « Maillage Ultime » séparé actif en même temps (collision de redéclaration de classe → écran blanc). Le conseil de l'onglet Conseil lit `wp_e3m_links` (`$wpdb->prefix.'e3m_links'`), rempli par le scan mega.
-- **V1.0.14 (ACTUEL, vérifié 15/09/2026)** — 2 exports CSV additifs dans l'onglet Maillage, section Snapshot : `eco3min_mega_export_snapshot_csv` → `eco3min-snapshot-{date}.csv` (même périmètre et même requête que le snapshot JSON, inchangé) ; `eco3min_mega_export_maillage_csv` → `eco3min-maillage-{date}.csv` (1 ligne par lien interne résolu, lu depuis `e3m_links` par pages de 5000, date du dernier scan en 1re ligne). Route de download jumelle `eco3min_mega_download_export_csv`. Helper `Eco3min_Mega_CSV` (BOM UTF-8, 1 record = 1 ligne).
+- **V1.0.14 (live au 17/09/2026)** — 2 exports CSV additifs dans l'onglet Maillage, section Snapshot : `eco3min_mega_export_snapshot_csv` → `eco3min-snapshot-{date}.csv` (même périmètre et même requête que le snapshot JSON, inchangé) ; `eco3min_mega_export_maillage_csv` → `eco3min-maillage-{date}.csv` (1 ligne par lien interne résolu, lu depuis `e3m_links` par pages de 5000, date du dernier scan en 1re ligne). Route de download jumelle `eco3min_mega_download_export_csv`. Helper `Eco3min_Mega_CSV` (BOM UTF-8, 1 record = 1 ligne).
+- **V1.0.15 (dépôt, 17/09/2026 — jamais mis en ligne seul, embarqué dans 1.0.16)** — Format C v1.1 : `satellite` ajouté à `Eco3min_Mega_Validator::VALID_LEVELS`, avec la règle 4f « un `satellite` exige un `parent_major_pair_id` » ; le projet B livre les satellites classés, plus de Tinder post-import. Diagnostic (mu-doctor) : `pillar_with_cluster` (faux positif) devient `pillar_without_cluster`, aligné sur `eco3min/health` ; texte du split-brain (SUBPILLAR SYNC) et de la « Fracture B » (le conseil lit `e3m_links`, tables legacy droppées) mis à jour. Aucun changement de table ni d'onglet.
+- **V1.0.16 (live depuis le 17/09/2026 au soir)** — Snapshot JSON et CSV : `format_article()` (`class-eco3min-mega-exporter-snapshot.php`) prend `get_permalink($post_id)` au lieu de `home_url + langue + slug` ; repli plat si la permalink est vide. La colonne `url` devient fiable (imbriquée pour les sous-piliers, `/qr/` `/qa/` pour les Q&A). Lecture seule, aucune écriture en base, même requête SQL qu'avant.
 - **V2.0 (prévu)** — Reclassification UI + WP-CLI + webhooks
 
 **Auto-migration** : au boot, si `get_option('eco3min_mega_db_version') !== ECO3MIN_MEGA_VERSION`, `Installer::activate()` relance `dbDelta` sur toutes les tables. Plus besoin de désactiver/réactiver le plugin pour upgrader : remplacer les fichiers via SFTP suffit.
 
-> Le **plugin Cleanup** (v1.1.0 dépôt / 1.0.1 live) est **séparé** du mega (extension à part, menu Outils), pas un onglet. C'est volontaire : c'est un outil one-shot de remise en ordre, exécuté avant le conseil.
+> Le **plugin Cleanup** (1.1.0, live depuis le 15/09/2026) est **séparé** du mega (extension à part, menu Outils), pas un onglet. C'est volontaire : c'est un outil one-shot de remise en ordre, exécuté avant le conseil.
 
 ### 12.2 Mapping legacy → mega — voir `references/01-inventaire-plugins-actifs.md` §12.2
 
@@ -44,7 +46,7 @@ Le **mega-plugin Eco3min** unifie 6 plugins legacy en une seule extension WordPr
 4. **Import cluster sur posts neufs** — `Eco3min_Mega_Importer_Cluster` crée des posts via `wp_insert_post()` (jamais d'update sur posts existants). Refuse l'import si slug déjà utilisé.
 5. **Tests unitaires** (à écrire en V0.5).
 
-**Conséquence pratique** : si tu veux modifier une classification existante, passe par Custom Fields dans l'éditeur WP (ou Meta Monitor). Le mega ne fournit PAS d'UI de reclassification en V0.1-V1.0 (réservé V2.0 avec triple confirmation).
+**Conséquence pratique** : le mega ne fournit PAS d'UI de reclassification en V0.1-V1.0 (réservé V2.0 avec triple confirmation). Pour modifier une classification existante : Cleanup import (`level` en overwrite réversible), `eco3min/set-metas` en `mode=overwrite`, Level Setter ou Fix — jamais Custom Fields ni SQL (les hooks du snippet SUBPILLAR SYNC ne se déclencheraient pas). Meta Monitor n'existe plus (cf référence 01 §1.2).
 
 ### 12.5 Format C v1.1 bilingue (input de l'onglet 3)
 
@@ -75,7 +77,7 @@ Format JSON consommé par l'onglet 3 du mega. Produit par le **projet B Writer**
 - Polylang doit être actif (sinon refus).
 - Slug FR + slug EN uniques dans le batch ET en BDD WP.
 - Slug FR ≠ slug EN.
-- Levels valides : `pillar`, `sub_pillar`, `major_article`, `foundation_article`, `case_study`, `deep_study`, `dataset`, `faq`, `tool`, `beginner`, `uncategorized`.
+- Levels valides : `pillar`, `sub_pillar`, `major_article`, `satellite` (≥ 1.0.15 ; exige `parent_major_pair_id`), `foundation_article`, `case_study`, `deep_study`, `dataset`, `faq`, `tool`, `beginner`, `uncategorized`. Ni `exclu` ni longueur RankMath ne sont contrôlés à l'import.
 - Liens FR pointent vers `https://eco3min.fr/SLUG-FR/`, liens EN vers `https://eco3min.fr/en/SLUG-EN/`. Pas de cross-lang.
 - `wp_category_slug` doit exister en BDD WP (résolu via slug).
 - `parent_major_pair_id` doit avoir été déclaré AVANT le satellite qui le référence (ordre dans le tableau `articles`).
