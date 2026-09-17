@@ -260,6 +260,7 @@ Les réponses doivent toujours :
 - Donner la source précise pour défendre le chiffre
 - Ne JAMAIS s'énerver, JAMAIS rétorquer agressif
 - Glisser un détail spécifique du dataset eco3min ("included in the dataset linked above") pour redriver vers le site
+PONT Q5 → OBJECTIONS (cycle 21) : chaque axe de cadrage adjacent listé en Q5 (médiane/moyenne, brut/net, nominal/réel, per-capita, définition du set, USD vs monnaie locale) qui n'a PAS été résolu DANS le chart devient obligatoirement une objection pré-écrite, en plus des 5 standards. Un axe nommé en sélection et absent du pack est un trou de pre-review, pas un oubli acceptable : au cycle 21 le pack avait 7 objections (A-G) et aucune sur mean vs median, l'axe le plus commenté du fil.
 
 
 ÉTAPE 8 — Séquence de publication T+0 à T+48h

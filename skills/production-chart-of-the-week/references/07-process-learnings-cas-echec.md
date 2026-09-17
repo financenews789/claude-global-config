@@ -1,4 +1,4 @@
-# production-chart-of-the-week — référence : Process learnings et cas d'échec documentés (cycles 7, 9, 11, 19, 20, 21, 21 bis, villes US), fichiers de référence
+# production-chart-of-the-week — référence : Process learnings et cas d'échec documentés (cycles 7, 9, 11, 19, 20, 21, 21 bis, 21 ter, villes US), fichiers de référence
 
 Extrait VERBATIM de SKILL.md (découpage du 15/09/2026). Fait foi avec SKILL.md ; SKILL.md porte la version condensée et le moment où lire ce fichier.
 
@@ -60,6 +60,14 @@ Cycle 21 bis (15/09/2026) — Big Mac working time — PÉRIMÈTRE DU SET FAUX E
 - Précédent non documenté jusqu'ici, même famille : un post « 10 plus grandes villes des États-Unis » auquel il manquait deux des dix ; l'ensemble était « ce que la donnée avait », personne n'avait coché la liste Census. Étrillé sur le périmètre, pas sur la mesure.
 - Cause racine commune : l'ensemble et les intrants étaient définis PAR la donnée disponible en session, puis rationalisés après coup. Une rationalisation après coup est une hypothèse non vérifiée qui se lit comme un fait.
 Apprentissages cristallisés : ÉTAPE 2-QUATER PÉRIMÈTRE DU SET (manifeste univers / règle / exclusions prouvées / réconciliation / top N, `scripts/set_check.py` appelé par `build_dataset.py`), extension de FRAÎCHEUR à tous les intrants (aucun nombre de source dans un script, `economist_bigmac()` dans `dataset_freshness.py`, source injoignable = pas de publication sur copie), rationale publiée vérifiée phrase par phrase contre le manifeste, test final « quel nom manque au lecteur qui coche la liste officielle ? ».
+
+Cycle 21 ter (15/09/2026, post en ligne) — Big Mac working time — SALAIRE MOYEN NON TRANCHÉ EN Q5 : ratio 88,9 % sous le plancher zone 1
+- Résultat : 1 100 upvotes, 522k vues, 228 commentaires, 284 partages (meilleur cycle depuis le 11), MAIS ratio 88,9 % < 92 % (plancher z1) et < 94 % (cible factions cost-of-living / fierté nationale).
+- Critique #1 du fil (+346) et une dizaine de sous-fils : « il fallait la médiane ». Déclinée par pays (Pologne 12,30 $/h vs GUS, Suisse 82 $/h, Suède 30 €/h). Q5 avait été coché sur « labellisé average, jamais median » : c'est le test de label du cycle 7, pas la question Q5 (« un cadrage adjacent plus défendable existe-t-il ? »). Les deux tests ont été confondus.
+- Le pack (7 objections A-G) ne contenait pas cette objection alors que Q5 la nomme parmi les axes à tester : aucun pont entre la sélection et l'ÉTAPE 7.
+- Le contre-argument solide existait (médiane non collectée de façon comparable par l'OCDE ; les US ayant la distribution la plus inégale, le mean les flatte, il ne les pénalise pas) mais il a été apporté par un tiers (derridaderider) à H+21, jamais par OP : sans effet sur le ratio.
+- Défauts secondaires du même fil : (a) USD vs monnaie locale (« a Big Mac is literally double that in NZ », AUD 8,70, CHF 9,40) malgré la colonne « BIG MAC, USD » : la conversion doit être dite en toutes lettres (« converted to USD at market rates ») dans la killer phrase ou le top comment ; (b) net et FTE ÷ heures moyennes annoncés (« net average wage ») sans le mécanisme sur l'image : couverts par les objections B/C, relevés quand même.
+Apprentissages cristallisés : Q5 durci sur l'axe médiane/moyenne (PASS = médiane retenue, OU indisponibilité documentée + « mean » et sens du biais SUR l'image, OU raison de fond écrite ; sur salaires / revenus / patrimoine la médiane est en général le cadrage crédible et Claude tranche explicitement pour la crédibilité) ; pont Q5 → ÉTAPE 7 (tout axe non résolu dans le chart = objection pré-écrite) ; leçon inverse à retenir : le label honnête ne protège pas du « tu aurais dû montrer X ».
 
 Cycle 7 (suite) — REPOST resté en ligne : ratio sous le seuil de risque
 - Repost à titre descriptif validé (lendemain du removal), resté en ligne jusqu'au bout.
