@@ -43,6 +43,7 @@ Ce fichier est la colonne vertébrale : le workflow Step 0 → Step 10 verbatim,
 | `references/11-acquisition-donnees.md` | §23 playbook par source, gate de licence FRED à trois statuts, règle d'arrêt | au Step 0 (licence) et avant de récupérer la donnée (Step 2) |
 | `references/12-registre-erreurs.md` | §24 post-mortems #22, #20, #6, R1 et leçon transversale | dès qu'une erreur est découverte après livraison, et avant d'alléger un verrou |
 | `scripts/study_locks.py` | Verrou D (hedges), Verrou E (comptages), Verrou G (cadratins, tics IA, prescriptif, action), zéro commentaire HTML, tolérances §12.5, collecteur de claims + rapport §12.6 | importé par `audit_extract.py` de chaque étude (Steps 6 et 6.5d-g) |
+| `scripts/css_specificity.py` | Spécificité du CSS scopé : `p_classes()`, `boost_paragraph_rules()`, `lint_paragraph_rules()` — tout sélecteur à sujet `<p>` atteint (0,2,0), sinon `.entry-content p` du Customizer gagne | importé par `build_snippet.py` (Step 10), après le re-namespace |
 
 Utilisation du script depuis un dossier d'étude :
 
@@ -54,7 +55,7 @@ Les dossiers `out/R1` à `out/R4` du projet GENERIQUE sont les implémentations 
 
 ### 17.2 Base de connaissance (eco3min-knowledge)
 
-Avant le Step 0 : `grep -i` du sujet dans `~/eco3min/eco3min-knowledge/``sujets/backlog.csv` (déjà rejeté ? pourquoi ?) et lecture de `chronologie/events.csv` sur la fenêtre de l'étude. Au Step 6 (audit extractif) : chaque chiffre validé devient une ligne de `faits/claims.jsonl` via `knowledge.add_claim` (added_by = `fact_check_audit`) ; si le même claim y figure déjà avec une autre valeur, c'est une incohérence inter-pages à traiter avant publication. À la livraison : `add_topic(statut=publie, page_id=…)`. Schémas et énumérations dans le `CLAUDE.md` de la base.
+Avant le Step 0 : `grep -i` du sujet dans `~/eco3min/eco3min-knowledge/``sujets/backlog.csv` (déjà rejeté ? pourquoi ?) et lecture de `chronologie/events.csv` sur la fenêtre de l'étude. Les lignes `origine=veille, statut=idee` du backlog (déposées le lundi par la tâche planifiée `veille-eco3min`) sont des pistes en plus — une aide qui ne remplace pas la recherche d'angle habituelle et n'est pas nécessairement la meilleure ; le sujet retenu passe en `en_prod`, une piste réellement examinée puis écartée en `rejete` avec sa raison, le reste demeure en `idee`. Au Step 6 (audit extractif) : chaque chiffre validé devient une ligne de `faits/claims.jsonl` via `knowledge.add_claim` (added_by = `fact_check_audit`) ; si le même claim y figure déjà avec une autre valeur, c'est une incohérence inter-pages à traiter avant publication. À la livraison : `add_topic(statut=publie, page_id=…)`. Schémas et énumérations dans le `CLAUDE.md` de la base.
 
 ### 17.3 Workflow Step 0 → Step 10
 
@@ -212,6 +213,7 @@ Step 10 — ASSEMBLER ET DÉPLOYER (lire `references/09-deploiement-wordpress.md
 
 Bloquant :
 - Namespace `eco3-[STUDY]-*` par étude, `eco3-realrates` retiré ; le CSS scopé (~12 000 caractères, 63 classes) s'extrait par curl de l'étude publiée la plus récente puis se re-namespace, jamais reconstruit de zéro.
+- Spécificité : `.entry-content p` du Customizer (0,1,1) bat toute règle d'étude à une classe. Tout sélecteur dont le sujet est un `<p>` atteint (0,2,0) : `scripts/css_specificity.py` — `boost_paragraph_rules()` après le re-namespace, `lint_paragraph_rules()` doit rendre une liste vide (16/09/2026, R3/R4/R6 : bloc « Latest observation » illisible en live, invisible en preview).
 - Un Code Snippet par étude, ordre : garde (slug + variante `-2`) → CSS (`wp_head` 4) → JSON-LD Article/Dataset/FAQPage (`wp_head` 5) → OG et Twitter (`wp_head` 99) → filtres RankMath title/description (99, jamais l'onglet Social) → JS (`wp_footer` 99, délégation FAQ anti-double-init, copie de partage, embed, sommaire mobile). Le corps HTML ne contient ni `<style>` ni `<script>`.
 - Règles dures : UTF-8 littéral dans les `content:""` ; Code Snippets sans `<?php` ouvrant ; heredoc `<<<'CSS'` valide ; assets en `wp-content/uploads/[YYYY]/[MM]` du mois courant, identiques dans HTML, snippet et guides ; originaux non suffixés ; SVG uploadés ; FAQ = `<h3>` dans `.eco3-[STUDY]-faq-item` basculant `.eco3-[STUDY]-open` ; OG = le PNG hero ; liens internes `/en/` côté EN ; embeds `https://eco3min.fr/embed/[chart-slug]`.
 - Livrer le jeu complet (14 à 18 fichiers, §17.1) avec le résumé d'audit, le README / index (livrable 18) et le doc de pre-review (16).

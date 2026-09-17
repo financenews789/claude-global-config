@@ -86,5 +86,18 @@ interdit « CC BY 4.0 » sur la page et impose la licence réelle dans le JSON-L
 Et la règle de lecture : **un problème de licence se constate sur la notice et
 le JSON-LD de la page, pas sur le CSV ni sur le tag FRED seuls.**
 
----
+**Six études du 16/09/2026 — le CSS scopé perdait contre `.entry-content p`.**
+Sur R3, R4 et R6 le bloc « Latest observation » s'affichait gris foncé sur
+navy, libellés en 17 px capitales ; sur R1, R2 et R12 deck, meta, fig-source
+et stat-value prenaient la taille et la couleur du corps. Cause : le CSS
+additionnel du Customizer stylise `.entry-content p` à (0,1,1), et chaque règle
+d'étude à une classe est à (0,1,0). Ni l'ordre des feuilles ni la priorité
+`wp_head` n'y changent rien ; les previews n'embarquent pas le CSS du thème,
+donc le défaut n'apparaissait qu'en ligne. Le CSS se copiant d'une étude à la
+suivante, le défaut s'est propagé sur six études sans être vu.
+→ D'où la règle §20.1 « sujet `<p>` ⇒ (0,2,0) au moins » et
+`scripts/css_specificity.py` (boost + lint) dans le Step 10. Corrigé en ligne
+sur les six snippets par `eco3min/snippet-update` le 16/09/2026, et dans les
+sources des six dossiers `out/`.
 
+---

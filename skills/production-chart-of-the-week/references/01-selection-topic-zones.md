@@ -22,6 +22,8 @@ Lancer systématiquement un web_search au début de chaque cycle hebdomadaire :
 - Search : "[hyperscaler] earnings guidance" si on est en saison earnings
 - Search : "[topic candidat] historical chart" pour vérifier qu'il n'a pas été surposté récemment sur DIB
 
+En complément (aide, pas substitut) : `grep ',veille,idee,' ~/eco3min/eco3min-knowledge/sujets/backlog.csv` — les pistes déposées le lundi par la tâche planifiée `veille-eco3min` (« X au plus haut / plus bas depuis AAAA », source primaire, série disponible). Elles élargissent le vivier de candidats ; elles ne dispensent pas des web_search ci-dessus et ne sont pas nécessairement les meilleurs sujets. Le calendrier des publications primaires (AIE, OPEP, BLS, EIA, C3S, BCE, FOMC…) vit dans le prompt de cette tâche, `~/.claude/scheduled-tasks/veille-eco3min/SKILL.md`, et sert aussi à choisir l'ancrage actu de la semaine.
+
 Cross-référence avec datasets existants eco3min (79 datasets disponibles) : si un dataset eco3min existant peut être recyclé/mis à jour pour le sujet de la semaine, c'est l'option préférée (gain de temps + cohérence SEO).
 
 Topics qui marchent (patterns validés sur DIB)

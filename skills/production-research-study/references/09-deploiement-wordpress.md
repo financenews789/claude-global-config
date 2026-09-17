@@ -14,6 +14,28 @@ par curl depuis **l'étude publiée la plus récente**, puis se re-namespace. Ja
 reconstruit de zéro, jamais repris d'une page ancienne qui pourrait ne pas avoir
 les règles de l'accordéon FAQ.
 
+**Spécificité des règles sur les paragraphes (constaté le 16/09/2026 sur R3, R4,
+R6).** Le CSS additionnel du Customizer (`wp-custom-css`) porte
+`.entry-content p { font-family; font-size; line-height; color; max-width;
+margin-bottom; text-align }`, spécificité (0,1,1). Une règle d'étude à une seule
+classe, `.eco3-[STUDY]-obs-value{color:#fff;font-size:28px}` (0,1,0), **perd**
+quel que soit l'ordre des feuilles et la priorité `wp_head` : le bloc « Latest
+observation » s'affichait gris foncé sur navy avec des libellés à 17 px, et
+deck, meta, fig-source, stat-value étaient à la taille du corps sur R1, R2, R12
+aussi. Invisible en preview (pas de CSS du thème). Règle : **tout sélecteur
+dont le sujet est un `<p>` — `p` explicite, ou une classe posée sur un `<p>`
+dans le HTML de l'étude — atteint (0,2,0) au moins** : `.eco3-[STUDY]
+p.eco3-[STUDY]-obs-value`, `.eco3-[STUDY] .eco3-[STUDY]-context p`, et la règle
+générique `.eco3-[STUDY] .eco3-[STUDY]-container p{…;color:inherit}` (le
+`color:inherit` rend la couleur héritée du bloc navy aux `<p>` dont la règle
+propre n'en déclare pas). `scripts/css_specificity.py` le fait mécaniquement
+(`boost_paragraph_rules`) et le vérifie (`lint_paragraph_rules`, liste vide
+obligatoire) ; à appeler dans `build_snippet.py` après le re-namespace, avec
+les classes relevées par `p_classes()` sur les deux pages. Les titres, listes et
+tableaux restent volontairement sous la typographie du site (`.entry-content
+h2`, `ul`, `table`) : c'est le rendu publié depuis R1, les remonter serait une
+décision éditoriale, pas une correction.
+
 ### 20.2 Le snippet est autonome
 
 Un Code Snippet par étude. Ordre : fonction de garde (slug + variante `-2`) → CSS
