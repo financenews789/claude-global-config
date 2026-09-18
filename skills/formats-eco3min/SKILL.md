@@ -86,6 +86,8 @@ Bloquant :
 Bloquant :
 - Méta-titre : **interdit** année explicite (2025, 2026), date calendaire, "actuellement", "aujourd'hui", "cette année" ; le titre reste pertinent dans 6–12 mois ; actualité implicite (mécanisme qui évolue, seuil franchi, inflexion, déséquilibre) sans dater. **Test** : si le titre est amélioré en supprimant la date, la version sans date est obligatoire. Pas de titre vague ("tendances", "panorama", "le marché de…").
 - Ancres, trois règles cumulatives : inter-articles (même cible → ancres différentes d'un article à l'autre) ; intra-article (aucune ancre répétée : 5 liens = 5 ancres distinctes) ; qualité (3 à 8 mots, descriptive de la cible, intégrée naturellement dans une phrase, jamais "cliquez ici", "voir ici", "lire aussi", "en savoir plus").
+- Renvois internes à la page (ajouté le 18/09/2026) : **jamais de numéro de section** (« voir la section 4 ») ; le rail « In this article » du thème numérote à partir du premier `<h2>` rendu, pas du sommaire de l'étude, et toute section ajoutée décale. Un renvoi nomme la section et porte l'ancre `#id` : « la section sur le spread comme signal temps réel ».
+- Byline d'une page révisée (ajouté le 18/09/2026) : la mise à jour en premier, la première publication entre parenthèses, `Updated: 18 September 2026 (first published May 2026)` / `Mis à jour : 18 septembre 2026 (première publication mai 2026)`. Ni la date d'origine seule (page périmée aux yeux du lecteur), ni la date de mise à jour seule (contredit `datePublished` et les mentions « édition de … » du texte).
 
 ## §9–§12 — Sources, outils, bulletin, format HTML (lire `references/04-titre-ancres-sources-outils-html.md`)
 

@@ -61,8 +61,28 @@ C'est cette branche qui a attrapé les erreurs de la page dollar (« five below 
 | **P5** | Cohérence **inter-pages** + intégrité artefact téléchargeable | §7 |
 | **P6** | Surface **Rule IV / AMF** (titre, snippets, OP) | editeur-eco3min §4 (`references/03-amf-7-regles-disclaimer.md`) ; production-research-study Step 7 / §15 pre-flight r/economics (`references/10-social-preflight-upload.md`) et reviewer Rule IV §3.1 (`references/01-hook-prereview-pivot.md`) ; contrôle mécanique `study_locks.editorial_locks` |
 | **P7** | **GATE** : zéro commentaire HTML (avant import) + statut HTTP réel (page publiée) | GATE AJOUTÉ (août 2026), en fin de fichier |
+| **P0** | **Audit d'entrée d'une étude antérieure au 08/09/2026** (avant la série GENERIQUE) : cinq contrôles techniques hérités, avant toute lecture du fond | §4 bis ci-dessous ; production-research-study `references/13-rafraichissement-etude-publiee.md` §25.2 |
 
 Une seule passe qui échoue sur du BLOQUANT → NO-GO. Pas de seuil « tolérable ».
+
+### 4 bis. P0 — Audit d'entrée d'une étude d'avant R1 (ajouté le 18/09/2026)
+
+Les études du hub macro US et les études #1 à #31 ont été déployées avant le bundle
+bilingue, avant la règle de spécificité et avant le module interactif. Le 18/09/2026,
+l'étude #6 en portait cinq défauts invisibles depuis wp-admin, tous trouvés en dix
+minutes par ces commandes. À exécuter en premier sur toute page de ce lot, quel que soit
+le motif de la revue :
+
+| Contrôle | Commande | Verdict si négatif |
+|---|---|---|
+| Jumelle FR stylée | `curl -s <URL FR> \| grep -c 'eco3-<ns>-css'` = 1 | BLOQUANT : la garde du snippet ne liste que les slugs EN ; ajouter une garde CSS/JS bilingue, JSON-LD et OG restent EN |
+| Fichiers du Dataset | HEAD sur chaque `contentUrl` du JSON-LD = 200 | BLOQUANT : Dataset invalide pour Google, lien mort pour le lecteur |
+| URL de citation | `Available at:` / `Disponible sur :` == permalink de la page | BLOQUANT : une citation copiée pointe sur un 404 |
+| Un seul `<h1>` | `grep -c '<h1'` sur la page publiée = 1 | BLOQUANT (déjà dans production-killer-hn §2.1) |
+| Spécificité des `<p>` | `css_specificity.lint_paragraph_rules()` vide | BLOQUANT : blocs sombres illisibles, labels à 17 px |
+
+Puis : le module interactif existe-t-il ? Son absence n'est pas un NO-GO de revue, c'est
+un écart au standard à consigner dans le verdict.
 
 ---
 
@@ -232,4 +252,5 @@ Règle de production associée : voir `eco3min-import-contenu-bilingue`, section
 ## Versions
 
 - **v1** (août 2026) — six passes, hiérarchie de criticité, discipline de régénération ; GATE commentaires HTML + statut HTTP ajouté après l'incident du 27 août 2026.
+- **v1.2** (18/09/2026) — passe P0, audit d'entrée technique des études antérieures au 08/09/2026 (garde FR, contentUrl, citation, h1, spécificité), après les cinq défauts hérités trouvés sur l'étude #6.
 - **v1.1** (17/09/2026) — description réécrite ; pointeurs réalignés sur les skills découpées (§12-14 → `references/05`, « Step 7.5 » inexistant → Step 7 / §15, chemin du module narrative_audit) ; P7 GATE dans la table des passes et la checklist ; catégorie B et pages sœurs adossées au registre `faits/claims.jsonl` ; page jumelle FR/EN en P5, lue au degré d'adaptation arbitré (miroir / légère / forte, règle figée d'import-bilingue) ; lecture d'une page publiée par `ewpa/get-page` ; équivalents Claude Code des outils ; `study_locks` comme contrôle mécanique du GATE et de P6. Aucune règle de fond retirée. Skill volontairement non découpée (213 lignes à l'origine, les six passes servent à chaque invocation).

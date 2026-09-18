@@ -1,6 +1,6 @@
 ---
 name: simulateurs-eco3min
-description: Production et maintenance des simulateurs interactifs d'Eco3min (pages outils, FR/EN). Architecture figée : un snippet global Code Snippets (CSS + moteur JS vanilla + shortcode [eco3min_simulateur type="…" lang="fr|en"]) rend le markup par type+langue ; la page = shortcode + SEO + maillage (plus d'iframe). Activer pour créer, réviser, débugger, étendre ou traduire un simulateur. Couvre les 4 archétypes (trajectoire, composition, sensibilité, deux-branches), la frontière partagé vs spécifique, le contrat moteur (data-bind, synchro range↔number bidirectionnelle, dispatch boot), la méthode d'insertion assertée (node --check, sanity maths), l'AMF data viz (jamais de trajectoire prospective unique, marqueurs descriptifs, pas de montant empruntable max, asymétrie de risque), la cohérence des chiffres avec le hero, les tokens brand web, l'i18n, et le protocole page (slugs EN plats vs imbriqués, jamais inventer un slug, parentage /en/ → 301). Combiner avec brand-kit-eco3min, visuels-eco3min, pilier-kit.
+description: Production et maintenance des simulateurs interactifs d'Eco3min (pages outils, FR/EN). Architecture figée : un snippet global Code Snippets (CSS + moteur JS vanilla + shortcode [eco3min_simulateur type="…" lang="fr|en"]) rend le markup par type+langue ; la page = shortcode + SEO + maillage (plus d'iframe). Activer pour créer, réviser, débugger, étendre ou traduire un simulateur. Couvre les 5 archétypes (trajectoire, composition, sensibilité, deux-branches, ledger daté), la frontière partagé vs spécifique, le contrat moteur (data-bind, synchro range↔number bidirectionnelle, dispatch boot), la méthode d'insertion assertée (node --check, sanity maths), l'AMF data viz (jamais de trajectoire prospective unique, marqueurs descriptifs, pas de montant empruntable max, asymétrie de risque), la cohérence des chiffres avec le hero, les tokens brand web, l'i18n, et le protocole page (slugs EN plats vs imbriqués, jamais inventer un slug, parentage /en/ → 301). Combiner avec brand-kit-eco3min, visuels-eco3min, pilier-kit.
 ---
 
 # Simulateurs Eco3min
@@ -58,7 +58,7 @@ hors-charte, **SEO invisible à Google** (caché dans l'iframe). Reconstruire en
 
 ---
 
-## 3. Les 4 archétypes (le cœur)
+## 3. Les 5 archétypes (le cœur)
 
 Chaque outil tombe dans un archétype. L'archétype fixe la **maths**, le **layout des 2 cartes**
 et le **visuel signature**. Ne pas plaquer un visuel d'un archétype sur un autre.
@@ -69,6 +69,7 @@ et le **visuel signature**. Ne pas plaquer un visuel d'un archétype sur un autr
 | **B. Composition** | un ratio/total ne dit rien sans sa décomposition | décomposition d'un total **à un instant** | ratio / part-clé restante | **barre empilée horizontale** + marqueur(s) de seuil descriptif | `capacite-endettement` (taux vs reste à vivre, marqueur HCSF 35 %), `budget` (besoins/envies/épargne, repères 50-30-20 à 50 % et 80 %) |
 | **C. Sensibilité / fonction** | le résultat est l'otage d'**une** hypothèse | `f(hypothèse)` — hyperbole, droite, droite **signée**, ou Fisher | hypothèse effective / résultat | **courbe Y=résultat vs X=hypothèse**, point terra de l'utilisateur, référence/seuil | `capital-rentes` (capital vs taux), `epargne-mensuelle` (effort vs durée), `risque-taux` (Δvaleur vs Δtaux, **axe signé**), `rendement-reel` (réel vs inflation, **axe signé** + seuil) |
 | **D. Deux branches / arbitrage** | l'écart entre deux options décide, pas l'intuition | deux trajectoires comparées ; l'**écart** = résultat | écart/spread / avantage | **deux courbes divergentes**, coin terra = avantage cumulé | `arbitrage-credit-epargne` (placer vs rembourser) |
+| **E. Ledger daté / règle de calcul** | le résultat dépend des **dates** de chaque flux, pas d'un taux affiché | opérations datées saisies (liste dynamique) → moteur qui rejoue la règle réglementaire période par période (quinzaines, capitalisation, plafond) ; les paramètres externes (taux de chaque période, indice des prix) sont **lus dans une source du site**, jamais codés dans l'outil | résultat de la règle (terra) / solde nominal (cool) / paramètre appliqué (gris) | **marches du solde rémunéré + courbe des intérêts cumulés** sur l'axe des périodes, tableau déplié par période | `livret-a-quinzaines` (snippet autonome 18/09/2026 : versements et retraits datés, taux lus dans les `periods` du snippet 230 et dans le dataset des paliers, IPC INSEE servi par le site pour la lecture en pouvoir d'achat) |
 
 Notes structurantes :
 - **A et D** partagent le moteur de tracé temporel (multi-lignes) ; D ajoute le coin entre
@@ -81,7 +82,8 @@ Notes structurantes :
   (droite de pente −duration, hausse ET baisse) et `rendement-reel` (courbe Fisher croisant 0 à
   inflation = nominal). Le point utilisateur reste l'unique accent terra.
 - **B** est le seul à ne pas avoir d'axe temps → barre, pas courbe.
-- Avant de coder : nommer l'archétype. S'il n'en existe pas, c'en est un 5ᵉ → l'ajouter ici.
+- **E** est le seul archétype à **liste dynamique d'entrées** (ajout / suppression de lignes datées) et le seul dont la maths est une **règle exogène** (texte réglementaire, pratique bancaire) plutôt qu'une formule financière : le moteur se teste contre un port indépendant (Python) et deux ou trois cas analytiques avant toute page, et il refuse de calculer au-delà de la dernière période publiée (« aucun taux publié à partir du… », jamais une projection). Ses paramètres vivent hors de l'outil : une constante de taux dans le JS est un défaut. Sous douze mois, un indice des prix brut est saisonnier : la lecture en pouvoir d'achat passe alors par le glissement annuel du dernier mois publié au prorata, et le dit.
+- Avant de coder : nommer l'archétype. S'il n'en existe pas, c'en est un 6ᵉ → l'ajouter ici.
 
 ---
 
@@ -273,9 +275,12 @@ Le module type suit toujours : lire `data-lang` → `T = I18N[lang].{type}` + fo
 | `risque-taux` | C sensibilité (axe signé) | `sensibilite-risque-taux-simulateur` | `interest-rate-risk-sensitivity-simulator` (plat) |
 | `rendement-reel` | C sensibilité (Fisher, axe signé) | `simulateur-rendement-reel-apres-inflation` | `…/real-return-after-inflation-calculator` (imbriqué) |
 | `arbitrage-credit-epargne` | D deux-branches | `arbitrage-credit-ou-epargne-simulateur` | `debt-repayment-savings-tradeoff-simulator` (plat) |
+| `livret-a-quinzaines` (snippet autonome « Eco3min — simulateur-livret-a-quinzaines », shortcode `[eco3min_livret_a_quinzaines]`) | E ledger daté | `simulateur-livret-a-interets-quinzaine` (page 43510, parent `outils-financiers`) | — (FR seule : la règle des quinzaines est un objet français) |
 
 FR tous sous `/page-education-financiere/outils-financiers/`. Les EN imbriqués sont sous
 `/en/financial-education-macroeconomic-regimes/financial-tools-simulators-test-assumptions-decisions/`.
+**Snippets autonomes.** Depuis août 2026, les outils à moteur spécifique (prix à la pompe 211, crack 212, replay retraite 215, inflation 240, Livret A quinzaines) vivent chacun dans **leur propre snippet** (CSS + moteur + shortcode + JSON-LD base64 gardé par slug), livrés par le bundle « Page bilingue » ; le snippet global v2.0 reste celui des 9 types à `data-bind`. Un type nouveau va dans le snippet global s'il tient dans le contrat moteur §2, dans un snippet autonome sinon.
+
 **Série complète — plus aucune iframe.** Restent côté plateforme (contenus déjà produits) :
 publier capacité EN (slug plat) et capital-rentes EN, et migrer la page capacité FR sous le
 parent FR + 301 depuis son URL `/en/…` actuelle (mal parentée).
@@ -283,6 +288,8 @@ parent FR + 301 depuis son URL `/en/…` actuelle (mal parentée).
 ---
 
 ## Versioning
+
+**Skill v2.2** (18/09/2026) — **5ᵉ archétype E, ledger daté / règle de calcul** (S009, simulateur Livret A par quinzaine) : liste dynamique d'opérations datées, règle exogène rejouée période par période, paramètres lus dans une source du site (snippet 230, dataset des paliers, IPC servi), port Python de contrôle, refus de projeter au-delà de la dernière période publiée, prorata du glissement annuel sous douze mois. Registre des types : ligne `livret-a-quinzaines` ; note sur les snippets autonomes. Aucune règle antérieure supprimée.
 
 **Skill v2.1** (mai 2026) — série **complète : 9 types** sur les 4 archétypes (plus aucune
 iframe). Ajoute : le **sous-cas « axe signé »** de l'archétype C (résultat/hypothèse négatifs,

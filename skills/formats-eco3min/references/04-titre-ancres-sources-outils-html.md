@@ -37,6 +37,21 @@ Trois règles cumulatives.
 | Satellite 2 | l'alternance expansion-récession |
 | Satellite 3 | le fonctionnement des cycles |
 
+### 8 bis. Renvois internes à la page et byline d'une page révisée (18/09/2026)
+
+**Renvois.** Un renvoi vers une autre section de la même page ne porte jamais de numéro.
+Le sommaire d'une étude compte à partir de sa première section analytique ; le rail
+« In this article » du thème compte à partir du premier `<h2>` rendu (le résumé exécutif
+en fait partie) ; et toute section ajoutée lors d'une révision décale les deux. Sur
+l'étude #6, « voir la section 4 » pointait sur ce que le rail affichait en 5 puis en 6.
+Forme attendue : le nom de la section, en ancre `#id`, intégré à la phrase.
+
+**Byline révisée.** Ordre fixe : mise à jour, puis première publication entre
+parenthèses. `Updated: 18 September 2026 (first published May 2026)`. Le JSON-LD porte
+`datePublished` d'origine et `dateModified` du jour ; la licence dit « May 2026,
+refreshed September 2026 » ; le texte parle de « l'édition de mai 2026 » quand il
+compare. Une byline qui ne dit que « September » contredit ces trois endroits.
+
 ---
 
 ## 9. Sources autorisées (référence rapide)

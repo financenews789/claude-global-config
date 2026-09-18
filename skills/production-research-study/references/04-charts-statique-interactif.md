@@ -102,4 +102,28 @@ coupé · Tab atteint le graphe et les flèches déplacent le curseur · lisible
 Le code de référence, les attributs et le CSS vivent dans le `snippet_model.php`
 du projet de série, section « INTERACTIVE CHART ».
 
+### 10.7 Module étendu et harnais de test (ajouté le 18/09/2026, étude #6)
+
+`scripts/live_module.js` et `scripts/live_module.css` sont la version de référence du
+module générique, à copier dans le snippet (bloc `wp_footer` sous la garde bilingue,
+CSS dans le bloc `wp_head`) en remplaçant le namespace `eco3-pivot2y`. Trois attributs
+s'ajoutent au contrat du `snippet_model.php` :
+
+- `data-extra` : colonnes lues au survol sans être tracées, `[{"col":"spread_bps","label":"Spread","dec":0},{"col":"spread_regime","map":"regime"}]` ; `map:"regime"` traduit les valeurs par la table de langue du module.
+- `data-markers` : événements datés portés par une colonne binaire du CSV, dessinés sur une série, `{"col":"ff_pivot_major","on":"fedfunds","dirs":{"1977-08":"up",…}}` ; un clic épingle le readout, un second clic libère. La direction vient du CSV ou de la table `dirs`, jamais d'un calcul dans le module.
+- `data-lang` : `en` ou `fr`, libellés du readout, format des nombres et des mois par `toLocaleString`. La page FR porte ses propres `data-series` et `data-ranges`.
+
+Les fenêtres `data-ranges` sont en années depuis la dernière observation ; `years:2`
+donne « depuis 2024 » en septembre 2026. Les bandes `data-shade` restent des épisodes
+datés (récessions NBER).
+
+Harnais de test, avant tout déploiement : une entrée dans `.claude/launch.json`
+(`py -3 -m http.server <port> --directory <dossier>`), un `preview.html` qui charge
+`live.css`, le markup EN et FR avec `data-csv` pointé sur le CSV local, et `module.js` ;
+puis, dans le navigateur : readout par défaut égal à la dernière ligne du CSV, fenêtre
+courte, épinglage d'un marqueur, readout FR, un conteneur clone avec `data-csv` sur un
+404 (le `<picture>` doit rester visible, aucun SVG), largeur 375 px, zéro erreur
+console. Après déploiement : les mêmes lectures sur la page publiée, et le module local
+comparé octet à octet au snippet servi.
+
 ---

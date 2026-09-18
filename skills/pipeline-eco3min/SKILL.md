@@ -34,7 +34,7 @@ Sept pipelines indépendants + un composite hooké. **Avant toute modif, identif
 | **ECB** | `ecb_updater.py` | `ecb-update.yml` | 08:00 L–S | `config/ecb_datasets.json` | **config-driven** (entrée JSON) | aucune (SDMX public) |
 | **Non-FRED** | `eco3min_updater_v2.py` | `update-datasets-v2.yml` | 09:30 L–S | `DATASET_REGISTRY` **dans le .py** | **code-driven** (builder + entrée registry) | `FRED_API_KEY` (composites mixtes) |
 | **EIA** | `eia_updater.py` | `eia-update.yml` | 10:30 L–S | `config/eia_datasets.json` | **config-driven** (entrée JSON) | `EIA_API_KEY` |
-| **FR** | `fr_updater.py` | `fr-update.yml` | 10:30 L–S | `config/fr_datasets.json` | **config-driven** (entrée JSON) | aucune (DBnomics public) |
+| **FR** | `fr_updater.py` | `fr-update.yml` | 10:30 L–S | `config/fr_datasets.json` | **config-driven** (entrée JSON) + section `custom` (identité en JSON, `builder` nommé dans `fr_builders_*.py`, depuis le 18/09/2026) | aucune (DBnomics public ; Webstat si `WEBSTAT_API_KEY`) |
 | **Articles** | `eco3min_articles_updater.py` | `update-articles.yml` | 09:00 les 11–19 | `config/article_datasets.json` + registry `BUILDERS` | **hybride** : identité en JSON, schéma de colonnes en code | `FRED_API_KEY` |
 | **Régime** | `regime_classifier.py` | `regime-update.yml` | 10:30 tous les jours | `config/thresholds.json` | **code-driven** (pas d'argparse) | `FRED_API_KEY` |
 | **Score** (composite pondéré) | `score_eco3min.py` | via FRED workflow | 08:00 | module autonome | hook lazy-import dans `eco3min_updater.py` | `FRED_API_KEY` |
@@ -45,7 +45,7 @@ Sorties, par namespace SFTP :
 - **`www/dataset/{ecb,eia,fr}`** ← ECB (`output/datasets-ecb`), EIA (`output/datasets-eia`), FR (`output/datasets-fr`), chacun avec son `www/wp-content/dataset-meta/{source}`. Namespaces isolés.
 - **`www/wp-content/uploads/eco3min-data/`** ← `regime_current.json`, `regime_lookup.json`, `regime_history.csv/.xlsx`. Hors espace dataset, déployés fichier par fichier (pas de `put *`).
 
-Volumétrie (audit du 2026-08-27) : FRED 108, ECB 25, FR 22, non-FRED v2 19, EIA 13, régime 3, articles 1, score 1 — **192 ids**, dont 129 dans le namespace partagé.
+Volumétrie (audit du 2026-08-27) : FRED 108, ECB 25, FR 22, non-FRED v2 19, EIA 13, régime 3, articles 1, score 1 — **192 ids**, dont 129 dans le namespace partagé. FR = 25 depuis le 18/09/2026 (3 ids `custom`).
 
 ---
 
@@ -57,6 +57,7 @@ C'est la première question, et elle détermine tout le reste.
 2. **La donnée vient de l'ECB** (SDMX) → **`config/ecb_datasets.json`**, pas de code. Voir §4.
 3. **La donnée est un prix de l'énergie US publié par l'EIA** (carburants à la pompe, spots produits raffinés, électricité par secteur, utilisation des raffineries) → **`config/eia_datasets.json`**, pas de code. Même squelette config-driven que l'ECB (§4) ; clés d'entrée `eia_route`, `eia_series_id`, `eia_data_col`, `eia_frequency`. WTI, Brent et Henry Hub sont **exclus** de ce pipeline : déjà servis par FRED.
 4. **La donnée est française et vit sur DBnomics** (INSEE, Banque de France : IPC, IRL, SMIC, OAT, taux de crédit, prix immobiliers) → **`config/fr_datasets.json`**, pas de code. Config-driven avec deux spécificités : entrées **bilingues** (`name_fr`, `slug_fr`), et `sources` = *liste* de segments DBnomics chaînés par `chain_mode` (`ratio` / `rebase`) pour recoller les changements de base. Chaque entrée porte `licence`, `licence_url` et `commercial_redistribution` — les remplir, c'est ce qui rend le CSV publiable (skill `sourcing-donnees-eco3min`).
+   **4 bis. La donnée est française mais ne se réduit ni à un segment DBnomics ni à un `A−B` / `A/B`** (recollage de sources hétérogènes, table de paliers, calcul annuel, constante réglementaire antérieure à la série officielle) → **section `custom` de `fr_datasets.json` + builder codé** dans `scripts/fr_builders_<sujet>.py`, exposé par un dict `BUILDERS = {"nom": fonction}` et nommé par la clé `"builder"` de l'entrée ; `fr_updater.custom_builder()` l'importe paresseusement (liste `CUSTOM_BUILDER_MODULES`). L'entrée garde l'identité et la provenance en JSON (`sources`, `licence`, `attribution`, `provenance_notes`) : c'est le modèle hybride du pipeline articles, dans le namespace `/dataset/fr/`. Signature `build(fetcher, cfg) -> DataFrame` ; le fetcher est le `DBnomicsFetcher` du pipeline (Webstat avec clé, DBnomics sinon), donc une source BdF s'y lit sans nouveau code. **Ne pas router une série française vers v2** pour la seule raison qu'elle demande un builder : v2 vit dans le namespace partagé `www/dataset`, sans préfixe `fr-`, hors du snippet 224. Premier cas (18/09/2026, S009) : `fr-livret-a-rate`, `fr-livret-a-rate-changes`, `fr-livret-a-real-return` dans `fr_builders_livret_a.py` (BdF MIR1 + palier IPP 1960-65 + JORF, inflation INSEE 011813530 lue sur l'API BDM SDMX sans clé — l'INSEE n'offre rien d'annuel avant 1996 sur DBnomics).
 5. **La donnée vient d'une autre source** (CoinGecko, Shiller, World Bank Pink Sheet, NY Fed, Damodaran, et les candidates : ENTSO-E, AGSI+, FAO, IMF, BIS…) **OU** est un composite mixant une source non-FRED avec du FRED → **builder Python + entrée `DATASET_REGISTRY`** dans `eco3min_updater_v2.py`. Voir §5.
 6. **La donnée est un composite pondéré / scoré** (somme pondérée, mapping en régimes, logique non réductible à `A−B` ou `A/B`) → **module autonome + hook**, modèle `score_eco3min.py`. Voir §6.
 
@@ -214,6 +215,7 @@ Quand l'un de ces points est résolu, **mettre à jour ce skill et le README**.
 - [ ] Composite en `" - "` sur des séries de **niveau** : unité FRED de chaque input relue, `input_scales` posé si elles divergent (§3.2 bis)
 - [ ] `variables` cohérent avec les colonnes produites ; `unit` renseigné
 - [ ] FRED : `series_id` vérifié (§7) ; non-FRED : `needs` correct
+- [ ] FR `custom` : `builder` présent dans le `BUILDERS` de son module, module listé dans `CUSTOM_BUILDER_MODULES`, `sources` renseigné pour la provenance, `--list` l'affiche
 - [ ] Testé en local `--no-touch` ; meta `key_stats` peuplé (pas `rows:0`)
 - [ ] Nouveau secret/clé éventuel ajouté au workflow ; cron décalé si nouveau pipeline
 - [ ] Contrat §2 respecté (la page `production-dataset` doit pouvoir consommer le fichier)

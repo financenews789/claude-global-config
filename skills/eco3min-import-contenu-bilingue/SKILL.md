@@ -264,6 +264,49 @@ Le bug du 404 vient toujours d'un nom de fichier différent — ou d'un dossier 
 - **Page outil / simulateur** (seul cas sans composant supplémentaire, le simulateur en tenant lieu) : placement normal du/des visuel(s) selon l'éditorial.
 - **Contrainte conservée dans tous les cas** : **jamais le PNG statique immédiatement adjacent au composant interactif** (doublon visuel).
 
+## Marqueur de fraîcheur `e3m-review` — OBLIGATOIRE sur toute page périssable (18/09/2026)
+
+Une page est **périssable** dès qu'un événement daté ou prévisible rendra faux un fait qu'elle
+affirme : montant ou taux « en vigueur », date d'une prochaine échéance, compte à rebours,
+calendrier millésimé, dernière observation d'une série citée dans la prose ou le hero, registre
+« Every X since Y » qu'un nouvel événement allongera, projection recalculée chaque mois. La
+quasi-totalité des pages `tool`, des calendriers, des pages vivantes et des registres le sont ;
+une étude ou un article dont les chiffres sont historiques et datés dans le texte ne l'est pas.
+
+**La décision se prend au cadrage, avec le composant et le degré bilingue, et se livre dans le
+bundle** : le `content` de chaque page périssable **commence** par le marqueur, avant le chapeau,
+dans chaque langue de la paire (une page EN et sa jumelle FR peuvent avoir des échéances
+différentes : deux marqueurs, un par page).
+
+```
+<!--e3m-review due="2026-10-15" lead="7" do="Chaque mi-mois : ajouter le dernier IPC (Insee, serie 011818264) dans ipc.obs de eco3min_smic_data() du snippet 271 ; si le cumul atteint 2 %, attendre le decret puis mettre a jour smic.* et ipc.ref_* ; reposer due sur la publication Insee suivante."-->
+```
+
+Règles :
+
+- `due` = **la date du prochain événement qui périme la page** (publication de la source,
+  décision, échéance légale), jamais une durée de confort. Aucune ancre identifiable → +6 mois,
+  et le dire au recap.
+- `lead` = le temps qu'exige le travail, pas une marge de politesse : 7 si c'est un patch de
+  snippet ; 21 par défaut ; 30 si l'action dépend d'un tiers ou impose de régénérer un hero.
+- `do` = la **spécification du travail**, lisible dans six mois par quelqu'un qui n'a pas produit
+  la page : quelle source, quelle fonction et quelles clés du snippet, quels chiffres de la
+  prose et du hero à vérifier, comment reposer `due`. Jamais « mettre à jour ».
+- Guillemets **droits** `"` uniquement ; dans `do`, aucun `"`, aucun `<`, `>`, `-->`, aucun
+  `&entity;`. Le snippet 226 ne lit que le **premier** marqueur d'une page (`preg_match`) et
+  une date invalide fait disparaître la page de l'écran admin **en silence**.
+- Un seul marqueur par page. Sur une page déjà publiée, il se pose par `eco3min/update-content`
+  en patch byte-exact devant le premier bloc, jamais par une meta : les metas `_e3m_review_*`
+  sont projetées à `save_post`, elles se lisent, elles ne s'écrivent pas.
+- Vérification après import : `_e3m_review_due` de la page porte la date du marqueur (preuve que
+  le moniteur l'a vu passer), et la page répond `200 200` avec et sans `ao_noptimize=1`.
+
+Mécanisme complet (snippet 226, metas, états `overdue`/`soon`/`ok`, écran
+`tools.php?page=e3m-review`) : `plugins-eco3min`, `references/07-code-snippets-pieges.md`.
+Traitement des échéances : projet « Eco3min Keep Content Fresh ». Ce skill ne dit qu'une chose
+qu'eux ne disent pas : **le marqueur se pose à la naissance de la page, pas quand elle est déjà
+périmée.**
+
 ## Slugs et parentage (via archi-eco3min — JAMAIS inventer un slug)
 - **EN** : slug nu, servi sous `/en/` via Polylang en mode répertoire (ex. `slug` → `/en/slug/`).
 - **FR** : slug plat à la racine (ex. `/slug-fr/`).
@@ -277,6 +320,7 @@ Média analytique non prescriptif. Pas de `should/must/buy/sell/allocate/target`
 - crée/maj le Code Snippet (OBLIGATOIRE ici) — idempotent par nom, balise `<?php` de tête retirée, scope global, activé. C'est ce snippet qui émet le JSON-LD au wp_head et monte le composant au wp_footer.
 - crée/maj les 2 pages EN/FR en `post_type=page` : `wp_insert/update_post`, langue Polylang + lien de traduction, metas RankMath (EN+FR), featured image sideloadée, parent optionnel. Le plugin n'injecte plus de JSON-LD depuis les pages (plus de champ `json_ld`).
 - hubs → rien.
+- **Page dans une seule langue (FR seule ou EN seule) : même bundle, un seul bloc dans `pages{}`.** Vérifié dans `eco3min-import.php` le 18/09/2026 (`isset($b['pages']['en']) ? … : 0`) : l'autre langue est optionnelle, `link_translations` est ignoré avec un avertissement. Le schéma ci-dessous montre les deux blocs parce que la paire est le cas courant, pas parce qu'elle est exigée. **Jamais de création par abilities MCP** (`ewpa/create-page`, `eco3min/snippet-create`, `set-metas`, `set-seo`) pour contourner : le bundle pose slug, langue, metas eco3min, SEO, image à la une et snippet en une passe, rejouable (leçon S020, 18/09/2026 : page 43487 créée par abilities, sans slug ni image, faute d'avoir ouvert le code du plugin).
 - **Metas eco3min : depuis Eco3min Import 2.3.0 (17/09/2026), le bundle DOIT porter un bloc `eco3min`** par page (`pages.en.eco3min` / `pages.fr.eco3min`) ou au niveau du bundle (`eco3min.en` / `eco3min.fr`) : `{"level": "...", "cluster": "<slug PILIER de la langue>", "sub_pilier": "<slug PAGE sous-pilier de la langue>", "parent_major": <post_id>}` (valeurs tirées d'`archi-eco3min` ; `overwrite: true` seulement pour corriger une page existante, sinon fill-only ; backups `_e3i_bak_eco3min_*`, ID sous-pilier dérivé). Sans ce bloc — et sous 2.2.1 en live, qui l'ignore — la page reste sans level, donc **invisible au conseil de maillage du mega**, qui ne traite que `pillar` / `sub_pillar` / `major_article` / `satellite` ; le rattrapage relève alors de `metas-eco3min` (sous-page « MAJ metas » ou `eco3min/set-metas`), dans l'ordre : level → cluster et sous-pilier → `parent_major`. Tenter `parent_major` avant la classification produit une erreur « satellite introuvable ».
 
 Garde-fous du plugin : Preview (dry run) / Apply, source JSON `upload → textarea → fichier serveur` (`wp-content/uploads/eco3min-import/bilingual-page.json`), idempotence (meta UID + fallback slug+langue), avertissement si un bloc `hubs` est présent.
@@ -382,6 +426,7 @@ Réponse = rien d'autre que le JSON dans un bloc de code.
 - [ ] Bundle généré 
 - [ ] Import : Preview d'abord, puis Apply (sous-page « Page bilingue », plugin Eco3min Import)
 - [ ] **Post-import prévu** : classer le level, poser cluster et sous-pilier, puis `parent_major` — sinon la page reste invisible au conseil de maillage (cf. `metas-eco3min`)
+- [ ] **Page périssable → marqueur `<!--e3m-review due lead do-->` en tête du `content` de chaque page**, `due` = prochain événement qui la périme, `do` = spécification du travail (source, snippet, fonction, clés, chiffres à vérifier) ; guillemets droits, aucun `<` `>` `"` dans `do` ; après import, `_e3m_review_due` porte la date
 
 ## Anti-patterns — ne JAMAIS faire
 - **Traduire la seconde langue par défaut, sans avoir arbitré le degré d'adaptation** — ou le trancher après l'avoir rédigée.
@@ -471,6 +516,14 @@ Dans un commentaire HTML, jamais : `<script`, `<style`, `<h1`, `<div`, `<!--`, `
 La règle « zéro commentaire » rend ce point acquis par construction — il est rappelé ici parce
 que la tentation revient à chaque page dont le JS vit dans un snippet.
 
+### La seule exception : le marqueur `<!--e3m-review … -->`
+
+Un seul commentaire est admis, et il est **obligatoire** sur une page périssable (section
+« Marqueur de fraîcheur ») : `<!--e3m-review due="…" lead="…" do="…"-->`, en tête du `content`.
+Il est sûr par construction tant que `do` ne contient aucun `<`, `>`, `"` ni `-->` : rien
+qu'Autoptimize puisse prendre pour une balise, rien que `wpautop` puisse casser. Le contrôle
+mécanique ci-dessous l'exclut explicitement ; tout autre commentaire reste bloquant.
+
 ### Où mettre la documentation à la place
 
 - Contexte de production, slug, mode de montage du composant, mécanisme retenu, degré d'adaptation
@@ -482,9 +535,13 @@ que la tentation revient à chaque page dont le JS vit dans un snippet.
 
 ```python
 import re
+REVIEW = re.compile(r'^<!--e3m-review due="\d{4}-\d{2}-\d{2}" lead="\d+" do="[^"<>]*"-->')
 for lang, html in (("EN", html_en), ("FR", html_fr)):
-    found = re.findall(r'<!--.*?-->', html, re.S)
+    found = [c for c in re.findall(r'<!--.*?-->', html, re.S) if not REVIEW.match(c)]
     assert not found, f"{lang} : {len(found)} commentaire(s) HTML — {[c[:80] for c in found[:3]]}"
+    if perissable:  # décidé au cadrage
+        assert REVIEW.match(html.lstrip()), f"{lang} : page périssable sans marqueur e3m-review en tête"
+        assert html.count('<!--e3m-review') == 1, f"{lang} : un seul marqueur par page"
 ```
 
 ### Vérification après publication — le navigateur ne valide rien
