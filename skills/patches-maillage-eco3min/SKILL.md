@@ -1,6 +1,6 @@
 ---
 name: patches-maillage-eco3min
-description: AVAL du maillage interne Eco3min — écrire les patches d'insertion de liens dans des articles publiés, une fois les cibles et les sources choisies. Pendant de maillage-orphelins-eco3min, qui traite l'amont (quelles pages mailler, combien, depuis où). Activer pour « génère les patches », « maille ce lot », « écris les insertions », ou après un export du mega ou un fichier targets manual. Porte le pipeline en six phases : exclusions structurelles, sélection byte-exacte de l'ancre, rédaction contextuelle de l'insertion, diversité à l'échelle du batch, relecture post-patch bloquante, validation programmatique. Doctrine centrale : chaque lien se lit comme une phrase que l'auteur aurait pu écrire — les enrobages-pointeurs (« voir aussi », « see also ») sont interdits sans exception. Catalogue des 8 familles de défauts F1 à F8 attestées sur 111 batches audités, dont la sur-affirmation du contenu cible et le faux-ami polysémique. Combiner avec editeur-eco3min (AMF) et archi-eco3min (URLs, langues).
+description: "AVAL du maillage interne Eco3min (eco3min.fr) : écrire les patches d'insertion de liens dans des articles publiés, une fois les cibles et les sources choisies, au format JSON du plugin (anchor_before, insert_after_anchor, 20 patches par fichier, un fichier par langue). Pendant de maillage-orphelins-eco3min (amont). Activer pour « génère les patches », « maille ce lot », « écris les insertions », « maillage entrant », « lot de patches », « conseil de maillage », « conseil_maillage_JJ_MM.json », « export du mega », « targets manual », « optimizations », « missing_links », « ancre », « enrobage », « relecture post-patch », « dry-run », « no_anchor », « non-sequitur », « F1 à F8 », « extract_anchors.py », « validate_batch.py », « ferme de liens », et dès qu'un JSON d'export est collé dans le projet C « Eco3min Cluster Builder — C. Maillage optimiser ». Structure : SKILL.md = texte complet, volontairement NON découpé (skill dense, tout sert à chaque lot : phases A à F §1 à §7, densité §5, AMF §8, skips §9, anti-patterns §10) ; pas de references/ ; gardes dans scripts/validate_batch.py (phase F depuis les fichiers du lot, contre l'export : occurrences, zone interdite, bloc hôte, doublon-cible par href exact, cross-langue, liste interdite, élisions, unicité des ancres, diversité, cap par fichier, densité en ALERTE, --selftest) ; l'extracteur vit dans le projet C (outils/extract_anchors.py, --allow-intro réservé au pilier parent). Doctrines : chaque lien se lit comme une phrase que l'auteur aurait pu écrire, les enrobages-pointeurs (« voir aussi », « see also », « détaillé dans ») sont interdits sans exception ; l'ancre est une slice byte-exacte sortie du script, jamais retapée (cause racine n°1 des rejets) ; fin de phrase valide hors fermante inline et hors abréviation, fin de bloc par défaut ; on énonce une relation avec le thème de la cible, jamais son contenu (F1, 60 à 66 % des corrections en aval) ; anaphore seulement avec antécédent dans l'ancre (F3) ; un mot commun n'est pas un pont (F4, F5) ; plafond démonstratif-sujet 20 %, au moins 5 structures ; ouverture répétée = deux premiers mots identiques dans la langue du lot, un mot répété toléré (décision du 18/09/2026) ; cap 18 par cible et par fichier ; un patch par bloc hôte et par lot ; densité = alerte, jamais un skip ; relecture E sur 100 % des patches ; validation F depuis le fichier, zéro ERREUR avant livraison. 8 familles de défauts attestées sur 111 batches audités. Hors périmètre : sélection des cibles, allocation, gate GSC (maillage-orphelins-eco3min) ; conseil T1/T2/T3 et onglet Maillage du mega (plugins-eco3min) ; liens externes. Combiner avec editeur-eco3min (AMF, style), archi-eco3min (URLs, langues, levels), plugins-eco3min, maillage-orphelins-eco3min."
 ---
 
 # Rédaction des patches de maillage Eco3min
@@ -12,7 +12,25 @@ description: AVAL du maillage interne Eco3min — écrire les patches d'insertio
 >
 > La plomberie — format du JSON d'entrée et de sortie, contrat du plugin, outil
 > d'extraction, structure du rapport — vit dans le `CLAUDE.md` du projet
-> « Eco3min Maillage Optimizer ».
+> « Eco3min Cluster Builder — C. Maillage optimiser » (dossier eco3min-projets).
+
+---
+
+## COMMENT LIRE CE SKILL (revue du 18/09/2026)
+
+Ce fichier est la colonne vertébrale **et** le texte complet : il n'a pas été
+découpé, parce que chaque lot traverse les six phases et relit le catalogue
+F1→F8 patch par patch — une référence externe serait lue à chaque fois. Ce qui
+est du code recopié d'un lot à l'autre vit dans `scripts/` ; ce qui est de la
+plomberie (formats, rapport, déploiement) vit dans le projet C.
+
+| Fichier | Contenu | À lire / exécuter |
+|---|---|---|
+| `SKILL.md` (ce fichier) | phases A→F §1 à §7, alertes §5, AMF §8, skips §9, anti-patterns §10 | à chaque lot, en entier |
+| `scripts/validate_batch.py` | phase F depuis les fichiers du lot : tous les contrôles mesurables de §1, §2.2-2.5, §3.1, §3.3, §3.5-3.7, §4, §5, §7 ; `--selftest` = tests négatifs par mutation | avant livraison, sur le dossier du lot avec `--export` ; zéro ERREUR exigé, ALERTES reportées telles quelles |
+| projet C `outils/extract_anchors.py` | l'extracteur d'ancres (phase B) ; `--allow-intro` uniquement pour un lien vers le pilier parent | avant de choisir toute ancre (§2.1) |
+| projet C `CLAUDE.md` | format d'entrée et de sortie, structure du rapport, déploiement dans le mega | en ouvrant le projet |
+| projet C `memoire.md` | arbitrages et pièges par cycle | avant de produire un lot |
 
 ## Principe directeur
 
@@ -21,7 +39,7 @@ aurait pu écrire lui-même** — contextuelle, naturelle, unique. Jamais comme 
 ajout automatique.
 
 L'audit humain de **111 batches** en aval a documenté **huit familles de défauts
-récurrents** (§7). L'objectif est de n'en émettre aucune.
+récurrents** (§6.3). L'objectif est de n'en émettre aucune.
 
 **Posture** : précis et conservateur. Doute d'adjacence → réparer et garder.
 Faux-ami ou cross-domaine évident → skip franc. Tout est tracé au rapport.
@@ -54,6 +72,11 @@ emplacement.
    les seuls blocs pertinents sont des encarts stylés `eco3-*`, des CTA, des
    cartes de hub ou des grilles de navigation → skip `structure-atypique` ou
    `no_anchor`.
+6. **Ferme de liens** — quand une même source doit lier **plus de 5 MAJEURS**
+   (typiquement un sous-pilier vers ses guides), la prose ne peut pas les porter :
+   c'est un bloc de navigation (`eco3-cluster-nav` ou édition manuelle), pas des
+   patches → skip `nav-block`. Apprentissage du 15/09/2026 : 26 liens refusés en
+   bloc sur 22483 / 22484, sources de ~1 100 mots à un seul candidat d'ancre.
 
 **On ne patche jamais** un encart, un couplet mythe→réfutation, ni un bloc de
 documentation.
@@ -74,6 +97,11 @@ contenu. Le script applique par code toutes les gates ci-dessous et retourne des
 **Une ancre qui ne sort pas du script ne part pas dans un patch.** La cause
 racine n°1 des rejets est l'ancre retapée. Une source qui ne rend aucun candidat
 est un skip, pas une invitation à chercher à la main.
+
+L'extracteur est `outils/extract_anchors.py` du projet C (les deux formats d'export
+sont acceptés). Son option `--allow-intro` lève l'exclusion des 2 premiers
+paragraphes : réservée au lien vers le **pilier parent** (§2.5.5), jamais à une
+autre cible (revue du 18/09/2026).
 
 ### 2.2 Règles dimensionnelles
 
@@ -134,6 +162,17 @@ Trois gardes :
    la même micro-explication (liste, énumération annoncée, couplet rhétorique,
    règle + exception, définition + anaphore), ne pas couper : choisir une autre
    fin de phrase ou un autre bloc.
+7. **Un seul patch par bloc hôte et par lot** — deux patches du même lot dans le
+   même paragraphe recréent, une fois appliqués, l'empilement que le point 4
+   interdit. Vérifié par `scripts/validate_batch.py` (décision du 18/09/2026,
+   0 violation sur le lot du 15/09).
+8. **Distance de bloc quand la source lie déjà une page voisine de la cible**
+   (l'enfant, le jumeau, le parent) — la distinction d'ancre ne suffit pas : le
+   bloc hôte doit être éloigné du bloc qui porte le lien existant, et le pivot
+   différent. Deux liens voisins sur le même signal vers deux cibles différentes
+   se lisent comme une génération automatique. Apprentissage du 03/09/2026
+   (raffineries : candidat bloc11 écarté au profit du bloc4, ~800 caractères plus
+   haut).
 
 ---
 
@@ -251,6 +290,11 @@ antécédent. C'est le défaut F3.
   c'est **pire** qu'un enrobage raté. Aucune ancre honnête possible → skip.
 - Si le seul lien pertinent est un titre-concept, un **nom de cadrage**
   l'introduit (« l'article sur… », « l'étude de… », « l'analyse de… »).
+- **Aucun compte dans l'ancre quand le bloc hôte en énonce un autre.** Une ancre
+  « Argentina's four redenominations » sous un paragraphe qui écrit « cinq
+  redénominations successives » est visible pour le lecteur et fausse pour l'un
+  des deux. Reformuler sans le nombre, ou aligner sur le bloc hôte après
+  vérification. Apprentissage du 03/09/2026.
 
 ### 3.7 Diversité d'ouverture — le durcissement anti-démonstratif
 
@@ -305,11 +349,23 @@ Trois contraintes simultanées, mesurables, vérifiées par code.
 2. **Diversité structurelle des enrobages** — zéro ouverture de phrase répétée
    dans la langue, zéro squelette syntaxique identique sur deux patches
    consécutifs, verbes de relation variés.
+   **Mesure de l'« ouverture répétée » (décision du 18/09/2026)** : les **deux
+   premiers mots** du texte visible de l'insertion, casse et ponctuation
+   ignorées. Un premier mot répété est toléré (« The », « A », « Une ») ; deux
+   premiers mots identiques sur deux insertions de la même langue du lot
+   bloquent (« see also », « in the same », « whether a » ×3 sur le lot du
+   15/09 auraient été réécrits). C'est ce que vérifie `scripts/validate_batch.py`.
 3. **Pivot croisé** — le mot-pivot de l'enrobage diffère du mot-pivot du texte
    d'ancre dans la même insertion. Pas « la mécanique… dans [la mécanique de…] ».
+4. **Symétrie FR/EN sur pages jumelles** — quand la source et la cible existent
+   dans les deux langues, chaque patch FR a son miroir EN sur la page jumelle :
+   même bloc hôte, même pont, ancres miroir **jamais traduites mot à mot** (chaque
+   langue reçoit une ancre native, §3.6). Une asymétrie est assumée et annoncée au
+   rapport, jamais silencieuse (MMT FR/EN le 03/09/2026). Pratique constante
+   depuis le 03/09/2026, cluster Crisis Hub du 15/09 en référence.
 
-**Limite volumétrique** : 18 patches maximum vers une même URL cible par batch,
-anti-explosion de fichier. Aucun plafond sur les liens entrants d'une cible par
+**Limite volumétrique** : 18 patches maximum vers une même URL cible **par fichier**
+(décision du 18/09/2026 : un lot peut en livrer davantage, répartis sur plusieurs fichiers — 30 vers 7547 le 15/09 à ≤ 9 par fichier), anti-explosion de fichier. Aucun plafond sur les liens entrants d'une cible par
 ailleurs — un MAJEUR central peut légitimement recevoir 20 liens ou plus si les
 ancres sont distinctes.
 
@@ -425,6 +481,15 @@ répétée · zéro squelette consécutif.
 Un patch qui échoue est corrigé ou skippé — **jamais livré**. La vérification
 mentale est un premier filtre, jamais la garantie.
 
+**Ces contrôles sont implémentés dans `scripts/validate_batch.py`** (revue du
+18/09/2026) : l'exécuter sur le dossier du lot avec `--export` pointant sur
+l'export du mega, ne livrer qu'à **zéro ERREUR**, reporter les ALERTES telles
+quelles. Sans `--export`, le script le dit : la validation est incomplète. Après
+toute modification du script, relancer `--selftest`. Le mega, lui, ne vérifie que
+longueur, absence de balise, présence d'un `<a href`, `expected_occurrences` et
+`mb_substr_count` = 1 : tout le reste repose sur ce script. Le snippet ci-dessous
+est l'ancêtre du script, conservé pour mémoire ; le script fait foi.
+
 ```python
 import re
 opens = [re.sub(r'<[^>]+>', '', p['insert_after_anchor']).strip() for p in patches]
@@ -459,7 +524,7 @@ Chaque skip est tracé au rapport avec sa raison.
 `no_anchor` (aucune phrase 80-200 unique, propre et pertinente extractible) ·
 `entity-encoded` (structurel, récupérable) · `structure-atypique` ·
 `non-sequitur` (hors-sujet, faux-ami F4 ou classe F5 confirmés en relecture) ·
-`self-link` · `doublon-cible` · `over-target-cap` (18 par cible atteint) ·
+`self-link` · `doublon-cible` · `over-target-cap` (18 par cible atteint) · `nav-block` (plus de 5 MAJEURS depuis une même source, §1.6) ·
 cross-langue · AMF non reformulable · impossibilité d'ancre distincte sur cible
 saturée.
 
@@ -502,4 +567,4 @@ saturée.
 
 Le format du JSON d'entrée et de sortie, le contrat du plugin, l'extracteur
 d'ancres et la structure du rapport vivent dans le `CLAUDE.md` du projet
-« Eco3min Maillage Optimizer ».
+« Eco3min Cluster Builder — C. Maillage optimiser » (dossier eco3min-projets).

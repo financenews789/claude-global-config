@@ -122,7 +122,7 @@ Règles dures (rejet immédiat par l'onglet Maillage du mega) :
 - `expected_occurrences` **toujours = 1** ; `anchor_before` **80-200 chars**, plain text, sans balise HTML, **exactement 1 occurrence** dans le `post_content`, hors zone interdite (attribut, `<script>`, `<style>`, commentaire, shortcode, JSON-LD).
 - `insert_after_anchor` porte un `<a href>` complet en URL absolue ; un FR ne pointe **jamais** vers `/en/`.
 
-Règles soft (cap 18 patches/cible, 12 liens max par article, 3 max vers le même cluster, 1 par paragraphe, aucun dans les 2 premiers paragraphes sauf pillar parent) et variation des ancres : dans la référence 04. La rédaction des patches elle-même relève de `patches-maillage-eco3min`.
+Règles soft de la référence 04 : **supplantées le 18/09/2026** par `patches-maillage-eco3min` pour tout ce qui touche la densité — le gate paragraphe gradué §2.5.3 (≤ 2 liens existants, 3 si ≥ 80 mots) remplace « 1 par paragraphe », et §5 (densité relative par famille, alerte jamais skip) remplace « 12 liens max par article » et « 3 max vers le même cluster » ; restent valides : cap 18 patches/cible **par fichier**, aucun lien dans les 2 premiers paragraphes sauf pillar parent, variation des ancres. La rédaction des patches elle-même relève de `patches-maillage-eco3min`.
 
 ---
 

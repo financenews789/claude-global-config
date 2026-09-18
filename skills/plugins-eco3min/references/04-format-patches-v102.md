@@ -34,6 +34,7 @@ L'onglet 🔗 Maillage du mega (`class-eco3min-mega-tab-4-maillage.php`, hériti
 - Cohérence linguistique stricte : un FR ne pointe **jamais** vers `/en/`.
 
 **Règles soft** (Claude doit respecter, sinon le patch est sous-optimal) :
+> Note du 18/09/2026 : les trois premières (12 liens par article, 3 par cluster, 1 par paragraphe) datent du plugin Maillage Cluster et sont **supplantées** par `patches-maillage-eco3min` — §2.5.3 gate paragraphe gradué (≤ 2 liens existants dans le bloc hôte, 3 tolérés si ≥ 80 mots) et §5 densité relative par famille (alerte au rapport, jamais un skip). Conservées ici verbatim pour l'historique ; en cas de conflit, le skill de rédaction fait foi. Le cap 18 est par fichier (décision du 18/09/2026).
 - 12 liens internes max par article après ajout.
 - 3 liens max vers le même cluster dans un article.
 - 1 lien par paragraphe max.
