@@ -46,7 +46,7 @@ Schéma (schema_version courant) :
 - snippet : { name (= « Eco3min — <sujet> »), description, scope: "global", shortcode: "[eco3min_chart_xxx]", code }
   → code = le contenu du snippet PHP SANS la balise <?php de tête (Code Snippets l'ajoute lui-même pour le type « php »). Par défaut le snippet est en SVG/JS vanilla sans dépendance (cf. ÉTAPE 4). Si, par dérogation à l'ÉTAPE 4, une bibliothèque externe est utilisée (Chart.js, etc.), elle DOIT être chargée depuis un CDN autorisé par la Content-Security-Policy du site : cdn.jsdelivr.net ou unpkg.com — JAMAIS cdnjs.cloudflare.com (bloqué par la CSP : le graphe ne se rend pas, "Chart is not defined" — bug observé cycle 11).
 - pages : { en: {...}, fr: {...} } — chacune :
-  - lang ("en"/"fr"), post_type ("page"), status ("draft" par défaut)
+  - lang ("en"/"fr"), post_type ("page"), status ("publish" — publication directe depuis le 19/09/2026 ; le plugin met "draft" si le champ manque)
   - slug : EN = slug nu servi sous /en/ via Polylang (mode répertoire) ; FR = slug plat à la racine
   - title (= H1 / post_title), content : HTML **classique** complet de l'article, PNG statique inséré AU MILIEU. **ZÉRO commentaire HTML, zéro `<script>`, zéro `ld+json` inline.**
     ⚠️ « Zéro commentaire HTML » inclut les **délimiteurs Gutenberg** `<!-- wp:html -->`. Le `content` part en HTML classique ; les shortcodes s'exécutent exactement pareil. Règle figée août 2026 après l'incident Autoptimize du 27/08 : 8 pages servies en HTTP 500, invisibles pour Google, corps affiché normalement dans le navigateur. Panne silencieuse. Vaut aussi pour les commentaires en tête des cartes hub. Détail dans `eco3min-import-contenu-bilingue`.

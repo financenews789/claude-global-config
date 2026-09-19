@@ -93,7 +93,8 @@ Extrait de SKILL.md (découpage du 15/09/2026), **réécrit le 15/09/2026** : le
    (FR / EN / les deux) → "Generer le conseil" → totaux par tier T1/T2/T3 →
    textarea "JSON de conseil — pour « Maillage Optimizer »" (optimizations[]).
 4. Projet C (NEW CHAT) ← ce JSON → patches-{cluster}-{n}.json.
-5. Mega → Maillage → import patches → dry run → apply.
+5. Import des patches : tools/wp_push.py <fichier> puis ability eco3min/mega-patches
+   {file, dry_run:true} puis dry_run:false (SKILL.md §5 étape 8) ; repli onglet Maillage.
 6. Re-scan. Boucler jusqu'à T1 = T2 = T3 = 0.
 ```
 

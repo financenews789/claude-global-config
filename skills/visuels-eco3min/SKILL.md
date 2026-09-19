@@ -178,6 +178,8 @@ Avant chaque publication, poser ces questions :
 - Le visuel **survit-il à un repartage hors contexte** (capture sur X, AI Overview) avec sourcing et attribution intacts ?
 - Le visuel est-il **distinctif** ? Si un lecteur aurait pu trouver exactement le même graphique dans la presse généraliste, il n'apporte rien à Eco3min.
 
+**Validation par Paul, bloquante (19/09/2026).** Tout visuel destiné au site (hero, chart, image sociale) est montré à Paul (SendUserFile, PNG final ; plus le preview feed pour un Chart of the Week) et **rien n'est poussé sur le site sans son OK explicite** — ni `wp_push.py`, ni asset en médiathèque, ni bundle. L'OK vaut pour ce rendu exact : une retouche ultérieure remet la validation à zéro. Rendu et push ne s'enchaînent jamais dans le même tour.
+
 ---
 
 ## 10. Checklist pré-publication
@@ -240,6 +242,7 @@ Avant chaque publication, poser ces questions :
 - [ ] Sources bas-gauche, signature `Eco3min Research` bas-droite, zéro cadratin dans le visuel
 - [ ] `mpl_guards.run_guards` (ou `chart_guards` sur un cycle Chart of the Week) passé avant `savefig`
 - [ ] `brand_tokens.check_source` passé sur le script ou le SVG
+- [ ] PNG final montré à Paul, OK explicite reçu avant tout push sur le site
 
 ---
 

@@ -109,7 +109,7 @@ Bloquant, dans cet ordre (détail pas à pas, signaux des projets, temps par ét
 5. **Mega → Scan** → « Lancer un scan complet » jusqu'à disparition du bandeau rouge « index de maillage obsolète ».
 6. **Mega → Maillage → « Format AVEC HTML — manuel »** sur les post_id sources du signal « C » → export « targets manual ». En import batch, le mega ne génère pas ce fichier tout seul.
 7. **Projet C Maillage optimiser** (`— C. Maillage optimiser`, NEW CHAT) ← cet export (ou le JSON de l'onglet Conseil) → `outils/extract_anchors.py` → `patches-{cluster}-00N.json` au format v1.0.2.
-8. **Mega → Maillage → Import patches** : drag & drop → Sélectionner → dry run → « ✅ Appliquer » (progress bar post par post, reprise possible 1 h).
+8. **Import des patches, par Claude (19/09/2026, `eco3min-mcp` ≥ 1.3.1)** : `py -3.14 eco3min-projets/tools/wp_push.py <lot>/patches-{cluster}-00N.json` (un appel par fichier ; cible `mega` déduite de la clé `patches`, dépôt dans `uploads/eco3min-mega/imports/` sous son nom) → ability `eco3min/mega-patches` `{"file": "patches-…-00N.json", "dry_run": true}` → lire `errors`, `skipped_details`, `failed_details` → `dry_run: false`. Même code que l'onglet (`Eco3min_Mega_Importer_Patches::import()`, journal `e3m_imports_log`, hook, `.applied`, scan marqué dirty) ; le fichier ne transite jamais par le MCP. Repli : Mega → Maillage → Import patches, drag & drop → Sélectionner → dry run → « ✅ Appliquer » (progress bar post par post, reprise possible 1 h).
 9. **Re-scan**, puis Diagnostic + Conseil. Sous mega ≥ 1.0.15 les satellites arrivent déjà en `satellite` avec leur `parent_major` (rien à classifier) ; sous 1.0.14 ils arrivent en `uncategorized` et se classifient après (Tinder, Cleanup `level`, Level Setter, `set-metas`).
 
 Les projets claude.ai (Knowledge, custom instructions, UUID), les onglets « Export LIGHT / Format B », les scopes `new_posts` / `cluster:` / `all`, le mode chunked ZIP par tier et le Level Classifier **n'existent plus** : ne jamais les proposer.
@@ -129,7 +129,7 @@ Règles soft de la référence 04 : **supplantées le 18/09/2026** par `patches-
 ## 8. Règles d'opération non négociables
 
 1. **Re-scan mega obligatoire entre chaque import** (cluster ou patches). Sinon `e3m_links` stagne et le conseil remontera les mêmes missing_links. Le mega le signale par un bandeau rouge persistant (dirty flag) : tant qu'il est affiché, ni conseil ni export ne sont fiables.
-2. **Ne jamais ré-importer un `patches-{cluster}-{n}.json` déjà appliqué** : le mega l'archive automatiquement en `.applied` après apply et dédoublonne par hash SHA256 (`e3m_patches_log`).
+2. **Ne jamais ré-importer un `patches-{cluster}-{n}.json` déjà appliqué** : le mega l'archive automatiquement en `.applied` après apply et dédoublonne par hash SHA256 (`e3m_patches_log`). `eco3min/mega-patches` répond « déjà appliqué : .applied présent » sur un nom archivé ; un re-push du même nom avant apply remplace le fichier en attente.
 3. **New chat Claude obligatoire entre 2 batches**. Ne jamais réutiliser une conversation pour 2 batches successifs (risque de contamination des règles ancres entre batches).
 4. **Toujours lire `source_post_content` avant de générer une `anchor_before`**. La phrase doit exister exactement 1 fois dans le contenu.
 5. **Ne jamais inventer un `target_url` ou `target_post_id`** qui ne sont pas dans le JSON reçu.

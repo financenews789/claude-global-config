@@ -557,6 +557,10 @@ saturée.
 
 ---
 
+## Livraison et application
+
+Un lot livré = fichiers `patches-{cluster}-00N.json` à zéro ERREUR de phase F. L'application est faite par Claude, fichier par fichier : `py -3.14 eco3min-projets/tools/wp_push.py <fichier>` puis ability `eco3min/mega-patches` `{file, dry_run: true}` → lecture des `skipped_details` / `failed_details` (un skip `no_anchor` renvoie à §1 : ancre retapée) → `dry_run: false`. Procédure et repli wp-admin dans `plugins-eco3min` §5 étape 8 ; re-scan mega ensuite, obligatoire.
+
 ## Articulation
 
 - `maillage-orphelins-eco3min` — **l'amont** : quelles cibles, combien de liens,

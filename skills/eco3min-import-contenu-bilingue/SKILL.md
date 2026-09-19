@@ -1,6 +1,6 @@
 ---
 name: eco3min-import-contenu-bilingue
-description: "Assemblage + IMPORT d'une paire de PAGES WordPress bilingues (EN+FR) via le plugin Eco3min Import (Page bilingue), puis le bundle JSON. Fond délégué aux skills de contenu (research-study, dataset, q-and-a, every-x-record). Active pour produire les 2 pages, audit bloquant si chiffres, metas, snippet et composant interactif. RÈGLES FIGÉES : la seconde langue n'est JAMAIS une traduction par défaut — miroir, adaptation légère ou forte, tranché et annoncé AVANT de rédiger, faits communs identiques au chiffre près ; composant interactif OBLIGATOIRE sur chaque paire (sauf page outil/simulateur), barre de qualité en 4 tests, décidé AVANT rédaction ; snippet OBLIGATOIRE portant JSON-LD des 2 pages en base64 + composant, guardé par slug, jamais dans le HTML ni un champ json_ld ; metas RankMath en EN ET FR ; import en PAGE (jamais post), aucun hub ; zéro commentaire HTML ; assets en uploads/AAAA/MM du mois EN COURS. Combiner avec archi-, editeur-, visuels- et formats-eco3min."
+description: "Assemblage + IMPORT d'une paire de PAGES WordPress bilingues (EN+FR) via le plugin Eco3min Import (Page bilingue), puis le bundle JSON, poussé et exécuté à distance par tools/wp_push.py + ability eco3min/import-bundle (19/09/2026 : publication directe, dry_run obligatoire, le bundle ne transite jamais par le MCP). Fond délégué aux skills de contenu (research-study, dataset, q-and-a, every-x-record). Active pour produire les 2 pages, audit bloquant si chiffres, metas, snippet et composant interactif. RÈGLES FIGÉES : la seconde langue n'est JAMAIS une traduction par défaut — miroir, adaptation légère ou forte, tranché et annoncé AVANT de rédiger, faits communs identiques au chiffre près ; composant interactif OBLIGATOIRE sur chaque paire (sauf page outil/simulateur), barre de qualité en 4 tests, décidé AVANT rédaction ; snippet OBLIGATOIRE portant JSON-LD des 2 pages en base64 + composant, guardé par slug, jamais dans le HTML ni un champ json_ld ; metas RankMath en EN ET FR ; import en PAGE (jamais post), aucun hub ; zéro commentaire HTML ; assets en uploads/AAAA/MM du mois EN COURS. Combiner avec archi-, editeur-, visuels- et formats-eco3min."
 ---
 
 # Eco3min — Import contenu bilingue (paire de PAGES EN + FR)
@@ -337,6 +337,21 @@ Média analytique non prescriptif. Pas de `should/must/buy/sell/allocate/target`
 
 Garde-fous du plugin : Preview (dry run) / Apply, source JSON `upload → textarea → fichier serveur` (`wp-content/uploads/eco3min-import/bilingual-page.json`), idempotence (meta UID + fallback slug+langue), avertissement si un bloc `hubs` est présent.
 
+## Import à distance — `wp_push.py` + `eco3min/import-bundle` (19/09/2026, voie par défaut)
+Depuis `eco3min-mcp` 1.3.0 l'import ne passe plus par wp-admin. Quatre appels, dans cet ordre, **tous exécutés par Claude** ; Paul ne fait que vérifier la page en ligne à la fin :
+
+0. **OK de Paul sur chaque visuel** (hero, chart) montré par SendUserFile — bloquant, règle de `visuels-eco3min` §9 ; sans cet OK, aucun des appels suivants.
+1. `py -3.14 eco3min-projets/tools/wp_push.py <dossier>/import.json <PNG> <CSV…> --check` — gardes locales (JSON valide ; chaque asset référencé dans le bundle sous `uploads/AAAA/MM/` du mois courant ; aucun nom de base d'asset égal à un slug de page) puis contrôle serveur des collisions de nom en médiathèque, **rien n'est écrit**. Une collision = renommer l'asset ET son URL dans le bundle, jamais laisser WordPress suffixer.
+2. Même commande sans `--check` — bundle déposé dans `uploads/eco3min-import/<name>.json` (`name` déduit de l'`import_type` : `bilingual-page`), assets enregistrés en médiathèque dans `uploads/AAAA/MM/` du mois courant. Le rapport donne l'URL réelle de chaque asset : elle doit être identique à celle du bundle.
+3. Ability `eco3min/import-bundle` `{"mode": "bilingual", "dry_run": true}` — lire le log du plugin (`errors` doit valoir 0 ; le `[dry] CRÉATION` doit porter le slug prévu, un `MAJ` inattendu signale une collision d'UID ou de slug).
+4. `{"mode": "bilingual", "dry_run": false}` — `pages[]` renvoie post_id, slug réel, statut, URL, id de l'image à la une. Le bundle est archivé côté serveur. Donner les URL à Paul pour vérification visuelle, puis enchaîner le post-import (backlog, assets_sync, metas).
+
+Règles :
+- **Le bundle ne transite jamais par le MCP** (40-60 Ko = 12-20k tokens de sortie déjà dépensés pour l'écrire) : `import-bundle` ne prend qu'un nom de fichier. Jamais de `content` inline dans une ability, jamais `ewpa/create-page` / `eco3min/create-pair` pour une page produite par un skill de contenu.
+- **`status: "publish"` dans le bundle** (décision du 19/09/2026 : publication directe, Paul vérifie la page en ligne ; le plugin met `draft` si le champ manque). Le `dry_run` de l'étape 3 reste obligatoire — c'est la seule garde avant que la page soit servie et dans le sitemap.
+- Identifiants dans `~/.config/eco3min/wp_push.env` (hors git). Route absente (404) ou 401 = plugin `eco3min-mcp` < 1.3.0 ou mot de passe d'application invalide : le dire à Paul, ne pas contourner.
+- Repli si la route est indisponible : la sous-page wp-admin « Page bilingue » (Preview puis Apply) — c'est le même code, `e3i_run_bilingual()`.
+
 ## Schéma du bundle JSON
 Réponse = rien d'autre que le JSON dans un bloc de code.
 
@@ -359,7 +374,7 @@ Réponse = rien d'autre que le JSON dans un bloc de code.
     "en": {
       "lang": "en",
       "post_type": "page",
-      "status": "draft",
+      "status": "publish",                // publication directe (19/09/2026) ; "draft" seulement sur demande explicite
       "slug": "slug-en",                  // servi sous /en/ via Polylang
       "parent_slug": null,                // OPTIONNEL : slug d'une page parente existante
       "title": "H1 / post_title EN",
@@ -381,7 +396,7 @@ Réponse = rien d'autre que le JSON dans un bloc de code.
     "fr": {
       "lang": "fr",
       "post_type": "page",
-      "status": "draft",
+      "status": "publish",
       "slug": "slug-fr",                  // plat à la racine ; mot-clé natif, pas la traduction du slug EN
       "parent_slug": null,
       "title": "H1 / post_title FR",
@@ -423,7 +438,7 @@ Réponse = rien d'autre que le JSON dans un bloc de code.
 - [ ] Audit `fact_check_audit.md` livré, zéro 🔴 résiduel (si la page a des chiffres) ; **les séries du composant y figurent** ; en adaptation forte, les données propres à la 2e version ont leur section d'audit
 - [ ] Seconde page produite au degré retenu ; faits communs identiques au chiffre près ; aucun chiffre « équivalent » fabriqué
 - [ ] Slugs distincts, chacun sur le mot-clé natif de sa langue
-- [ ] **Aucun slug de page n'est le nom de base d'un asset** ; bundle importé AVANT l'upload du CSV et du XLSX ; après import, vérifier qu'aucun slug ne porte de suffixe numérique — et si un suffixe est apparu malgré tout, relire le `canonical_url` RankMath : il porte le slug PRÉVU, donc pointe vers une URL qui redirige (vers la page elle-même, ou vers l'accueil), et RankMath sort la page du sitemap ; 3 pages trouvées ainsi le 19/09/2026 (39572, 42654, 42646), corrigées par `eco3min/set-seo canonical_url` = URL réelle, puis un « Mettre à jour » wp-admin pour régénérer le sitemap
+- [ ] **Aucun slug de page n'est le nom de base d'un asset** (garde locale de `wp_push.py`, bloquante) ; en voie wp-admin, bundle importé AVANT l'upload du CSV et du XLSX ; après import, vérifier qu'aucun slug ne porte de suffixe numérique — et si un suffixe est apparu malgré tout, relire le `canonical_url` RankMath : il porte le slug PRÉVU, donc pointe vers une URL qui redirige (vers la page elle-même, ou vers l'accueil), et RankMath sort la page du sitemap ; 3 pages trouvées ainsi le 19/09/2026 (39572, 42654, 42646), corrigées par `eco3min/set-seo canonical_url` = URL réelle, puis un « Mettre à jour » wp-admin pour régénérer le sitemap
 - [ ] Snippet OBLIGATOIRE : JSON-LD EN+FR (base64), hook wp_head guardé par slug, code sans `<?php`, nom unique ; composant interactif porté par le même snippet (wp_footer guardé = défaut / shortcode si placement Gutenberg) ; round-trip base64 vérifié ; `node --check` sur le JS
 - [ ] Composant : `<div>` placeholder présent dans les DEUX pages (mode wp_footer) ; libellés et données localisés, zéro chaîne EN résiduelle côté FR ; libs jsdelivr/unpkg ; couleurs et typo `brand-kit-eco3min` ; état par défaut porteur de sens ; au moins un chiffre pivot vérifié identique à la page, l'audit et le CSV
 - [ ] **Rendu du composant vérifié sur l'aperçu, pas déduit du DOM** : styles calculés des éléments porteurs de l'encodage visuel non transparents, variables CSS résolues sur chaque racine montée (panneau ET composant), capture desktop + 375 px si l'outil le permet
@@ -437,7 +452,8 @@ Réponse = rien d'autre que le JSON dans un bloc de code.
 - [ ] AMF : pas de prescription, pas d'allocation chiffrée, pas de trajectoire unique certaine (EN + FR + texte FAQPage + libellés du composant)
 - [ ] `import_type: "bilingual_page"`, `post_type: "page"`, pas de bloc `hubs`
 - [ ] Bundle généré 
-- [ ] Import : Preview d'abord, puis Apply (sous-page « Page bilingue », plugin Eco3min Import)
+- [ ] Visuels (hero, chart) montrés à Paul, OK explicite reçu AVANT le premier `wp_push.py`
+- [ ] Import : `wp_push.py … --check` → `wp_push.py …` → `eco3min/import-bundle` dry_run → apply (section « Import à distance ») ; `status: "publish"` dans le bundle ; URL des pages données à Paul pour vérification
 - [ ] **Post-import prévu** : classer le level, poser cluster et sous-pilier, puis `parent_major` — sinon la page reste invisible au conseil de maillage (cf. `metas-eco3min`)
 - [ ] **Post-import, liens vers uploads/ vérifiés par l'index (19/09/2026)** : `py -3.14 eco3min-projets/tools/assets_sync.py` puis `grep http_404 context/assets-inventaire.csv | grep -E '(,|;)<post_id>(;|,)'` doit être vide pour les deux post_id de la paire. Attrape le fichier que WordPress a renommé avec un suffixe (`-1`, `-4`…) parce que le nom était déjà pris, et le `-v2` jamais uploadé — dans les deux cas l'URL écrite dans la page et le JSON-LD est morte (incident crack spread, 404 du 12/07 au 19/09/2026). Si le fichier est un dataset pipeline, le lien doit viser `/dataset/…`, jamais une copie dans uploads/.
 - [ ] **Page périssable → marqueur `<!--e3m-review due lead do-->` en tête du `content` de chaque page**, `due` = prochain événement qui la périme, `do` = spécification du travail (source, snippet, fonction, clés, chiffres à vérifier) ; guillemets droits, aucun `<` `>` `"` dans `do` ; après import, `_e3m_review_due` porte la date

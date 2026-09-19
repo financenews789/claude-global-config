@@ -106,6 +106,7 @@ Bloquant :
 - TEST FEED 375 px (17/09/2026, bloquant avant livraison du PNG) : après `savefig`, `feed_preview(out)` écrit `*_feed375.png` et `*_feed375_x3.png` ; on LIT le `_x3` (c'est ce qu'un téléphone affiche) et on répond par écrit à trois questions : (F1) le titre se lit ; (F2) la forme de la donnée se lit sans un seul label, et elle dit la même chose que le titre ; (F3) les deux pôles du récit se distinguent l'un de l'autre et du peloton. Q2 et Q3 se jugent sur ce preview, jamais sur le PNG 1920. Ce qui ne se lit pas dans le feed, et n'a pas à s'y lire : labels de valeurs, killer phrase, sources, badge d'unité ; aucun de ces éléments ne peut donc être le porteur de Q1, Q2 ou Q3. Un F en échec = on retouche le chart (contraste, épaisseur, cadrage temporel qui met le retournement au centre, hero visuel plus grand), pas le titre. `feed_metrics` donne les deux nombres à citer : hauteur de capitale du titre au feed (≥ 8 px indicatif) et part du canvas occupée par la zone de tracé (≥ 0,35 indicatif).
 - Ce qui convertit la vue en upvote, c'est la forme : le titre et le sujet font les vues, le chart fait l'upvote. Cycle 15 : payoff visuel minuscule à l'extrême droite du plot, 0,25 % ; cycle 18 : 20 barres quasi identiques en 4 panneaux, 0,12 % ; cycle 19 : slope à décoder, 0,06 % ; cycle 20 : 137 colonnes lues comme une texture, 0,18 %. Le retournement, le croisement ou l'écart qui EST le sujet se place au centre du visuel (cadrage temporel, série d'écart qui franchit zéro), pas au bord.
 - Mécanisme sur l'image quand la métrique en a un : monnaie convertie (« converted to USD at market rates »), moyenne ou médiane et sens du biais, net ou brut, par tête ou total. Le sous-titre ou la ligne de méthode le porte en toutes lettres ; une colonne intitulée « USD » n'a pas suffi au cycle 21 (« a Big Mac is literally double that in NZ »).
+- VALIDATION VISUELLE PAR PAUL (19/09/2026, bloquant) : le PNG 1920×1080 et son `_feed375_x3.png` sont montrés à Paul (SendUserFile) et **rien n'est poussé sur le site tant qu'il n'a pas dit OK** — ni `wp_push.py`, ni asset, ni bundle. Un « OK » vaut pour ce rendu exact : toute retouche du PNG après coup remet la validation à zéro. Ne jamais enchaîner rendu → push dans le même souffle.
 - ANCRE FAMILIÈRE : objet à hedonic faible, dans le chart et le top comment, JAMAIS dans le titre ; pas de rejeu du même objet avant 4-6 semaines.
 - KILLER PHRASE (4-BIS) : ≤25 mots, arbitrage concret recalculable, jamais le multiple exact, terracotta pour l'accent, habillage léger, valeurs assertées contre le CSV avant `savefig`, auditée dans `fact_check_audit.md`. Aucune si la donnée ne la permet pas.
 
@@ -145,6 +146,7 @@ Bloquant :
 - Écrit par un `build_bundle.py` versionné qui appelle `scripts/bundle_check.py` et refuse d'écrire si une assertion casse : identité PNG et CSV entre src, og_image, json_ld.image, featured_image, contentUrl (par page si un PNG par langue) ; `post_type` page ; hubs 12664 EN / 12662 FR ; SEO title ≤60, description 150-160 ; snippet sans `<?php` ni cdnjs ; zéro commentaire HTML (délimiteurs Gutenberg compris), zéro `<script>`, zéro `ld+json` dans le `content` ; PNG statique non adjacent au shortcode ; `<div>` équilibrés ; aucune mention de statut réglementaire ; lang-note sur la carte EN seulement ; `card_html` verbatim de `hub-card-etude`, media sur une ligne ; chiffres des cartes identiques à l'audit ; jetons périmés absents de la sérialisation complète ; zéro em-dash.
 - URLs d'assets en `uploads/AAAA/MM/` du mois COURANT, pris sur l'horloge.
 - Divergence non tranchée : `json_ld` reste dans les pages ; vérifier au Preview qu'il n'y a qu'un seul bloc JSON-LD dans le `<head>`.
+- Import (19/09/2026), **après le OK explicite de Paul sur le PNG (ÉTAPE 3)** : `py -3.14 eco3min-projets/tools/wp_push.py chart_of_the_week.json cycle{N}_chart_desktop_16x9.png <CSV> --check`, puis sans `--check` (nom serveur `chart-of-the-week`, déduit du bloc `hubs`), puis ability `eco3min/import-bundle` `{"mode": "cotw", "dry_run": true}` et enfin `dry_run: false` — le mode `cotw` fait les cartes de hub et le compteur, donc pas de passe `hub-card-etude` séparée. `status: "publish"` dans les deux pages. Procédure et règles : `eco3min-import-contenu-bilingue`, section « Import à distance ».
 
 
 ANTI-PATTERNS — ne JAMAIS faire
@@ -258,6 +260,7 @@ Sur le bundle JSON et le nommage des fichiers (NOUVEAU)
 - Faire commencer le code du snippet du bundle par <?php (Code Snippets l'ajoute lui-même pour le type « php »)
 - Charger une lib externe du snippet depuis cdnjs.cloudflare.com (bloqué par la CSP) — utiliser cdn.jsdelivr.net ou unpkg.com
 - Produire le bundle JSON spontanément — il n'est généré que sur la commande explicite « donne moi le json »
+- Pousser le PNG ou le bundle sur le site sans le OK explicite de Paul sur le rendu du PNG
 
 
 À cocher mentalement (ou littéralement dans un fichier) avant T-1h :
@@ -312,6 +315,7 @@ Chart
 - [ ] Sources line en bas gauche avec sources primaires nommées
 - [ ] Type de chart différent des 3 cycles précédents (cf. ÉTAPE 3-BIS — règle de diversité secondaire)
 - [ ] Les quatre assertions matplotlib passent (police, débordement, chevauchement d'en-tête, `$` échappés) + garde ASCII — cf. `visuels-eco3min` §7 ter
+- [ ] PNG 1920×1080 + `_feed375_x3.png` montrés à Paul, OK explicite reçu AVANT tout `wp_push.py` ; toute retouche ultérieure = nouvelle validation
 - [ ] TEST FEED 375 px : `feed_preview(out)` lancé, `*_feed375_x3.png` LU, réponses écrites à F1 (titre lisible), F2 (forme lisible sans label, même message que le titre), F3 (les deux pôles se distinguent) ; `feed_metrics` cités (capitale du titre au feed, part de tracé)
 - [ ] Q1 tient sur un encodage VISUEL (pas une colonne de chiffres) et se voit encore sur le preview feed
 - [ ] Le retournement / croisement / écart qui est le sujet est au centre du visuel, pas au bord
