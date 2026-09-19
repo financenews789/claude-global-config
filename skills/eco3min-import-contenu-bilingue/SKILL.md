@@ -351,6 +351,7 @@ Règles :
 - **`status: "publish"` dans le bundle** (décision du 19/09/2026 : publication directe, Paul vérifie la page en ligne ; le plugin met `draft` si le champ manque). Le `dry_run` de l'étape 3 reste obligatoire — c'est la seule garde avant que la page soit servie et dans le sitemap.
 - Identifiants dans `~/.config/eco3min/wp_push.env` (hors git). Route absente (404) ou 401 = plugin `eco3min-mcp` < 1.3.0 ou mot de passe d'application invalide : le dire à Paul, ne pas contourner.
 - Repli si la route est indisponible : la sous-page wp-admin « Page bilingue » (Preview puis Apply) — c'est le même code, `e3i_run_bilingual()`.
+- **403 nu (HTML « 403 Forbidden », en-tête `Server: cloudflare`, sans JSON) sur le push = pare-feu applicatif, pas WordPress** (premier test réel, cycle 22, 19/09/2026). Il déclenche sur toute balise `<?php echo …` dans le corps de la requête (le bundle est envoyé en multipart, en clair) ; `<?php` seul, `?>` seul, `echo esc_html(…)` en PHP pur, `<script>`, `<style>` passent. Règle : **le snippet du bundle ne contient aucune balise `<?php … ?>` inline** ; le HTML du composant se construit en chaînes PHP (`$h .= '<div …' . esc_attr( $x ) . '…';`), les blocs `<style>` / `<script>` statiques passent par un nowdoc (`<<<'EOT'`). Diagnostic en 3 appels : `users/me` en Basic auth (200 = identifiants OK), POST vide sur `push` (400 attendu = route OK), puis bissection du bundle par moitiés. Ne pas contourner le pare-feu, ne pas encoder le bundle.
 
 ## Schéma du bundle JSON
 Réponse = rien d'autre que le JSON dans un bloc de code.

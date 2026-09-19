@@ -102,6 +102,10 @@ def check_bundle(bundle, spec):
     code = snip.get('code', '')
     check(not code.lstrip().startswith('<?php'), 'snippet code starts with <?php')
     check('cdnjs.cloudflare.com' not in code, 'snippet loads a CDN blocked by the CSP')
+    # 19/09/2026, first live push (cycle 22): the WAF in front of eco3min.fr answers a bare
+    # HTML 403 to any request body carrying an inline "<?php echo" (or "<?php " + code).
+    # The component's HTML is built in PHP strings, static <style>/<script> go in a nowdoc.
+    check('<?php' not in code, 'snippet carries an inline <?php tag: the WAF refuses the push (build the HTML in PHP strings)')
     check(EM_DASH not in code, 'em dash in snippet')
     check(snip.get('scope') == 'global', 'snippet scope must be global')
     for needle in spec.get('snippet_must_contain', ()):
