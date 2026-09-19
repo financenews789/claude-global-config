@@ -89,6 +89,15 @@ La bonne sortie du même cas, après corrections : **dumbbell value/growth × 5 
 ## Input attendu
 Article majeur intégral · slug + **pilier parent** (tag/watermark) · **CSV/XLSX** des séries (sinon réclamer) · forme du majeur précédent (anti-répétition).
 
+**Forme du majeur précédent — à lire, pas à demander (19/09/2026).** D'abord `py -3.14 eco3min-projets/tools/assets_sync.py` (incrémental, ~10 s) pour que l'index reflète le site. L'index
+`eco3min-projets/context/assets-inventaire.csv` liste chaque hero publié avec
+son level et son générateur :
+`grep ',hero,' assets-inventaire.csv | grep major_article | sort -t, -k7 -r | head -3`
+→ ouvrir la colonne `generateur` (le `src/*.py` ou `.svg`) des 2-3 derniers :
+la forme se lit dans le code, sans charger l'image. Générateur vide = hero
+legacy, alors seulement lire le PNG dans `eco3min-assets/`. Ne demander la
+forme à Paul que si l'index ne la donne pas.
+
 ## Articulation
 - `brand-kit-eco3min` — source de vérité charte (palette, typo, codes régime). Ce skill spécialise pour le hero majeur.
 - `sourcing-donnees-eco3min` — source de vérité provenance/licence/légalité des données tracées (gate 2.0 : propre, pas seulement réelle).

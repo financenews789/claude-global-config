@@ -178,6 +178,18 @@ Un seul bloc snippet dans le bundle : il porte le hook `wp_head` (JSON-LD) **et*
 - **Couleurs, typo, densité** : `brand-kit-eco3min`, comme n'importe quel visuel Eco3min.
 - **AMF** : le composant est soumis aux mêmes règles que le texte (cf. `editeur-eco3min`). Aucune zone prescriptive, aucune flèche directionnelle, aucune trajectoire prospective unique. Un curseur qui laisse le lecteur explorer des scénarios est acceptable ; un curseur qui affiche « objectif », « cible » ou « niveau à atteindre » ne l'est pas.
 - **Accessibilité minimale** : le composant reste lisible sans interaction (état par défaut porteur de sens) et ne dépend pas du survol seul sur mobile.
+- **Le rendu du composant se vérifie, il ne se déduit pas du DOM (19/09/2026, S022).** Un contrôle par `read_page` /
+  `javascript_tool` qui lit les valeurs, les tailles et l'absence de débordement prouve que le composant *fonctionne*, pas
+  qu'il *s'affiche* : les barres de l'effet de base sont parties en ligne avec un `background` transparent parce que les
+  variables CSS (`--e3u-*`) étaient déclarées sur la racine du panneau (`.eco3-usrel`) et pas sur celle du composant
+  (`.eco3-usrel-app`), et rien ne l'a vu. Deux règles : (1) **les tokens CSS d'un snippet se déclarent sur chaque racine
+  montée** (panneau, composant, shortcode), ou sur un sélecteur commun listant toutes ces racines, jamais sur une seule ;
+  (2) avant livraison, sur l'aperçu local, **asserter les styles calculés des éléments qui portent l'encodage visuel**
+  (`getComputedStyle(...).backgroundColor` des barres, `color` des libellés, `stroke` / `fill` d'un SVG) : aucun ne vaut
+  `rgba(0, 0, 0, 0)` ni la couleur héritée du thème, et chaque `var(--…)` utilisé par le CSS du composant est résolu
+  sur sa racine (`getComputedStyle(root).getPropertyValue('--token')` non vide). Une capture d'écran du composant à
+  largeur desktop et à 375 px est prise quand l'outil le permet ; quand il échoue (fenêtre masquée, timeout), c'est
+  l'assertion sur les styles calculés qui fait foi, pas une lecture textuelle.
 
 ## Le slug de page ne doit JAMAIS être le nom de base d'un asset (BLOQUANT)
 
@@ -411,9 +423,10 @@ Réponse = rien d'autre que le JSON dans un bloc de code.
 - [ ] Audit `fact_check_audit.md` livré, zéro 🔴 résiduel (si la page a des chiffres) ; **les séries du composant y figurent** ; en adaptation forte, les données propres à la 2e version ont leur section d'audit
 - [ ] Seconde page produite au degré retenu ; faits communs identiques au chiffre près ; aucun chiffre « équivalent » fabriqué
 - [ ] Slugs distincts, chacun sur le mot-clé natif de sa langue
-- [ ] **Aucun slug de page n'est le nom de base d'un asset** ; bundle importé AVANT l'upload du CSV et du XLSX ; après import, vérifier qu'aucun slug ne porte de suffixe numérique
+- [ ] **Aucun slug de page n'est le nom de base d'un asset** ; bundle importé AVANT l'upload du CSV et du XLSX ; après import, vérifier qu'aucun slug ne porte de suffixe numérique — et si un suffixe est apparu malgré tout, relire le `canonical_url` RankMath : il porte le slug PRÉVU, donc pointe vers une URL qui redirige (vers la page elle-même, ou vers l'accueil), et RankMath sort la page du sitemap ; 3 pages trouvées ainsi le 19/09/2026 (39572, 42654, 42646), corrigées par `eco3min/set-seo canonical_url` = URL réelle, puis un « Mettre à jour » wp-admin pour régénérer le sitemap
 - [ ] Snippet OBLIGATOIRE : JSON-LD EN+FR (base64), hook wp_head guardé par slug, code sans `<?php`, nom unique ; composant interactif porté par le même snippet (wp_footer guardé = défaut / shortcode si placement Gutenberg) ; round-trip base64 vérifié ; `node --check` sur le JS
 - [ ] Composant : `<div>` placeholder présent dans les DEUX pages (mode wp_footer) ; libellés et données localisés, zéro chaîne EN résiduelle côté FR ; libs jsdelivr/unpkg ; couleurs et typo `brand-kit-eco3min` ; état par défaut porteur de sens ; au moins un chiffre pivot vérifié identique à la page, l'audit et le CSV
+- [ ] **Rendu du composant vérifié sur l'aperçu, pas déduit du DOM** : styles calculés des éléments porteurs de l'encodage visuel non transparents, variables CSS résolues sur chaque racine montée (panneau ET composant), capture desktop + 375 px si l'outil le permet
 - [ ] FAQ JSON-LD = FAQ visible dans chaque langue (FR vérifiée contre la page FR réelle si elle préexiste)
 - [ ] Metas SEO RankMath en EN ET FR (title ≤60, desc 150-160, focus, canonical, OG), rédigées nativement
 - [ ] Aucun champ `json_ld` dans les pages du bundle
@@ -426,6 +439,7 @@ Réponse = rien d'autre que le JSON dans un bloc de code.
 - [ ] Bundle généré 
 - [ ] Import : Preview d'abord, puis Apply (sous-page « Page bilingue », plugin Eco3min Import)
 - [ ] **Post-import prévu** : classer le level, poser cluster et sous-pilier, puis `parent_major` — sinon la page reste invisible au conseil de maillage (cf. `metas-eco3min`)
+- [ ] **Post-import, liens vers uploads/ vérifiés par l'index (19/09/2026)** : `py -3.14 eco3min-projets/tools/assets_sync.py` puis `grep http_404 context/assets-inventaire.csv | grep -E '(,|;)<post_id>(;|,)'` doit être vide pour les deux post_id de la paire. Attrape le fichier que WordPress a renommé avec un suffixe (`-1`, `-4`…) parce que le nom était déjà pris, et le `-v2` jamais uploadé — dans les deux cas l'URL écrite dans la page et le JSON-LD est morte (incident crack spread, 404 du 12/07 au 19/09/2026). Si le fichier est un dataset pipeline, le lien doit viser `/dataset/…`, jamais une copie dans uploads/.
 - [ ] **Page périssable → marqueur `<!--e3m-review due lead do-->` en tête du `content` de chaque page**, `due` = prochain événement qui la périme, `do` = spécification du travail (source, snippet, fonction, clés, chiffres à vérifier) ; guillemets droits, aucun `<` `>` `"` dans `do` ; après import, `_e3m_review_due` porte la date
 
 ## Anti-patterns — ne JAMAIS faire

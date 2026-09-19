@@ -18,6 +18,7 @@ description: "Revue périodique de fraîcheur des datasets BRUTS Eco3min (les pa
 | Donnée servie | `https://eco3min.fr/wp-content/dataset-meta/[ecb|eia|fr/]{id}.json` | `generated_at` (le pipeline a-t-il écrit ?), `key_stats.latest_date` (la source a-t-elle bougé ?) |
 | Page | `https://eco3min.fr/en/{slug}/` — bloc `class="eco3min-key-stats"` | ce que le lecteur voit ; doit être identique au meta |
 | Inventaire des pages | `eco3min-projets/context/datasets-inventaire.csv` (post_id, lang, slug, url) | croisement page ↔ id, pages sans pipeline |
+| Fichiers fixes servis depuis `uploads/` | `eco3min-projets/context/assets-inventaire.csv` (colonne `pages` = post_id qui lient le fichier, `statut` = 404) ; miroir local dans `eco3min-assets/uploads/` (19/09/2026) | un CSV en PJ d'article n'est PAS un dataset pipeline : « quelles pages servent ce fichier », lien mort, fix local puis ré-upload au même chemin |
 
 Le snippet 35 lit le JSON à chaque affichage : **si le meta est à jour, la page l'est** (le cache d'edge peut retarder de quelques minutes — lire avec `?nc=<timestamp>` et `Cache-Control: no-cache` avant de conclure).
 

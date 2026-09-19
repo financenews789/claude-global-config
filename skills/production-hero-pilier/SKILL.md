@@ -189,7 +189,7 @@ Bloquant :
 
 - Contenu intégral de la page pilier (FR ou EN)
 - Slug et URL de la page
-- **Format (A/B/C/SM) et mode chromatique (sobre/catégoriel/gradient) des 2 derniers heros piliers livrés** — requis pour la rotation série (règle bloquante v1.2). Si absent, demander avant de proposer les options.
+- **Format (A/B/C/SM) et mode chromatique (sobre/catégoriel/gradient) des 2 derniers heros piliers livrés** — requis pour la rotation série (règle bloquante v1.2). À lire d'abord dans l'index `eco3min-projets/context/assets-inventaire.csv` (19/09/2026) : — d'abord `py -3.14 eco3min-projets/tools/assets_sync.py` (incrémental, ~10 s) pour que l'index reflète le site, puis `grep ',hero,' assets-inventaire.csv | grep -E '(,|;)pillar(;|,)' | sort -t, -k7 -r | head -3`, puis ouvrir la colonne `generateur` des deux derniers — format et mode se lisent dans le code. Demander à Paul seulement si `generateur` est vide (hero legacy).
 - Éventuelles contraintes spécifiques (chiffres prioritaires, cohérence avec un autre hero déjà produit)
 
 ---
